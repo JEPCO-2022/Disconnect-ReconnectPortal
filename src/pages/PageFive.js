@@ -1,36 +1,99 @@
 // @mui
-import { Container, Typography } from '@mui/material';
+import {
+  Button,
+  Card,
+  Container,
+  Divider,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
+} from '@mui/material';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+
 // hooks
 import useSettings from '../hooks/useSettings';
 // components
-import Page from '../components/Page';
-
+// import Page from '../components/Page';
+import CustomizedTables from './Disconnection/Table';
 // ----------------------------------------------------------------------
 
 export default function PageFive() {
   const { themeStretch } = useSettings();
 
   return (
-    <Page title="تقرير القطع">
-      <Container maxWidth={themeStretch ? false : 'xl'}>
-        <Typography variant="h3" component="h1" paragraph>
-تقرير القطع        </Typography>
+    // <Page title="تقرير ال">قطع
+    <Container maxWidth={themeStretch ? false : 'xl'}>
+      <Typography variant="h3" component="h1" paragraph>
+        تقرير القطع
+      </Typography>
 
-        {/* <Typography gutterBottom>
-          Curabitur turpis. Vestibulum facilisis, purus nec pulvinar iaculis, ligula mi congue nunc, vitae euismod
-          ligula urna in dolor. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Phasellus blandit leo
-          ut odio. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id
-          purus. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. In consectetuer turpis ut velit.
-          Aenean posuere, tortor sed cursus feugiat, nunc augue blandit nunc, eu sollicitudin urna dolor sagittis lacus.
-          Vestibulum suscipit nulla quis orci. Nam commodo suscipit quam. Sed a libero.
-        </Typography>
-        <Typography>
-          Praesent ac sem eget est egestas volutpat. Phasellus viverra nulla ut metus varius laoreet. Curabitur
-          ullamcorper ultricies nisi. Ut non enim eleifend felis pretium feugiat. Donec mi odio, faucibus at,
-          scelerisque quis, convallis in, nisi. Fusce vel dui. Quisque libero metus, condimentum nec, tempor a, commodo
-          mollis, magna. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Cras dapibus.
-        </Typography> */}
-      </Container>
-    </Page>
+      <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={12} lg={12}>
+            تقرير الوصل
+          </Grid>
+          <Grid item xs={12} md={12} lg={12}>
+            <Divider light />
+          </Grid>
+          <Grid item xs={12} md={6} lg={6}>
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label"> الفرقه</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                label="الفرقه"
+                // value={inputValues.piorityID}
+                // onChange={(e) => setinputValues({ ...inputValues, piorityID: e.target.value })}
+              >
+                <MenuItem value="">
+                  <em>-</em>
+                </MenuItem>
+                <MenuItem value={'1'}>اربد</MenuItem>
+                <MenuItem value={'2'}> الزرقاء</MenuItem>
+                <MenuItem value={'3'}> عمان</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} md={6} lg={6}>
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label"> المكتب</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                label="المكتب"
+                // value={inputValues.piorityID}
+                // onChange={(e) => setinputValues({ ...inputValues, piorityID: e.target.value })}
+              >
+                <MenuItem value="">
+                  <em>-</em>
+                </MenuItem>
+                <MenuItem value={'1'}>اربد</MenuItem>
+                <MenuItem value={'2'}> الزرقاء</MenuItem>
+                <MenuItem value={'3'}> عمان</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+
+          <Grid item xs={12} md={6} lg={6}>
+            <Button className="nxt-btn-12-grid" variant="contained" fullwidth>
+              بحث
+            </Button>
+          </Grid>
+        </Grid>
+      </Card>
+      <br />
+      <Grid textAlign="end" item xs={12} md={6} lg={6}>
+        <Button endIcon={<FileDownloadIcon />} className="nxt-btn-12-grid" variant="outlined" fullwidth>
+          تنزيل
+        </Button>
+      </Grid>
+      <br />
+
+      <CustomizedTables />
+    </Container>
+    // </Page>
   );
 }

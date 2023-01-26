@@ -33,11 +33,12 @@ const navConfig = [
       {
         title: 'التقارير',
         path: '/dashboard/user',
-        icon: <SummarizeIcon/>,
+        icon: <SummarizeIcon />,
         children: [
           { title: 'تقرير الوصل', path: '/dashboard/user/four' },
           { title: 'تقرير القطع ', path: '/dashboard/user/five' },
           // { title: 'Six', path: '/dashboard/user/six' },
+          // { title: 'Seven', path: '/dashboard/user/seven' },
         ],
       },
     ],
