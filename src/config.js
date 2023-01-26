@@ -32,7 +32,7 @@ export const ICON = {
 
 export const defaultSettings = {
   themeMode: 'light',
-  themeDirection: 'ltr',
+  themeDirection: 'rtl',
   themeContrast: 'default',
   themeLayout: 'horizontal',
   themeColorPresets: 'blue',

@@ -43,6 +43,20 @@ const navConfig = [
       },
     ],
   },
+  {
+    // subheader: 'management',
+    items: [
+      {
+        title: 'مسؤوليات المشرف',
+        path: '/dashboard/user',
+        icon: ICONS.user,
+        children: [
+          { title: 'إضافة مستخدم جديد', path: '/dashboard/user/CreateNewUser' },
+      { title: 'المستخدمون والصلاحيات', path: '/dashboard/AllUsersAndRoles'},
+],
+      },
+    ],
+  },
 ];
 
 export default navConfig;
