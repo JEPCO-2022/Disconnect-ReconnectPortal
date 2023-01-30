@@ -16,7 +16,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 // hooks
 import useSettings from '../hooks/useSettings';
 // components
-// import Page from '../components/Page';
+// import Page from '../components/Page'
 import CustomizedTables from './Disconnection/Table';
 // ----------------------------------------------------------------------
 
