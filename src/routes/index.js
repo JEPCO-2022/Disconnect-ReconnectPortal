@@ -1,11 +1,13 @@
 import { Suspense, lazy } from 'react';
 import { Navigate, useRoutes, useLocation } from 'react-router-dom';
 // layouts
-import LoginPage from '../pages/LoginPage';
+import LoginPage from '../pages/Login/LoginPage';
 import DashboardLayout from '../layouts/dashboard';
 import LogoOnlyLayout from '../layouts/LogoOnlyLayout';
 // components
 import LoadingScreen from '../components/LoadingScreen';
+import CreateNewUser from '../pages/CreateNewUser';
+import AllUsersAndRoles from '../pages/AllUsersAndRoles/AllUsersAndRoles';
 
 // ----------------------------------------------------------------------
 
@@ -31,7 +33,7 @@ export default function Router() {
       element: <DashboardLayout />,
       children: [
         { element: <Navigate to="/dashboard/one" replace />, index: true },
-        { path: 'one', element: <PageOne /> },
+        { path: 'AllUsersAndRoles', element: <AllUsersAndRoles /> },
         { path: 'two', element: <PageTwo /> },
         { path: 'three', element: <PageThree /> },
         {
@@ -40,8 +42,10 @@ export default function Router() {
             { element: <Navigate to="/dashboard/user/four" replace />, index: true },
             { path: 'four', element: <PageFour /> },
             { path: 'five', element: <PageFive /> },
-            { path: 'six', element: <PageSix /> },
+            { path: 'CreateNewUser', element: <CreateNewUser /> },
             { path: 'seven', element: <PageSeven /> },
+            { path: 'EditUserInfo', element: <EditUserInfo /> },
+
           ],
         },
       ],
@@ -63,11 +67,13 @@ export default function Router() {
 }
 
 // Dashboard
-const PageOne = Loadable(lazy(() => import('../pages/PageOne')));
+const PageOne = Loadable(lazy(() => import('../pages/AllUsersAndRoles/AllUsersAndRoles')));
 const PageTwo = Loadable(lazy(() => import('../pages/PageTwo')));
 const PageThree = Loadable(lazy(() => import('../pages/PageThree')));
 const PageFour = Loadable(lazy(() => import('../pages/PageFour')));
 const PageFive = Loadable(lazy(() => import('../pages/PageFive')));
-const PageSix = Loadable(lazy(() => import('../pages/PageSix')));
+const PageSix = Loadable(lazy(() => import('../pages/CreateNewUser')));
 const PageSeven = Loadable(lazy(() => import('../pages/PageSeven')));
 const NotFound = Loadable(lazy(() => import('../pages/Page404')));
+const EditUserInfo = Loadable(lazy(() => import('../pages/EditUserInfo')));
+
