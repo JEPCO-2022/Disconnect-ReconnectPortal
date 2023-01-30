@@ -1,4 +1,4 @@
-import { Container, Typography, Card, Grid, Divider, InputLabel, Box } from '@mui/material';
+import { Container, Typography, Card, Grid, Divider, InputLabel } from '@mui/material';
 import React from 'react';
 import logo from '../pic.jpg';
 import Map from '../components/Map';
