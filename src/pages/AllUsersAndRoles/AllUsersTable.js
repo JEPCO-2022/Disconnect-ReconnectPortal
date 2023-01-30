@@ -11,7 +11,7 @@ import OptionsMenu from './OptionsMenu';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
-    backgroundColor: "#2065D1",
+    backgroundColor: '#2065D1',
     color: theme.palette.common.white,
   },
   [`&.${tableCellClasses.body}`]: {
@@ -47,12 +47,10 @@ export default function CustomizedTables() {
       <Table sx={{ minWidth: 700 }} aria-label="customized table">
         <TableHead>
           <TableRow>
-            <StyledTableCell >الاسم الكامل</StyledTableCell>
+            <StyledTableCell>الاسم الكامل</StyledTableCell>
             <StyledTableCell align="right">اسم المستخدم</StyledTableCell>
-            <StyledTableCell align="right">لوريم</StyledTableCell> 
-            <StyledTableCell align="right">الاجراءات</StyledTableCell> 
-
-
+            <StyledTableCell align="right">لوريم</StyledTableCell>
+            <StyledTableCell align="right">الاجراءات</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -63,9 +61,9 @@ export default function CustomizedTables() {
               </StyledTableCell>
               <StyledTableCell align="right">{row.calories}</StyledTableCell>
               <StyledTableCell align="right">{row.fat}</StyledTableCell>
-              <StyledTableCell align="right"><OptionsMenu/></StyledTableCell>
-
-              
+              <StyledTableCell align="right">
+                <OptionsMenu />
+              </StyledTableCell>
             </StyledTableRow>
           ))}
         </TableBody>

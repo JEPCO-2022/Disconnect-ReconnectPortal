@@ -33,9 +33,10 @@ export default function Router() {
       element: <DashboardLayout />,
       children: [
         { element: <Navigate to="/dashboard/one" replace />, index: true },
-        { path: 'AllUsersAndRoles', element: <AllUsersAndRoles /> },
         { path: 'two', element: <PageTwo /> },
         { path: 'three', element: <PageThree /> },
+        { path: 'AllUsersAndRoles', element: <AllUsersAndRoles /> },
+        { path: 'EditUserInfo', element: <EditUserInfo /> },
         {
           path: 'user',
           children: [
@@ -44,8 +45,6 @@ export default function Router() {
             { path: 'five', element: <PageFive /> },
             { path: 'CreateNewUser', element: <CreateNewUser /> },
             { path: 'seven', element: <PageSeven /> },
-            { path: 'EditUserInfo', element: <EditUserInfo /> },
-
           ],
         },
       ],
@@ -76,4 +75,3 @@ const PageSix = Loadable(lazy(() => import('../pages/CreateNewUser')));
 const PageSeven = Loadable(lazy(() => import('../pages/PageSeven')));
 const NotFound = Loadable(lazy(() => import('../pages/Page404')));
 const EditUserInfo = Loadable(lazy(() => import('../pages/EditUserInfo')));
-
