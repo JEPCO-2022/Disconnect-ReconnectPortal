@@ -1,3 +1,5 @@
+import { Provider } from 'react-redux';
+import store from './Redux/index';
 // routes
 import Router from './routes';
 // theme
@@ -13,6 +15,7 @@ import MotionLazyContainer from './components/animate/MotionLazyContainer';
 export default function App() {
   return (
     <MotionLazyContainer>
+      <Provider store={store}>
       <ThemeProvider>
         <ThemeSettings>
           <ProgressBarStyle />
@@ -20,6 +23,7 @@ export default function App() {
           <Router />
         </ThemeSettings>
       </ThemeProvider>
+    </Provider>
     </MotionLazyContainer>
   );
 }

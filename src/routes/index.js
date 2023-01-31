@@ -26,7 +26,7 @@ export default function Router() {
   return useRoutes([
     {
       path: '/',
-      element: <Navigate to="/dashboard/one" replace />,
+      element: <Navigate to="/login" replace />,
     },
     {
       path: '/dashboard',

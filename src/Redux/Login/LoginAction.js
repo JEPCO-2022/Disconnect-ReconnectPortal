@@ -1,0 +1,90 @@
+import axios from 'axios';
+import * as jose from 'jose';
+import cookie from 'react-cookies';
+
+export const SET_USER_TOKEN = 'SET_USER_TOKEN';
+export const REMOVE_USER_TOKEN = 'REMOVE_USER_TOKEN';
+export const GET_USER_TOKEN = 'GET_USER_TOKEN';
+export const SET_USER_INFO = 'SET_USER_INFO';
+
+export const SET_LOGIN_REQ = 'SET_LOGIN_REQ';
+export const SET_LOGIN_ERR = 'SET_LOGIN_ERR';
+export const SET_LOGIN_SUCCESS = 'SET_LOGIN_SUCCESS';
+
+export const setUserLogout = () => {
+  return {
+    type: REMOVE_USER_TOKEN,
+  };
+};
+
+export const setLoginReq = () => {
+  return {
+    type: SET_LOGIN_REQ,
+  };
+};
+export const setLoginErr = () => {
+  return {
+    type: SET_LOGIN_ERR,
+  };
+};
+export const setLoginSuccess = (username, userToken) => {
+  console.log({ username, userToken });
+  return {
+    type: SET_LOGIN_SUCCESS,
+    payload: { username, userToken },
+  };
+};
+
+export const userLogin = (username, password) => async (dispatch) => {
+  dispatch(setLoginReq( ));
+
+  const baseURL = 'http://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
+  const response = await axios.post(`${baseURL}`, {
+    username: 'ConnectionAndDisconnectionAppIntegrationUser',
+    password: 'ConnectionAndDisconnectionApp@jepco@123'
+  });
+  const infoBaseURL ='http://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/UserLogin';
+  try {
+    const genertedToken = response.data.body.token;
+    const config = {
+      method: 'post',
+      url: infoBaseURL,
+      headers: {
+        'Authorization': `Bearer ${genertedToken}`,
+        'Content-Type': 'application/json',
+
+      },
+      data: {
+        Username: username,
+        Password: password,
+        LanguageId: 'AR',
+      },
+    };
+    const user = jose.decodeJwt(genertedToken);
+    cookie.save('user', genertedToken, { maxAge: 260000000 });
+    cookie.save('userName', username, { maxAge: 260000000 });
+    const infoTokenResponse = await axios(config);
+
+    console.log(infoTokenResponse.data.body);
+    if (infoTokenResponse.data.statusCode) {
+      // console.log('no Cookie');
+      dispatch(setLoginSuccess(username, genertedToken));
+    } else {
+      // console.log('login errorXO');
+      dispatch(setLoginErr());
+    }
+  } catch (error) {
+    dispatch(setLoginErr());
+
+    if (error.response) {
+      // Request made and server responded
+      console.log(error.response.data);
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.log(error.request);
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.log('Error', error.message);
+    }
+  }
+};

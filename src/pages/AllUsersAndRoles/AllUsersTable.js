@@ -50,7 +50,7 @@ export default function CustomizedTables() {
             <StyledTableCell>الاسم الكامل</StyledTableCell>
             <StyledTableCell align="right">اسم المستخدم</StyledTableCell>
             <StyledTableCell align="right">لوريم</StyledTableCell>
-            <StyledTableCell align="right">الاجراءات</StyledTableCell>
+            <StyledTableCell align="right"/>
           </TableRow>
         </TableHead>
         <TableBody>
