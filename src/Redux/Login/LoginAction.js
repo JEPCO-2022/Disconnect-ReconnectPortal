@@ -38,12 +38,12 @@ export const setLoginSuccess = (username, userToken) => {
 export const userLogin = (username, password) => async (dispatch) => {
   dispatch(setLoginReq( ));
 
-  const baseURL = 'http://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
+  const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
   const response = await axios.post(`${baseURL}`, {
     username: 'ConnectionAndDisconnectionAppIntegrationUser',
     password: 'ConnectionAndDisconnectionApp@jepco@123'
   });
-  const infoBaseURL ='http://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/UserLogin';
+  const infoBaseURL ='https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/UserLogin';
   try {
     const genertedToken = response.data.body.token;
     const config = {

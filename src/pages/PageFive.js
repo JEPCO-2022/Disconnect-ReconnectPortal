@@ -18,10 +18,27 @@ import useSettings from '../hooks/useSettings';
 // components
 // import Page from '../components/Page'
 import CustomizedTables from './Disconnection/Table';
+import { useDispatch, useSelector } from 'react-redux';
+import { getBranchesLookup, getCitiesLookup } from 'src/Redux/Customer/CustomerAction';
+import { useState } from 'react';
+import { useEffect } from 'react';
 // ----------------------------------------------------------------------
 
 export default function PageFive() {
   const { themeStretch } = useSettings();
+  const CitiesList = useSelector((state) => state.Customer.CitiesList);
+  const BranchesList = useSelector((state) => state.Customer.BranchesList);
+const dispatch =useDispatch();
+  
+  const [inputValues, setinputValues] = useState({
+    City: '',
+    Branch: '',
+  });
+
+  useEffect(() => {
+    dispatch(getCitiesLookup());
+    dispatch(getBranchesLookup());
+  }, []);
 
   return (
     // <Page title="تقرير ال">قطع
@@ -39,6 +56,41 @@ export default function PageFive() {
             <Divider light />
           </Grid>
           <Grid item xs={12} md={6} lg={6}>
+          <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label"> المحافظة</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  label="المحافظة"
+                  value={inputValues.City}
+                  onChange={(e) => {
+                    setinputValues({ ...inputValues, City: e.target.value });
+                  }}
+                >
+                  {CitiesList.map((t) => (
+                    <MenuItem value={t.id}>{t.cityName}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+          </Grid>
+          <Grid item xs={12} md={6} lg={6}>
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label"> المكتب</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                label="المكتب"
+                value={inputValues.Branch}
+                onChange={(e) => {
+                  setinputValues({ ...inputValues, Branch: e.target.value });
+                }}              >
+                  {BranchesList.map((t) => (
+                    <MenuItem value={t.branchID}>{t.branchName}</MenuItem>
+                  ))}{' '}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} md={6} lg={6}>
             <FormControl fullWidth>
               <InputLabel id="demo-simple-select-label"> الفرقه</InputLabel>
               <Select
@@ -48,34 +100,14 @@ export default function PageFive() {
                 // value={inputValues.piorityID}
                 // onChange={(e) => setinputValues({ ...inputValues, piorityID: e.target.value })}
               >
-                <MenuItem value="">
-                  <em>-</em>
-                </MenuItem>
-                <MenuItem value={'1'}>اربد</MenuItem>
-                <MenuItem value={'2'}> الزرقاء</MenuItem>
-                <MenuItem value={'3'}> عمان</MenuItem>
+                  {CitiesList.map((t) => (
+                    <MenuItem value={t.id}>{t.cityName}</MenuItem>
+                  ))}
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} md={6} lg={6}>
-            <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label"> المكتب</InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                label="المكتب"
-                // value={inputValues.piorityID}
-                // onChange={(e) => setinputValues({ ...inputValues, piorityID: e.target.value })}
-              >
-                <MenuItem value="">
-                  <em>-</em>
-                </MenuItem>
-                <MenuItem value={'1'}>اربد</MenuItem>
-                <MenuItem value={'2'}> الزرقاء</MenuItem>
-                <MenuItem value={'3'}> عمان</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
+
+          <Grid item xs={12} md={6} lg={6}/>
 
           <Grid item xs={12} md={6} lg={6}>
             <Button className="nxt-btn-12-grid" variant="contained" fullwidth>
