@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 // @mui
 import {
   Button,
@@ -13,10 +14,12 @@ import {
   TextField,
   Typography,
   Snackbar,
+  Alert,
 } from '@mui/material';
 // hooks
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllUsers, userRegister } from '../Redux/Customer/CustomerAction';
 import useSettings from '../hooks/useSettings';
 // components
 import Page from '../components/Page';
@@ -25,66 +28,158 @@ import Page from '../components/Page';
 
 export default function CreateNewUser() {
   const { themeStretch } = useSettings();
+  const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
-  const handleClick = () => {
-    setOpen(true);
-  };
-  const handleClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
+  const [openError, setOpenError] = useState(false);
+  const [administrator, setAdministrator] = useState(true);
+  const [exportFiles, setExportFiles] = useState(true);
+  const [flagFullName, setflagFullName] = useState(false);
+  const [flagUserName, setflagUserName] = useState(false);
+  const [flagPass, setflagPass] = useState(false);
+  const [inputValues, setinputValues] = useState({
+    fullName: '',
+    userName: '',
+    passowrd: '',
+  });
+  const allUsers = useSelector((state) => state.Customer.AllUsers);
 
+  const handleClick = () => {
+    if (inputValues.userName === '') {
+      setflagUserName(true);
+    }
+    if (inputValues.fullName === '') {
+      setflagFullName(true);
+    }
+    if (inputValues.passowrd === '') {
+      setflagPass(true);
+      return 0;
+    }
+    allUsers.map((e) => {
+      if (inputValues.userName === e.username) {
+        setOpenError(true);
+        return 0;
+      }
+      return 0;
+    });
+    dispatch(
+      userRegister(inputValues.userName, inputValues.passowrd, inputValues.fullName, administrator, exportFiles)
+    );
+    setOpen(true);
+    setinputValues({ fullName: '', passowrd: '', userName: '' });
+  };
+  const handleClose = () => {
     setOpen(false);
   };
+  const handChangeAdminstration = (event) => {
+    if (event.target.value === '1') {
+      setAdministrator(true);
+      return 0;
+    }
+    if (event.target.value === '0') {
+      setAdministrator(false);
+      return 0;
+    }
+  };
+  const handChangeExportFiles = (event) => {
+    if (event.target.value === '1') {
+      setExportFiles(true);
+      return 0;
+    }
+    if (event.target.value === '0') {
+      setExportFiles(false);
+      return 0;
+    }
+  };
+  useEffect(() => {
+    dispatch(getAllUsers());
+  }, []);
   return (
     <Page title="إضافة مستخدم جديد">
       <Container maxWidth={themeStretch ? false : 'xl'}>
-        <Typography variant="h3" component="h1" paragraph>
-          إضافة مستخدم جديد
-        </Typography>
+
         <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
           <Grid container spacing={2}>
+
             <Grid item xs={12} md={12} lg={12}>
-              إضافة مستخدم جديد
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
+            <Typography variant="h4" component="h1" paragraph>
+          إضافة مستخدم جديد
+        </Typography>
               <Divider light />
             </Grid>
             <Grid item xs={12} md={12} lg={6}>
-              <TextField fullWidth label="الاسم الكامل" variant="outlined" />
+              <TextField
+                fullWidth
+                label="الاسم الكامل"
+                variant="outlined"
+                onChange={(e) => {
+                  setinputValues({ ...inputValues, fullName: e.target.value });
+                  setflagFullName(false);
+                }}
+                value={inputValues.fullName}
+                helperText={flagFullName ? ' مطلوب' : ''}
+                error={flagFullName}
+              />
             </Grid>
             <Grid item xs={12} md={12} lg={6}>
-              <TextField fullWidth label="اسم المستخدم" variant="outlined" />
+              <TextField
+                fullWidth
+                label="اسم المستخدم"
+                variant="outlined"
+                onChange={(e) => {
+                  setinputValues({ ...inputValues, userName: e.target.value });
+                  setflagUserName(false);
+                }}
+                value={inputValues.userName}
+                helperText={flagUserName ? ' مطلوب' : ''}
+                error={flagUserName}
+              />
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
-              <TextField fullWidth label="كلمة المرور" variant="outlined" />
+              <TextField
+                fullWidth
+                label="كلمة المرور"
+                variant="outlined"
+                type="password"
+                value={inputValues.passowrd}
+                autoComplete="current-password"
+                onChange={(e) => {
+                  setinputValues({ ...inputValues, passowrd: e.target.value });
+                  setflagPass(false);
+                }}
+                helperText={flagPass ? 'مطلوب' : ''}
+                error={flagPass}
+              />
             </Grid>
 
-            <Grid item xs={12} md={6} lg={3}>
+            <Grid item xs={12} md={3} lg={3}>
               <FormControl>
                 <FormLabel id="demo-radio-buttons-group-label">مشرف؟</FormLabel>
                 <RadioGroup
                   row
                   aria-labelledby="demo-radio-buttons-group-label"
-                  defaultValue="female"
+                  defaultValue="1"
+                  // value={administrator}
                   name="radio-buttons-group"
+                  onChange={handChangeAdminstration}
                 >
-                  <FormControlLabel value="female" control={<Radio />} label="نعم" />
-                  <FormControlLabel value="male" control={<Radio />} label="لا" />
+                  <FormControlLabel control={<Radio value={1} />} label="نعم" />
+                  <FormControlLabel control={<Radio value={0} />} label="لا" />
                 </RadioGroup>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={12} lg={3}>
+            <Grid item xs={12} md={3} lg={3}>
               <FormControl>
                 <FormLabel id="demo-radio-buttons-group-label">إمكانية استخراج الملفات</FormLabel>
                 <RadioGroup
                   row
                   aria-labelledby="demo-radio-buttons-group-label"
-                  defaultValue="female"
+                  defaultValue="1"
+                  // value={exportFiles}
                   name="radio-buttons-group"
+                  onChange={handChangeExportFiles}
                 >
-                  <FormControlLabel value="female" control={<Radio />} label="نعم" />
-                  <FormControlLabel value="male" control={<Radio />} label="لا" />
+                  <FormControlLabel control={<Radio value={1} />} label="نعم" />
+                  <FormControlLabel control={<Radio value={0} />} label="لا" />
                 </RadioGroup>
               </FormControl>
             </Grid>
@@ -98,8 +193,16 @@ export default function CreateNewUser() {
               >
                 إضافة
               </Button>
-              {/* <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} message="تمت الإضافه بنجاح" /> */}
-              <Snackbar open={open} autoHideDuration={1500} onClose={handleClose} message="تم التعديل بنجاح" />
+              <Snackbar open={open} autoHideDuration={1500} severity="success" onClose={handleClose}>
+                <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+                  تمت الإضافه بنجاح
+                </Alert>
+              </Snackbar>
+              <Snackbar open={openError} autoHideDuration={1500} severity="error" onClose={handleClose}>
+                <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+                  اسم المستخدم مكرر
+                </Alert>
+              </Snackbar>
             </Grid>
           </Grid>
         </Card>

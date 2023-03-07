@@ -31,52 +31,53 @@ export default function LoginForm() {
     }
   }, [isLogged]);
 
-  const handleSubmit  =  async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setinputvalues({ username: e.target.username.value, password: e.target.password.value });
     const user = e.target.username.value;
     const pass = e.target.password.value;
-    await  dispatch(userLogin(user, pass));
-       
-    // 
-   if (dispatch(userLogin(user)) !== inputvalues.username || dispatch(userLogin(pass)) !== inputvalues.password ){
-    console.log(dispatch(userLogin(user, pass)))
-      setflag(true)
-    }else{
-      console.log("d");
+    await dispatch(userLogin(user, pass));
+
+    //
+    if (dispatch(userLogin(user)) !== inputvalues.username || dispatch(userLogin(pass)) !== inputvalues.password) {
+      console.log(dispatch(userLogin(user, pass)));
+      setflag(true);
+    } else {
+      console.log('d');
     }
   };
 
   return (
     <>
       <Stack spacing={3}>
-      <Box component="form" onSubmit={handleSubmit}  sx={{ mt: 1 }}>
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          id="username"
-          label="اسم المستخدم"
-          name="username"
-          autoFocus
-          error={flag}
-        />
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          name="password"
-          label="كلمة المرور"
-          type="password"
-          id="password"
-          autoComplete="current-password"
-          helperText={flag ? 'اسم المستخدم او كلمة المرور غير صحيحة' : ''}
-          error={flag}
-        />
-      <br />
-      <Button fullWidth size="large" type="submit" variant="contained" >
-        تسجيل دخول
-      </Button>
-      </Box>
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="username"
+            label="اسم المستخدم"
+            name="username"
+            autoFocus
+            error={flag}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="كلمة المرور"
+            type="password"
+            id="password"
+            autoComplete="current-password"
+            helperText={flag ? 'اسم المستخدم او كلمة المرور غير صحيحة' : ''}
+            error={flag}
+          />
+          <br />
+          <Button fullWidth size="large" type="submit" variant="contained">
+            تسجيل دخول
+          </Button>
+        </Box>
       </Stack>
     </>
   );

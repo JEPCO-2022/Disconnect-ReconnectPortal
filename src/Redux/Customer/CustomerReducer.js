@@ -2,57 +2,129 @@
 import { LOCATION_CHANGE } from 'react-router-redux';
 
 import {
-  SET_CitiesLookup,
-  SET_BranchesLookup,
-  SET_AllUsers,
-  SET_userRegister,
-  SET_userUpdateInfo,
-  SET_TeamInfo
+  setCityLookup,
+  setBrancheLookup,
+  setAllUser,
+  setusersRegister,
+  setaddUserBranch,
+  setusersUpdateInfo,
+  setTeamsInfo,
+  setMeterReportByTeams,
+  setDeleteUsers,
+  setTeamLookup,
+  setUsersBranches,
+  setticketsDetails,
+  setalluserBranch,
+  setclearAll,
+  setengineerAbandonedDecision,
+  setsaveEngineerAbandonedDecision,
 } from './CustomerAction';
 
-let initialState = {
+const initialState = {
   CitiesList: [],
   BranchesList: [],
+  TeamList: [],
   AllUsers: [],
-  userRegister:[],
-  userUpdateInfo:[],
-  TeamInfo:[]
+  userRegister: [],
+  userUpdateInfo: [],
+  TeamInfo: [],
+  MeterReportByTeam: [],
+  DeleteUser: [],
+  UserBracnch: [],
+  AllAbandoned: [],
+  TicketsData: [],
+  UsersBranches: [],
+  alluserBranch: [],
+  engineerAbandonedDecision: [],
+  clearAll: [],
 };
 
-export default function CustomerReducer(state = initialState, action) {
+const CustomerReducer = (state = initialState, action = {}) => {
   switch (action.type) {
-    case SET_CitiesLookup:
+    case setclearAll:
+      return {
+        ...state,
+        clearAll: action.payload,
+      };
+    case setengineerAbandonedDecision:
+      return {
+        ...state,
+        AllAbandoned: action.payload,
+      };
+    case setsaveEngineerAbandonedDecision:
+      return {
+        ...state,
+        engineerAbandonedDecision: action.payload,
+      };
+    case setalluserBranch:
+      return {
+        ...state,
+        alluserBranch: action.payload,
+      };
+    case setticketsDetails:
+      return {
+        ...state,
+        TicketsData: action.payload,
+      };
+    case setaddUserBranch:
+      return {
+        ...state,
+        UsersBranches: action.payload,
+      };
+    case setUsersBranches:
+      return {
+        ...state,
+        UserBracnch: action.payload,
+      };
+    case setCityLookup:
       return {
         ...state,
         CitiesList: action.payload,
       };
-      case SET_BranchesLookup:
-        return {
-          ...state,
-          BranchesList: action.payload,
-        };
-        case SET_AllUsers:
-          return {
-            ...state,
-            AllUsers: action.payload,
-          };
-          case SET_userRegister:
-            return {
-              ...state,
-              userRegister: action.payload,
-            };
-            case SET_userUpdateInfo:
-              return {
-                ...state,
-                userUpdateInfo: action.payload,
-              };             
-              case SET_TeamInfo:
-                return {
-                  ...state,
-                  TeamInfo: action.payload,
-                };
-    
-                default:
+    case setBrancheLookup:
+      return {
+        ...state,
+        BranchesList: action.payload,
+      };
+    case setTeamLookup:
+      return {
+        ...state,
+        TeamList: action.payload,
+      };
+    case setAllUser:
+      return {
+        ...state,
+        AllUsers: action.payload,
+      };
+    case setusersRegister:
+      return {
+        ...state,
+        userRegister: action.payload,
+      };
+    case setusersUpdateInfo:
+      return {
+        ...state,
+        userUpdateInfo: action.payload,
+      };
+    case setTeamsInfo:
+      return {
+        ...state,
+        TeamInfo: action.payload,
+      };
+    case setMeterReportByTeams:
+      return {
+        ...state,
+        MeterReportByTeam: action.payload,
+      };
+    case setDeleteUsers:
+      return {
+        ...state,
+        DeleteUser: action.payload,
+      };
+
+    default:
       return state;
   }
-}
+};
+
+export default CustomerReducer;

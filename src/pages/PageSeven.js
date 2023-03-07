@@ -1,230 +1,182 @@
-import { Container, Typography, Card, Grid, Divider, InputLabel } from '@mui/material';
-import React from 'react';
-import logo from '../pic.jpg';
+import React, { useEffect } from 'react';
+import { Container, Typography, Card, Grid, Divider, InputLabel, Button } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router';
+import { getTicketsDetails } from '../Redux/Customer/CustomerAction';
 import Map from '../components/Map';
 import '../index.css';
 
 export default function PageSeven() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const data = useSelector((state) => state.Customer.TicketsData);
+  const location = useLocation();
+  const id = location.state.ticketID;
+  const idString = id.toString();
+  const teamNumber = location.state.teamNumber;
+  const customName = location.state.customName;
+  const fileNumber = location.state.fileNumber;
+  const meterNumber = location.state.meterNumber;
+  const date = String(data.closeDate).split('T');
+  const days = String(date[0]);
+  const timeSecond = String(date[1]);
+  const timeMinutes = String(timeSecond).split(':');
+  const time = `  ${timeMinutes[1]}: ${timeMinutes[0]}`;
+  useEffect(() => {
+    dispatch(getTicketsDetails(id));
+  }, []);
+  function showImage(srcImage) {
+    const sourceImage = srcImage;
+    if (!(srcImage === undefined || srcImage === '')) {
+      return (
+        <>
+          <InputLabel sx={{ display: 'inline' }}> صوره : </InputLabel>
+          <img src={`data:image/jpeg;base64,${sourceImage}`} alt="images" className="zoom" />
+        </>
+      );
+    }
+    return (
+      <>
+        <Typography variant="h3" component="h1" paragraph align="center">
+          لا يوجد صوره
+        </Typography>
+      </>
+    );
+  }
+  function daysChecked(days) {
+    if (days === 'undefined' || days === '')
+      return (
+        <>
+          <Typography sx={{ display: 'inline' }} paragraph>
+            لا يوجد
+          </Typography>
+        </>
+      );
+    return (
+      <>
+        <Typography sx={{ display: 'inline' }} paragraph>
+          {days}
+        </Typography>
+      </>
+    );
+  }
+  function timeChecked(time) {
+    if (time === '  undefined: undefined' || time === '')
+      return (
+        <>
+          <Typography sx={{ display: 'inline' }} paragraph>
+            لا يوجد
+          </Typography>
+        </>
+      );
+    return (
+      <>
+        <Typography sx={{ display: 'inline' }} paragraph>
+          {time}
+        </Typography>
+      </>
+    );
+  }
   return (
     <>
-      {/* <Container>
-        <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
-          <Typography variant="h4" component="h1" paragraph>
-            المعلومات المرئية
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={12} lg={12}>
-              <InputLabel sx={{ display: 'inline' }}> اسم الفني : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                وسام عيسى حسن احمد
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-              <InputLabel sx={{ display: 'inline' }}> الفرقة : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                الفرقه رقم 111
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-              <InputLabel sx={{ display: 'inline' }}> رقم العداد : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                00045454541
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-              <InputLabel sx={{ display: 'inline' }}> رقم الملف : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                00045454541
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-              <Divider light />
-            </Grid>
-          </Grid>
-        </Card>
-        <br />
-        <br />
-        <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
-          <Typography variant="h4" paragraph>
-            معلومات موقع العداد
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={12} lg={12}>
-              <InputLabel sx={{ display: 'inline' }}> المحافظة: </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                عمان
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-              <InputLabel sx={{ display: 'inline' }}> الشارع : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                شارع الشهيد فيصل
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-              <InputLabel sx={{ display: 'inline' }}> المصدر : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                وسام عيسى احمد
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-              <InputLabel sx={{ display: 'inline' }}> المنطقه : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                طارق
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-              <InputLabel sx={{ display: 'inline' }}> المعلم : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                طارق
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-              <InputLabel sx={{ display: 'inline' }}> الحي : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                حي الشهيد
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-              <InputLabel sx={{ display: 'inline' }}> رقم البناية : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                10
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-              <InputLabel sx={{ display: 'inline' }}> الخريطة : </InputLabel>
-              <Mapsss />
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-              <Divider light />
-            </Grid>
-          </Grid>
-        </Card>
-        <br />
-        <br />
-        <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
-          <Typography variant="h4" component="h1" paragraph>
-            تفاصيل الفصل
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={12} lg={12}>
-              <InputLabel sx={{ display: 'inline' }}> طريقة الفصل : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                وسام عيسى حسن احمد
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-              <InputLabel sx={{ display: 'inline' }}> تاريخ الفصل : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                22/11/1999
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-              <InputLabel sx={{ display: 'inline' }}> ملاحظه : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                00045454541
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-              <InputLabel> صوره : </InputLabel>
-              <img src={logo} alt="images" />
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-              <Divider light />
-            </Grid>
-          </Grid>
-        </Card>
-      </Container> */}
       <Container>
         <Card sx={{ alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
           <Typography variant="h4" component="h1" paragraph>
-            المعلومات المرئية
+            المعلومات الرئيسية
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> اسم الفني : </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                وسام عيسى حسن احمد
+                {data.technicalFullName}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={6} lg={6}>
+              <InputLabel sx={{ display: 'inline' }}> اسم المشترك : </InputLabel>
+              <Typography sx={{ display: 'inline' }} paragraph>
+                {customName}
               </Typography>
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> الفرقة : </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                الفرقه رقم 111
+                {teamNumber}
               </Typography>
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> رقم العداد : </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                00045454541
+                {meterNumber}
               </Typography>
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> رقم الملف : </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                00045454541
+                {fileNumber}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={6} lg={6}>
+              <InputLabel sx={{ display: 'inline' }}> رقم الهاتف : </InputLabel>
+              <Typography sx={{ display: 'inline' }} paragraph>
+                0797466629
               </Typography>
             </Grid>
           </Grid>
-
           <br />
           <br />
-
           <Typography variant="h4" component="h1" paragraph>
             معلومات موقع العداد
           </Typography>
           <Grid container spacing={2}>
-            <Grid item xs={12} md={12} lg={6}>
+            <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> المحافظة: </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                عمان
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6} lg={6}>
-              <InputLabel sx={{ display: 'inline' }}> الشارع : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                شارع الشهيد فيصل
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6} lg={6}>
-              <InputLabel sx={{ display: 'inline' }}> المصدر : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                وسام عيسى احمد
+                {data.governateName}
               </Typography>
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> المنطقه : </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                طارق
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6} lg={6}>
-              <InputLabel sx={{ display: 'inline' }}> المعلم : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                طارق
+                {data.districtName}
               </Typography>
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> الحي : </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                حي الشهيد
+                {data.zoneName}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={6} lg={6}>
+              <InputLabel sx={{ display: 'inline' }}> المعلم : </InputLabel>
+              <Typography sx={{ display: 'inline' }} paragraph>
+                {data.nearestLandmark}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={6} lg={6}>
+              <InputLabel sx={{ display: 'inline' }}> الشارع : </InputLabel>
+              <Typography sx={{ display: 'inline' }} paragraph>
+                {data.streetName}
               </Typography>
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> رقم البناية : </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                10
+                {data.buildingNumber}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={6} lg={6}>
+              <InputLabel sx={{ display: 'inline' }}> المصدر : </InputLabel>
+              <Typography sx={{ display: 'inline' }} paragraph>
+                {data.sourceType}
               </Typography>
             </Grid>
             <Grid item xs={12} md={12} lg={12}>
               <InputLabel sx={{ display: 'inline' }}> الخريطه : </InputLabel>
-              <Map />
+              <Map lang={data.x_POSITION} latt={data.y_POSITION} />
             </Grid>
           </Grid>
-
           <br />
           <br />
-
           <Typography variant="h4" component="h1" paragraph>
             تفاصيل الفصل
           </Typography>
@@ -232,28 +184,38 @@ export default function PageSeven() {
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> طريقة الفصل : </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                وسام عيسى حسن احمد
+                {data.disconnectionMethod}
               </Typography>
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> تاريخ الفصل : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                22/11/1999
-              </Typography>
+              {daysChecked(days)}
+            </Grid>
+            <Grid item xs={12} md={6} lg={6}>
+              <InputLabel sx={{ display: 'inline' }}> وقت الفصل : </InputLabel>
+              {timeChecked(time)}
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> ملاحظه : </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                00045454541
+                {data.note}
               </Typography>
             </Grid>
-
             <Grid item xs={12} md={12} lg={12}>
               <Divider light />
             </Grid>
             <Grid item xs={12} md={12} lg={12} sx={{ marginTop: 2 }}>
-              <InputLabel sx={{ display: 'inline' }}> صوره : </InputLabel>
-              <img src={logo} alt="images" className="zoom" />
+              {showImage(data.disconnectionImage)}
+            </Grid>
+            <Grid item xs={12} md={12} lg={12}>
+              <Button
+                className="nxt-btn-12-grid"
+                variant="contained"
+                fullwidth
+                onClick={() => navigate(`/dashboard/user/five`)}
+              >
+                رجوع
+              </Button>
             </Grid>
           </Grid>
         </Card>

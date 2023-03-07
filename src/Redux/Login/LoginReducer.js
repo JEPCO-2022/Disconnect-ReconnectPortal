@@ -12,18 +12,18 @@ export default function loginReducer(
     userInfo: {},
     userToken: '',
     infoToken: '',
-    userName:'',
+    userName: '',
     isLogged: false,
     isError: false,
-    FullName:''
+    FullName: '',
   },
-  action
+  action = {}
 ) {
   switch (action.type) {
     case SET_LOGIN_ERR:
       return {
         ...state,
-        userName:"",
+        userName: '',
         userToken: '',
         isError: true,
         isLogged: false,
@@ -31,12 +31,11 @@ export default function loginReducer(
     case SET_LOGIN_REQ:
       return {
         ...state,
-        userName: "",
+        userName: '',
         userToken: '',
         isError: false,
         isLogged: false,
-        FullName :''
-
+        FullName: '',
       };
     case SET_LOGIN_SUCCESS:
       console.log(action.payload);
@@ -46,7 +45,8 @@ export default function loginReducer(
         userToken: action.payload.userToken,
         isError: false,
         isLogged: true,
-        FullName :action.payload.fullName
+        FullName: action.payload.fullName,
+        isAdmin:action.payload.isAdmin,
       };
 
     case SET_USER_INFO:

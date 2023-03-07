@@ -71,7 +71,7 @@ export default function LoginPage() {
         <Container maxWidth="sm">
           <StyledContent>
             <Typography variant="h4" gutterBottom>
-              تسجيل دخول{' '}
+              تسجيل دخول
             </Typography>
             <br />
             {/* <Typography variant="body2" sx={{ mb: 5 }}>

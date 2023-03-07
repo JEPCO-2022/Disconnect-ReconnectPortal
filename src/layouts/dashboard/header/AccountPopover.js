@@ -2,6 +2,7 @@ import { useState } from 'react';
 // @mui
 import { alpha } from '@mui/material/styles';
 import { Box, Divider, Typography, Stack, MenuItem, Avatar } from '@mui/material';
+import { useSelector } from 'react-redux';
 // components
 import MenuPopover from '../../../components/MenuPopover';
 import { IconButtonAnimate } from '../../../components/animate';
@@ -26,6 +27,10 @@ const MENU_OPTIONS = [
 // ----------------------------------------------------------------------
 
 export default function AccountPopover() {
+  const userName = useSelector((state) => state.Login.userName);
+  const FullName = useSelector((state) => state.Login.FullName);
+  console.log(userName);
+  console.log(FullName);
   const [open, setOpen] = useState(null);
 
   const handleOpen = (event) => {
@@ -74,7 +79,7 @@ export default function AccountPopover() {
       >
         <Box sx={{ my: 1.5, px: 2.5 }}>
           <Typography variant="subtitle2" noWrap>
-             دينا كوفحي
+            {userName}
           </Typography>
           {/* <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
             rayan.moran@gmail.com
