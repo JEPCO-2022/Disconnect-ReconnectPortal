@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Box, Link, Typography, Avatar } from '@mui/material';
-
+import { useSelector } from 'react-redux';
 // ----------------------------------------------------------------------
 
 const RootStyle = styled('div')(({ theme }) => ({
@@ -23,18 +23,19 @@ NavbarAccount.propTypes = {
 };
 
 export default function NavbarAccount({ isCollapse }) {
+  // const userName = useSelector((state) => state.Login.userName);
+  const userName = localStorage.getItem('userName');
   return (
     <Link underline="none" color="inherit">
-      <img   src="/assets/logo.png" alt=''/> 
-<br/>
-           <RootStyle
+      <img src="/assets/logo.png" alt="" />
+      <br />
+      <RootStyle
         sx={{
           ...(isCollapse && {
             bgcolor: 'transparent',
           }),
         }}
       >
-
         {/* <Avatar src="https://minimal-assets-api-dev.vercel.app/assets/images/avatars/avatar_5.jpg" alt="Rayan Moran" /> */}
 
         <Box
@@ -51,11 +52,11 @@ export default function NavbarAccount({ isCollapse }) {
           }}
         >
           <Typography variant="subtitle2" noWrap>
-            دينا كوفحي
+            {userName}
           </Typography>
-          <Typography variant="body2" noWrap sx={{ color: 'text.secondary' }}>
+          {/* <Typography variant="body2" noWrap sx={{ color: 'text.secondary' }}>
             user
-          </Typography>
+          </Typography> */}
         </Box>
       </RootStyle>
     </Link>

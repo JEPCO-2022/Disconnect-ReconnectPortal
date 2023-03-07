@@ -36,23 +36,23 @@ export const setLoginSuccess = (username, userToken) => {
 };
 
 export const userLogin = (username, password) => async (dispatch) => {
-  dispatch(setLoginReq( ));
+  dispatch(setLoginReq());
 
   const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
   const response = await axios.post(`${baseURL}`, {
     username: 'ConnectionAndDisconnectionAppIntegrationUser',
-    password: 'ConnectionAndDisconnectionApp@jepco@123'
+    password: 'ConnectionAndDisconnectionApp@jepco@123',
   });
-  const infoBaseURL ='https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/UserLogin';
+  const infoBaseURL =
+    'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/UserLogin';
   try {
     const genertedToken = response.data.body.token;
     const config = {
       method: 'post',
       url: infoBaseURL,
       headers: {
-        'Authorization': `Bearer ${genertedToken}`,
+        Authorization: `Bearer ${genertedToken}`,
         'Content-Type': 'application/json',
-
       },
       data: {
         Username: username,
@@ -63,9 +63,16 @@ export const userLogin = (username, password) => async (dispatch) => {
     const user = jose.decodeJwt(genertedToken);
     cookie.save('user', genertedToken, { maxAge: 260000000 });
     cookie.save('userName', username, { maxAge: 260000000 });
+    localStorage.setItem('user', genertedToken);
+    localStorage.setItem('userName', username);
+
+
     const infoTokenResponse = await axios(config);
 
     console.log(infoTokenResponse.data.body);
+    console.log(infoTokenResponse.data.body.isAdmin);
+    localStorage.setItem('isAdmin', infoTokenResponse.data.body.isAdmin);
+
     if (infoTokenResponse.data.statusCode) {
       // console.log('no Cookie');
       dispatch(setLoginSuccess(username, genertedToken));

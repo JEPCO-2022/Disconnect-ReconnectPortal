@@ -1,6 +1,8 @@
-import { Suspense, lazy } from 'react';
+import { useState, Suspense, lazy } from 'react';
 import { Navigate, useRoutes, useLocation } from 'react-router-dom';
 // layouts
+import PageNine from '../pages/PageNine';
+import PageEight from '../pages/PageEight';
 import LoginPage from '../pages/Login/LoginPage';
 import DashboardLayout from '../layouts/dashboard';
 import LogoOnlyLayout from '../layouts/LogoOnlyLayout';
@@ -8,7 +10,6 @@ import LogoOnlyLayout from '../layouts/LogoOnlyLayout';
 import LoadingScreen from '../components/LoadingScreen';
 import CreateNewUser from '../pages/CreateNewUser';
 import AllUsersAndRoles from '../pages/AllUsersAndRoles/AllUsersAndRoles';
-
 // ----------------------------------------------------------------------
 
 const Loadable = (Component) => (props) => {
@@ -36,7 +37,8 @@ export default function Router() {
         { path: 'two', element: <PageTwo /> },
         { path: 'three', element: <PageThree /> },
         { path: 'AllUsersAndRoles', element: <AllUsersAndRoles /> },
-        { path: 'EditUserInfo', element: <EditUserInfo /> },
+        { path: 'EditUserInfo/:id', element: <EditUserInfo /> },
+        { path: 'eight/:id', element: <PageEight /> },
         {
           path: 'user',
           children: [
@@ -44,7 +46,8 @@ export default function Router() {
             { path: 'four', element: <PageFour /> },
             { path: 'five', element: <PageFive /> },
             { path: 'CreateNewUser', element: <CreateNewUser /> },
-            { path: 'seven', element: <PageSeven /> },
+            { path: 'seven/:id', element: <PageSeven /> },
+            { path: 'nine', element: <PageNine /> },
           ],
         },
       ],

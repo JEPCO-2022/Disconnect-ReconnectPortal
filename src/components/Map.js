@@ -1,15 +1,28 @@
-import React from 'react';
 import GoogleMapReact from 'google-map-react';
 
-// eslint-disable-next-line react/prop-types
 const AnyReactComponent = ({ text }) => <div>{text}</div>;
-const Mapsss = () => {
+const Mapsss = (props) => {
+  const longitude = Number(props.lang);
+  const latitude = Number(props.latt);
+  if (props.lang === undefined || props.latt === undefined) {
+    return 0;
+  }
+  const renderMarkers = (map, maps, lang, latt) => {
+    const marker = new maps.Marker({
+      position: { lat: latt, lng: lang },
+      internalPosition: { lat: latt, lng: lang },
+      map,
+      anchorPoint: { x: latt, y: lang },
+      title: '',
+    });
+    return marker;
+  };
   const defaultProps = {
     center: {
-      lat: 31.9539,
-      lng: 35.9106,
+      lat: longitude,
+      lng: latitude,
     },
-    zoom: 11,
+    zoom: 16,
   };
   return (
     <>
@@ -18,8 +31,13 @@ const Mapsss = () => {
           bootstrapURLKeys={{ key: 'AIzaSyA7f_t2Ccx3tdV_Mz2pT0zdVioGU6SiKS4' }}
           defaultCenter={defaultProps.center}
           defaultZoom={defaultProps.zoom}
+          shouldUnregisterMapOnUnmount
+          yesIWantToUseGoogleMapApiInternals
+          onGoogleApiLoaded={({ map, maps }) =>
+            renderMarkers(map, maps, defaultProps.center.lng, defaultProps.center.lat)
+          }
         >
-          <AnyReactComponent lat={59.955413} lng={30.337844} text="My Marker" />
+          <AnyReactComponent lat={latitude} lng={longitude} />
         </GoogleMapReact>
       </div>
     </>

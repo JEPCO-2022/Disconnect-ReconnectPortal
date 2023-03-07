@@ -12,21 +12,10 @@ const ICONS = {
   analytics: getIcon('ic_analytics'),
   dashboard: getIcon('ic_dashboard'),
 };
+const isAdmin = localStorage.getItem('isAdmin');
+
 
 const navConfig = [
-  // GENERAL
-  // ----------------------------------------------------------------------
-  // {
-  //   subheader: 'general v3.4.0',
-  //   items: [
-  //     { title: 'One', path: '/dashboard/one', icon: ICONS.dashboard },
-  //     { title: 'Two', path: '/dashboard/two', icon: ICONS.ecommerce },
-  //     { title: 'Three', path: '/dashboard/three', icon: ICONS.analytics },
-  //   ],
-  // },
-
-  // MANAGEMENT
-  // ----------------------------------------------------------------------
   {
     // subheader: 'management',
     items: [
@@ -35,8 +24,9 @@ const navConfig = [
         path: '/dashboard/user',
         icon: <SummarizeIcon />,
         children: [
-          { title: 'تقرير الوصل', path: '/dashboard/user/four' },
-          { title: 'تقرير القطع ', path: '/dashboard/user/five' },
+          { title: 'العدادات المنجزه حسب المكتب', path: '/dashboard/user/four' },
+          { title: 'تفاصيل الكشف حسب الفرقة', path: '/dashboard/user/five' },
+          { title: 'تقرير المهجور ', path: '/dashboard/user/nine' },
           // { title: 'Six', path: '/dashboard/user/six' },
           // { title: 'Seven', path: '/dashboard/user/seven' },
         ],
@@ -51,9 +41,9 @@ const navConfig = [
         path: '/dashboard/user',
         icon: ICONS.user,
         children: [
-          { title: 'إضافة مستخدم جديد', path: '/dashboard/user/CreateNewUser' },
-      { title: 'المستخدمون والصلاحيات', path: '/dashboard/AllUsersAndRoles'},
-],
+          // { title: 'إضافة مستخدم جديد', path: '/dashboard/user/CreateNewUser' },
+          { title: 'المستخدمون والصلاحيات', path: '/dashboard/AllUsersAndRoles' },
+        ],
       },
     ],
   },
