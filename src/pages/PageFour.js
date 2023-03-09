@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useReducer, useCallback } from 'react';
 // @mui
 import {
+  Box,
   Button,
   Card,
   Checkbox,
@@ -43,7 +44,6 @@ import useSettings from '../hooks/useSettings';
 import Page from '../components/Page';
 
 // ----------------------------------------------------------------------
-
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: '#2065D1',
@@ -66,6 +66,9 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 export default function PageFour() {
   const { themeStretch } = useSettings();
+  const userName = localStorage.getItem('userName');
+  const isAdmin = localStorage.getItem('isAdmin');
+  const boolValue = isAdmin === 'true';
   const CitiesList = useSelector((state) => state.Customer.CitiesList);
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
   const TeamList = useSelector((state) => state.Customer.TeamInfo);
@@ -80,6 +83,7 @@ export default function PageFour() {
   const [flagFullName, setflagFullName] = useState(false);
   const [errorMessageCity, setErrorMessageCity] = useState('');
   const [errorMessageBranch, setErrorMessageBranch] = useState('');
+  const [ignored, forceUpdate] = useReducer((x) => x + 1, 0);
   const fileExtension = '.xlsx';
   const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
   const [inputValues, setinputValues] = useState({
@@ -88,17 +92,28 @@ export default function PageFour() {
     DateReport: `${year}${separator}-${month < 10 ? `0${month}` : `${month}`}-${separator}${date}`,
   });
   const [valueRDG, setValueRBG] = useState('1');
-  const [showElement, setshowElement] = useState(0);
   function callBranchLookup(cityID) {
-    dispatch(getBranchesLookup(cityID));
+    dispatch(getBranchesLookup(cityID, userName, boolValue));
   }
   const handleChangeRadioGroup = (event) => {
     setValueRBG(event.target.value);
   };
   useEffect(() => {
+    refresh();
     dispatch(getCitiesLookup());
     dispatch(ClearAllUserBranch());
   }, []);
+
+  function refresh() {
+    if (window.localStorage) {
+      if (!localStorage.getItem('reload')) {
+        localStorage.reload = true;
+        window.location.reload();
+      } else {
+        localStorage.removeItem('reload');
+      }
+    }
+  }
   const handleTab = (e) => {
     if (inputValues.City === '') {
       setErrorMessageCity('مطلوب');
@@ -107,7 +122,6 @@ export default function PageFour() {
     if (inputValues.Branch === '') {
       setErrorMessageBranch('مطلوب');
       setflagFullName(true);
-      setshowElement(0);
       return false;
     }
     const officeNumber = `${inputValues.Branch}`;
@@ -118,13 +132,16 @@ export default function PageFour() {
       TRANSACTION_TYPE: valueRDG,
     };
     dispatch(getTeamInfo(data));
-    setshowElement(e);
   };
   const exportToCSV = (apiData, fileName) => {
+    const customMergeHeaders = [
+      'رقم الفرقة',
+      'العدادات المنجزه في ألايام السابقة',
+      'العدادات المنجزه في الكشف اليومي',
+      'إجمالي العدادات في الكشف',
+    ];
     const customHeadings = apiData.reduce((acc, curr) => {
       const _users = acc;
-      console.log('curr', curr);
-      console.log('acc', acc);
       return [
         ..._users,
         {
@@ -135,10 +152,28 @@ export default function PageFour() {
         },
       ];
     }, []);
-    console.log(customHeadings);
+    const RowInfo = [
+      {
+        width: 10,
+      },
+      {
+        width: 30,
+      },
+      {
+        width: 30,
+      },
+      {
+        width: 30,
+      },
+    ];
+    const head = ['العدادات المنجزه حسب المكتب '];
+    const merge = [{ s: { c: 0, r: 0 }, e: { c: 3, r: 0 } }];
     const ws = XLSX.utils.json_to_sheet(customHeadings);
-    // XLSX.utils.sheet_add_aoa(ws, [['Name', 'Birthday', 'Age', 'City']], { origin: 'A1' });
+    ws['!cols'] = RowInfo;
+    ws['!merges'] = merge;
     const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
+    XLSX.utils.sheet_add_aoa(ws, [customMergeHeaders], { origin: 'A2' });
+    XLSX.utils.sheet_add_aoa(ws, [head], { origin: 'A1' });
     const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
     const data = new Blob([excelBuffer], { type: fileType });
     FileSaver.saveAs(data, fileName + fileExtension);
@@ -147,14 +182,13 @@ export default function PageFour() {
   return (
     <Page title="العدادات المنجزه حسب المكتب">
       <Container maxWidth={themeStretch ? false : 'xl'}>
-
         <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
           <Grid container spacing={2}>
             {/* <Grid item xs={12} md={12} lg={12} /> */}
             <Grid item xs={12} md={12} lg={12}>
-            <Typography variant="h4" component="h1" paragraph>
-          العدادات المنجزه حسب المكتب
-        </Typography>
+              <Typography variant="h4" component="h1" paragraph>
+                العدادات المنجزه حسب المكتب
+              </Typography>
               <Divider light />
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
@@ -241,44 +275,59 @@ export default function PageFour() {
           </Grid>
         </Card>
         <br />
-        <Grid textAlign="end" item xs={12} md={6} lg={6}>
-          <Button
-            endIcon={<FileDownloadIcon />}
-            className={showElement === 1 ? 'visible nxt-btn-12-grid' : 'invisible'}
-            variant="outlined"
-            onClick={() => {
-              exportToCSV(TeamList, 'القطع والوصل');
-            }}
-            fullwidth
-          >
-            تنزيل
-          </Button>
-        </Grid>
-        <br />
-        <TableContainer component={Paper} className={showElement === 1 ? 'visible' : 'invisible'} ref={tableRef}>
-          <Table sx={{ minWidth: 700 }} aria-label="customized table" ref={tableRef}>
-            <TableHead>
-              <TableRow>
-                <StyledTableCell>الفرقة</StyledTableCell>
-                <StyledTableCell align="center"> إجمالي العدادات في الكشف</StyledTableCell>
-                <StyledTableCell align="center">العدادات المنجزه في الكشف اليومي </StyledTableCell>
-                <StyledTableCell align="center"> العدادات المنجزه في الأيام السابقة </StyledTableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {TeamList.map((TeamList) => (
-                <StyledTableRow key={TeamList.teaM_NO}>
-                  <StyledTableCell component="th" scope="row">
-                    {TeamList.teaM_NO}
-                  </StyledTableCell>
-                  <StyledTableCell align="center">{TeamList.teamTotalTicketsNum}</StyledTableCell>
-                  <StyledTableCell align="center">{TeamList.closeDisConnectionTicketsNum}</StyledTableCell>
-                  <StyledTableCell align="center">{TeamList.previousDayTicketsNumClosed}</StyledTableCell>
-                </StyledTableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        {TeamList?.length > 0 ? (
+          <>
+            <Grid textAlign="end" item xs={12} md={6} lg={6}>
+              <Button
+                endIcon={<FileDownloadIcon />}
+                variant="outlined"
+                onClick={() => {
+                  exportToCSV(TeamList, 'القطع والوصل');
+                }}
+                fullwidth
+              >
+                تنزيل
+              </Button>
+            </Grid>
+            <br />
+            <TableContainer component={Paper} id="here">
+              <Table sx={{ minWidth: 700 }} aria-label="customized table" ref={tableRef}>
+                <TableHead>
+                  <TableRow>
+                    <StyledTableCell>الفرقة</StyledTableCell>
+                    <StyledTableCell align="center"> إجمالي العدادات في الكشف</StyledTableCell>
+                    <StyledTableCell align="center">العدادات المنجزه في الكشف اليومي </StyledTableCell>
+                    <StyledTableCell align="center"> العدادات المنجزه في الأيام السابقة </StyledTableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {TeamList.map((TeamList) => (
+                    <StyledTableRow key={TeamList.teaM_NO}>
+                      <StyledTableCell component="th" scope="row">
+                        {TeamList.teaM_NO}
+                      </StyledTableCell>
+                      <StyledTableCell align="center">{TeamList.teamTotalTicketsNum}</StyledTableCell>
+                      <StyledTableCell align="center">{TeamList.closeDisConnectionTicketsNum}</StyledTableCell>
+                      <StyledTableCell align="center">{TeamList.previousDayTicketsNumClosed}</StyledTableCell>
+                    </StyledTableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </>
+        ) : (
+          <>
+            <Grid textAlign="end" item xs={12} md={6} lg={6}>
+              <Box sx={{ display: 'flex', justifyContent: 'center', margin: 'auto', marginTop: '5vh' }}>
+                <Grid item xs={12} md={12} lg={12}>
+                  <Typography variant="h5" component="h1" paragraph>
+                    لا يوجد
+                  </Typography>
+                </Grid>
+              </Box>
+            </Grid>
+          </>
+        )}
       </Container>
     </Page>
   );

@@ -83,6 +83,9 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 export default function PageFour() {
   const { themeStretch } = useSettings();
+  const userName = localStorage.getItem('userName');
+  const isAdmin = localStorage.getItem('isAdmin');
+  const boolValue = isAdmin === 'true';
   const CitiesList = useSelector((state) => state.Customer.CitiesList);
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
   const TeamsList = useSelector((state) => state.Customer.TeamList);
@@ -101,6 +104,7 @@ export default function PageFour() {
   const [flagCity, setflagCity] = useState(false);
   const [flagBranch, setflagBranch] = useState(false);
   const [flagTeam, setflagTeam] = useState(false);
+
   const [t, setT] = useState('');
   const [inputValues, setinputValues] = useState({
     City: '',
@@ -110,10 +114,8 @@ export default function PageFour() {
   });
 
   const [valueRDG, setValueRBG] = useState('1');
-  const [showElement, setshowElement] = useState(0);
   const fileExtension = '.xlsx';
   const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-  const [showElementEmptyData, setShowElementEmptyData] = useState(0);
   function convertTicketStatusID(ticketNumber) {
     switch (ticketNumber) {
       case 1:
@@ -144,7 +146,7 @@ export default function PageFour() {
   }
   function callBranchLookup(cityID) {
     setinputValues({ ...inputValues, City: cityID, Branch: '', Team: '' });
-    dispatch(getBranchesLookup(cityID));
+    dispatch(getBranchesLookup(cityID, userName, boolValue));
     setErrorMessageCity('');
     setflagCity(false);
   }
@@ -168,8 +170,6 @@ export default function PageFour() {
     if (inputValues.Team === '') {
       setErrorMessageTeam(' مطلوب ');
       setflagTeam(true);
-      setshowElement(0);
-      setShowElementEmptyData(0);
       return false;
     }
     const teamNumber = `${inputValues.Team}`;
@@ -180,17 +180,8 @@ export default function PageFour() {
       TRANSACTION_TYPE: valueRDG,
     };
     dispatch(getMeterReportByTeam(data));
-    showelement(e);
   };
-  async function showelement(e) {
-    if (tableData.length === 0) {
-      setshowElement(0);
-      setShowElementEmptyData(e);
-    } else {
-      setShowElementEmptyData(0);
-      setshowElement(e);
-    }
-  }
+
   function teamSetData(e) {
     setinputValues({ ...inputValues, Team: e });
     setErrorMessageTeam('');
@@ -210,10 +201,21 @@ export default function PageFour() {
         },
       ];
     }, []);
-    const head = ['تقرير القطع'];
+    const RowInfo = [
+      {
+        width: 10,
+      },
+      {
+        width: 30,
+      },
+      {
+        width: 30,
+      },
+    ];
+    const head = ['تفاصيل الكشف حسب الفرقة'];
     const merge = [{ s: { c: 0, r: 0 }, e: { c: 2, r: 0 } }];
     const ws = XLSX.utils.json_to_sheet(customHeadings);
-    console.log(ws);
+    ws['!cols'] = RowInfo;
     ws['!merges'] = merge;
     const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
     XLSX.utils.sheet_add_aoa(ws, [customMergeHeaders], { origin: 'A2' });
@@ -227,15 +229,12 @@ export default function PageFour() {
     <>
       <Page title="تفاصيل الكشف حسب الفرقة">
         <Container maxWidth={themeStretch ? false : 'xl'}>
-
           <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
             <Grid container spacing={2}>
-              {/* <Grid item xs={12} md={12} lg={12} /> */}
-
               <Grid item xs={12} md={12} lg={12}>
-              <Typography variant="h4" component="h1" paragraph>
-            تفاصيل الكشف حسب الفرقة
-          </Typography>
+                <Typography variant="h4" component="h1" paragraph>
+                  تفاصيل الكشف حسب الفرقة
+                </Typography>
                 <Divider light />
               </Grid>
               <Grid item xs={12} md={6} lg={6}>
@@ -337,70 +336,75 @@ export default function PageFour() {
             </Grid>
           </Card>
           <br />
-          <Grid textAlign="end" item xs={12} md={6} lg={6}>
-            <Box
-              className={showElementEmptyData === 1 ? 'visible' : 'invisible'}
-              sx={{ display: 'flex', justifyContent: 'center', margin: 'auto', marginTop: '5vh' }}
-            >
-              <Grid item xs={12} md={12} lg={12}>
-                <Typography variant="h5" component="h1" paragraph>
-                  لا يوجد
-                </Typography>
+          {tableData?.length > 0 ? (
+            <>
+              <Grid textAlign="end" item xs={12} md={6} lg={6}>
+                <Button
+                  endIcon={<FileDownloadIcon />}
+                  variant="outlined"
+                  onClick={() => {
+                    exportToCSV(tableData, 'القطع والوصل');
+                  }}
+                  fullwidth
+                >
+                  تنزيل
+                </Button>
               </Grid>
-            </Box>
-            <Button
-              endIcon={<FileDownloadIcon />}
-              className={showElement === 1 ? 'visible nxt-btn-12-grid' : 'invisible'}
-              variant="outlined"
-              onClick={() => {
-                exportToCSV(tableData, 'القطع والوصل');
-              }}
-              fullwidth
-            >
-              تنزيل
-            </Button>
-          </Grid>
+              <br />
+              <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 700 }} aria-label="customized table" ref={tableRef}>
+                  <TableHead>
+                    <TableRow>
+                      <StyledTableCell>الفرقة</StyledTableCell>
+                      <StyledTableCell align="center">رقم العداد </StyledTableCell>
+                      <StyledTableCell align="center">الإجراء الحالي</StyledTableCell>
+                      <StyledTableCell align="center">تفاصيل</StyledTableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {tableData.map((data) => (
+                      <StyledTableRow key={data.id}>
+                        <StyledTableCell component="th" scope="row">
+                          {data.teaM_NO}
+                        </StyledTableCell>
+                        <StyledTableCell align="center">{data.meter_NO}</StyledTableCell>
+                        <StyledTableCell align="center">{convertTicketStatusID(data.ticketStatusID)}</StyledTableCell>
+                        <StyledTableCell align="center">
+                          <Button
+                            onClick={() => {
+                              navigate(`/dashboard/user/seven/${data.id}`, {
+                                state: {
+                                  ticketID: data.id,
+                                  teamNumber: data.teaM_NO,
+                                  customName: data.cusT_Name,
+                                  fileNumber: data.file_NO,
+                                  meterNumber: data.meter_NO,
+                                },
+                              });
+                            }}
+                          >
+                            تفاصيل
+                          </Button>
+                        </StyledTableCell>
+                      </StyledTableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </>
+          ) : (
+            <Grid textAlign="end" item xs={12} md={6} lg={6}>
+              <Box sx={{ display: 'flex', justifyContent: 'center', margin: 'auto', marginTop: '5vh' }}>
+                <Grid item xs={12} md={12} lg={12}>
+                  <Typography variant="h5" component="h1" paragraph>
+                    لا يوجد
+                  </Typography>
+                </Grid>
+              </Box>
+            </Grid>
+          )}
+
           <br />
-          <TableContainer component={Paper} className={showElement === 1 ? 'visible' : 'invisible'} ref={tableRef}>
-            <Table sx={{ minWidth: 700 }} aria-label="customized table" ref={tableRef}>
-              <TableHead>
-                <TableRow>
-                  <StyledTableCell>الفرقة</StyledTableCell>
-                  <StyledTableCell align="center">رقم العداد </StyledTableCell>
-                  <StyledTableCell align="center">الإجراء الحالي</StyledTableCell>
-                  <StyledTableCell align="center">تفاصيل</StyledTableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {tableData.map((data) => (
-                  <StyledTableRow key={data.id}>
-                    <StyledTableCell component="th" scope="row">
-                      {data.teaM_NO}
-                    </StyledTableCell>
-                    <StyledTableCell align="center">{data.meter_NO}</StyledTableCell>
-                    <StyledTableCell align="center">{convertTicketStatusID(data.ticketStatusID)}</StyledTableCell>
-                    <StyledTableCell align="center">
-                      <Button
-                        onClick={() => {
-                          navigate(`/dashboard/user/seven/${data.id}`, {
-                            state: {
-                              ticketID: data.id,
-                              teamNumber: data.teaM_NO,
-                              customName: data.cusT_Name,
-                              fileNumber: data.file_NO,
-                              meterNumber: data.meter_NO,
-                            },
-                          });
-                        }}
-                      >
-                        تفاصيل
-                      </Button>
-                    </StyledTableCell>
-                  </StyledTableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
         </Container>
       </Page>
     </>

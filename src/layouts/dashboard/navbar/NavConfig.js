@@ -13,40 +13,64 @@ const ICONS = {
   dashboard: getIcon('ic_dashboard'),
 };
 const isAdmin = localStorage.getItem('isAdmin');
-
-
-const navConfig = [
-  {
-    // subheader: 'management',
-    items: [
+console.log(isAdmin);
+function navconfige() {
+  const boolValue = isAdmin === 'true';
+  if (boolValue) {
+    return [
       {
-        title: 'التقارير',
-        path: '/dashboard/user',
-        icon: <SummarizeIcon />,
-        children: [
-          { title: 'العدادات المنجزه حسب المكتب', path: '/dashboard/user/four' },
-          { title: 'تفاصيل الكشف حسب الفرقة', path: '/dashboard/user/five' },
-          { title: 'تقرير المهجور ', path: '/dashboard/user/nine' },
-          // { title: 'Six', path: '/dashboard/user/six' },
-          // { title: 'Seven', path: '/dashboard/user/seven' },
+        // subheader: 'management',
+        items: [
+          {
+            title: 'التقارير',
+            path: '/dashboard/user',
+            icon: <SummarizeIcon />,
+            children: [
+              { title: 'العدادات المنجزه حسب المكتب', path: '/dashboard/user/four' },
+              { title: 'تفاصيل الكشف حسب الفرقة', path: '/dashboard/user/five' },
+              { title: 'تقرير المهجور ', path: '/dashboard/user/nine' },
+              // { title: 'Six', path: '/dashboard/user/six' },
+              // { title: 'Seven', path: '/dashboard/user/seven' },
+            ],
+          },
         ],
       },
-    ],
-  },
-  {
-    // subheader: 'management',
-    items: [
       {
-        title: 'مسؤوليات المشرف',
-        path: '/dashboard/user',
-        icon: ICONS.user,
-        children: [
-          // { title: 'إضافة مستخدم جديد', path: '/dashboard/user/CreateNewUser' },
-          { title: 'المستخدمون والصلاحيات', path: '/dashboard/AllUsersAndRoles' },
+        // subheader: 'management',
+        items: [
+          {
+            title: 'مسؤوليات المشرف',
+            path: '/dashboard/user',
+            icon: ICONS.user,
+            children: [
+              // { title: 'إضافة مستخدم جديد', path: '/dashboard/user/CreateNewUser' },
+              { title: 'المستخدمون والصلاحيات', path: '/dashboard/AllUsersAndRoles' },
+            ],
+          },
         ],
       },
-    ],
-  },
-];
+    ];
+  }
+  return [
+    {
+      // subheader: 'management',
+      items: [
+        {
+          title: 'التقارير',
+          path: '/dashboard/user',
+          icon: <SummarizeIcon />,
+          children: [
+            { title: 'العدادات المنجزه حسب المكتب', path: '/dashboard/user/four' },
+            { title: 'تفاصيل الكشف حسب الفرقة', path: '/dashboard/user/five' },
+            { title: 'تقرير المهجور ', path: '/dashboard/user/nine' },
+            // { title: 'Six', path: '/dashboard/user/six' },
+            // { title: 'Seven', path: '/dashboard/user/seven' },
+          ],
+        },
+      ],
+    },
+  ];
+}
 
+const navConfig = navconfige();
 export default navConfig;

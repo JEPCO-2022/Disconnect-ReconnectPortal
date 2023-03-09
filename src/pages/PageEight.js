@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Button,
   Card,
@@ -56,7 +56,6 @@ export default function PageEight() {
       }
     }
   }
-
   const data = userBracnch.branchesLookupList;
   defalutBranchesChescked = userBracnch.userBranchesList;
   if (data === undefined || data === null) {

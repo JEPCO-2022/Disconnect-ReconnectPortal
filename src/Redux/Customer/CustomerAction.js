@@ -366,13 +366,15 @@ export const getCitiesLookup = () => async (dispatch) => {
     console.log('no Cookie');
   }
 };
-export const getBranchesLookup = (CityID) => async (dispatch) => {
+export const getBranchesLookup = (CityID, username, isadmin) => async (dispatch) => {
   dispatch(RequestBranchesLookup());
   const userToken = await cookie.load('user');
   if (userToken) {
     const Data = {
       LanguageId: 'AR',
       CitiyID: CityID,
+      UserName: username,
+      IsAdmin: isadmin,
     };
 
     const config = {

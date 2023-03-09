@@ -46,7 +46,7 @@ export default function loginReducer(
         isError: false,
         isLogged: true,
         FullName: action.payload.fullName,
-        isAdmin:action.payload.isAdmin,
+        isAdmin: action.payload.isAdmin,
       };
 
     case SET_USER_INFO:

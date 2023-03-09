@@ -41,6 +41,7 @@ export default function LoginForm() {
     //
     if (dispatch(userLogin(user)) !== inputvalues.username || dispatch(userLogin(pass)) !== inputvalues.password) {
       console.log(dispatch(userLogin(user, pass)));
+      const isAdmin = localStorage.getItem('isAdmin');
       setflag(true);
     } else {
       console.log('d');

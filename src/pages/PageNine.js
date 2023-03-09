@@ -125,8 +125,6 @@ export default function PageNine() {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
   const location = useLocation();
-  const userName = localStorage.getItem('userName');
-  console.log(userName);
   const CitiesList = useSelector((state) => state.Customer.CitiesList);
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
   const TeamsList = useSelector((state) => state.Customer.TeamList);
@@ -140,9 +138,11 @@ export default function PageNine() {
     startDate: moment().format('YYYY-MM-DD'),
     endDate: moment().format('YYYY-MM-DD'),
   });
-  const [showElement, setshowElement] = useState(0);
-  const [showElementEmptyData, setShowElementEmptyData] = useState(0);
+
   const [ID, setID] = useState(0);
+  const userName = localStorage.getItem('userName');
+  const isAdmin = localStorage.getItem('isAdmin');
+  const boolValue = isAdmin === 'true';
   const [errorMessageCity, setErrorMessageCity] = useState('');
   const [errorMessageBranch, setErrorMessageBranch] = useState('');
   const [errorMessageTeam, setErrorMessageTeam] = useState('');
@@ -198,7 +198,7 @@ export default function PageNine() {
   }
   function callBranchLookup(cityID) {
     setinputValues({ ...inputValues, City: cityID, Branch: '', Team: '' });
-    dispatch(getBranchesLookup(cityID));
+    dispatch(getBranchesLookup(cityID, userName, boolValue));
     setErrorMessageCity('');
     setflagCity(false);
   }
@@ -221,15 +221,8 @@ export default function PageNine() {
       return false;
     }
     dispatch(getEngineerAbandonedDecision(startdate, enddate, branchnumber, inputValues.Team));
-    console.log(data);
-    if (data.length === 0) {
-      setShowElementEmptyData(e);
-    } else {
-      setshowElement(e);
-    }
   };
   useEffect(() => {
-    setshowElement(0);
     dispatch(getCitiesLookup());
     dispatch(getAllUsers());
   }, []);
@@ -260,276 +253,276 @@ export default function PageNine() {
   return (
     <>
       <Page title="تقرير المهجور">
-      <Container maxWidth={themeStretch ? false : 'xl'}>
+        <Container maxWidth={themeStretch ? false : 'xl'}>
+          <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={12} lg={12}>
+                <Typography variant="h4" component="h1" paragraph>
+                  تقرير المهجور
+                </Typography>
+                <Divider light />
+              </Grid>
+              <Grid item xs={12} md={6} lg={6}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DesktopDatePicker
+                    label=" من تاريخ"
+                    inputFormat="DD/MM/YYYY"
+                    value={inputValues.startDate}
+                    maxDate={inputValues.endDate ? inputValues.endDate : new Date()}
+                    onChange={(e) => {
+                      setinputValues({ ...inputValues, startDate: e });
+                    }}
+                    renderInput={(params) => <TextField sx={{ width: '100%' }} {...params} />}
+                  />
+                </LocalizationProvider>
+              </Grid>
+              <Grid item xs={12} md={6} lg={6}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DesktopDatePicker
+                    label="الى تاريخ"
+                    inputFormat="DD/MM/YYYY"
+                    value={inputValues.endDate}
+                    minDate={inputValues.startDate}
+                    maxDate={new Date()}
+                    onChange={(e) => {
+                      setinputValues({ ...inputValues, endDate: e });
+                    }}
+                    renderInput={(params) => <TextField sx={{ width: '100%' }} {...params} />}
+                  />
+                </LocalizationProvider>
+              </Grid>
+              <Grid item xs={12} md={6} lg={6}>
+                <FormControl fullWidth>
+                  <InputLabel id="demo-simple-select-label"> المحافظة</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    label="المحافظة"
+                    value={inputValues.City}
+                    onChange={(e) => {
+                      callBranchLookup(e.target.value);
+                    }}
+                    helperText={flagCity ? ' مطلوب' : ''}
+                    error={flagCity}
+                  >
+                    {CitiesList.map((t) => (
+                      <MenuItem value={t.id}>{t.cityName}</MenuItem>
+                    ))}
+                  </Select>
+                  <h4 className="errorMessage">{errorMessageCity}</h4>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={6} lg={6}>
+                <FormControl fullWidth>
+                  <InputLabel id="demo-simple-select-label"> المكتب</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    label="المكتب"
+                    value={inputValues.Branch}
+                    onChange={(e) => {
+                      callTeamLookup(e.target.value);
+                    }}
+                    helperText={flagBranch ? ' مطلوب' : ''}
+                    error={flagBranch}
+                  >
+                    {BranchesList.map((t) => (
+                      <MenuItem value={t.branchID}>{t.branchName}</MenuItem>
+                    ))}
+                  </Select>
+                  <h4 className="errorMessage">{errorMessageBranch}</h4>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={6} lg={6}>
+                <FormControl fullWidth>
+                  <InputLabel id="demo-simple-select-label"> الفرقه</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    label="الفرقه"
+                    value={inputValues.Team}
+                    onChange={(e) => {
+                      teamSetData(e.target.value);
+                    }}
+                    helperText={flagTeam ? ' مطلوب' : ''}
+                    error={flagTeam}
+                  >
+                    {TeamsList.map((t) => (
+                      <MenuItem value={t.teaM_NO}>{t.teaM_NO}</MenuItem>
+                    ))}
+                  </Select>
+                  <h4 className="errorMessage">{errorMessageTeam}</h4>
+                </FormControl>
+              </Grid>
 
-        <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={12} lg={12}>
-            <Typography variant="h4" component="h1" paragraph>
-          تقرير المهجور
-        </Typography>
-              <Divider light />
+              <Grid item xs={12} md={12} lg={12}>
+                <Button className="nxt-btn-12-grid" variant="contained" fullwidth onClick={() => handleTab(1)}>
+                  إحضار
+                </Button>
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DesktopDatePicker
-                  label=" من تاريخ"
-                  inputFormat="DD/MM/YYYY"
-                  value={inputValues.startDate}
-                  maxDate={inputValues.endDate ? inputValues.endDate : new Date()}
-                  onChange={(e) => {
-                    setinputValues({ ...inputValues, startDate: e });
-                  }}
-                  renderInput={(params) => <TextField sx={{ width: '100%' }} {...params} />}
-                />
-              </LocalizationProvider>
-            </Grid>
-            <Grid item xs={12} md={6} lg={6}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DesktopDatePicker
-                  label="الى تاريخ"
-                  inputFormat="DD/MM/YYYY"
-                  value={inputValues.endDate}
-                  minDate={inputValues.startDate}
-                  maxDate={new Date()}
-                  onChange={(e) => {
-                    setinputValues({ ...inputValues, endDate: e });
-                  }}
-                  renderInput={(params) => <TextField sx={{ width: '100%' }} {...params} />}
-                />
-              </LocalizationProvider>
-            </Grid>
-            <Grid item xs={12} md={6} lg={6}>
-              <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label"> المحافظة</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  label="المحافظة"
-                  value={inputValues.City}
-                  onChange={(e) => {
-                    callBranchLookup(e.target.value);
-                  }}
-                  helperText={flagCity ? ' مطلوب' : ''}
-                  error={flagCity}
-                >
-                  {CitiesList.map((t) => (
-                    <MenuItem value={t.id}>{t.cityName}</MenuItem>
-                  ))}
-                </Select>
-                <h4 className="errorMessage">{errorMessageCity}</h4>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} md={6} lg={6}>
-              <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label"> المكتب</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  label="المكتب"
-                  value={inputValues.Branch}
-                  onChange={(e) => {
-                    callTeamLookup(e.target.value);
-                  }}
-                  helperText={flagBranch ? ' مطلوب' : ''}
-                  error={flagBranch}
-                >
-                  {BranchesList.map((t) => (
-                    <MenuItem value={t.branchID}>{t.branchName}</MenuItem>
-                  ))}
-                </Select>
-                <h4 className="errorMessage">{errorMessageBranch}</h4>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} md={6} lg={6}>
-              <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label"> الفرقه</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  label="الفرقه"
-                  value={inputValues.Team}
-                  onChange={(e) => {
-                    teamSetData(e.target.value);
-                  }}
-                  helperText={flagTeam ? ' مطلوب' : ''}
-                  error={flagTeam}
-                >
-                  {TeamsList.map((t) => (
-                    <MenuItem value={t.teaM_NO}>{t.teaM_NO}</MenuItem>
-                  ))}
-                </Select>
-                <h4 className="errorMessage">{errorMessageTeam}</h4>
-              </FormControl>
-            </Grid>
+          </Card>
 
-            <Grid item xs={12} md={12} lg={12}>
-              <Button className="nxt-btn-12-grid" variant="contained" fullwidth onClick={() => handleTab(1)}>
-                إحضار
-              </Button>
-            </Grid>
-          </Grid>
-        </Card>
-
-        <Box
-          className={showElementEmptyData === 1 ? 'visible' : 'invisible'}
-          sx={{ display: 'flex', justifyContent: 'center', margin: 'auto', marginTop: '5vh' }}
-        >
-          <Grid item xs={12} md={12} lg={12}>
-            <Typography variant="h5" component="h1" paragraph>
-              لا يوجد
-            </Typography>
-          </Grid>
-        </Box>
-
-        <br />
-        <TableContainer component={Paper} className={showElement === 1 ? 'visible' : 'invisible'}>
-          <Table sx={{ minWidth: 700 }} aria-label="customized table">
-            <TableHead>
-              <TableRow>
-                <StyledTableCell>الفرقة</StyledTableCell>
-                <StyledTableCell align="center">رقم العداد </StyledTableCell>
-                <StyledTableCell align="center">اسم المشترك </StyledTableCell>
-                <StyledTableCell align="center">عدد الفواتير</StyledTableCell>
-                <StyledTableCell align="center">الذمم </StyledTableCell>
-                <StyledTableCell align="center">رقم الهاتف </StyledTableCell>
-                <StyledTableCell align="center">عنوان العداد </StyledTableCell>
-                <StyledTableCell align="center">موقع العداد </StyledTableCell>
-                <StyledTableCell align="center">موقع الفني </StyledTableCell>
-                <StyledTableCell align="center" />
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {allAbandoned.map((rows) => {
-                return (
-                  <StyledTableRow key={rows.abandonedTicketID}>
-                    <StyledTableCell component="th" scope="row">
-                      {inputValues.Team}
-                    </StyledTableCell>
-                    <StyledTableCell align="center">{rows.meter_NO}</StyledTableCell>
-                    <StyledTableCell align="center">{rows.cusT_Name}</StyledTableCell>
-                    <StyledTableCell align="center">{rows.nO_DOC}</StyledTableCell>
-                    <StyledTableCell align="center">{rows.customeR_BALANCE}</StyledTableCell>
-                    <StyledTableCell align="center">{rows.teL_NUMBER}</StyledTableCell>
-                    <StyledTableCell align="center" sx={{ minWidth: '20vh' }}>
-                      {concate(rows.districtName, rows.zoneName, rows.streetName)}
-                    </StyledTableCell>
-                    <StyledTableCell align="center">
-                      <Button
-                        aria-haspopup="true"
-                        variant="contained"
-                        disableElevatio
-                        onClick={() => {
-                          // handleClickOpenMap(rows.x_POSITION, rows.y_POSITION);
-                          handleClickOpenSapMap(rows.saP_X_POSITION, rows.saP_Y_POSITION);
-                        }}
-                      >
-                        Map
-                      </Button>
-                    </StyledTableCell>
-                    <StyledTableCell align="center">
-                      <Button
-                        aria-haspopup="true"
-                        variant="contained"
-                        disableElevatio
-                        onClick={() => {
-                          // handleClickOpenSapMap(rows.saP_X_POSITION, rows.saP_Y_POSITION);
-                          handleClickOpenMap(rows.x_POSITION, rows.y_POSITION);
-                        }}
-                      >
-                        Map
-                      </Button>
-                    </StyledTableCell>
-                    <StyledTableCell align="center">
-                      <>
-                        <Button
-                          id="demo-customized-button"
-                          aria-haspopup="true"
-                          variant="contained"
-                          disableElevatio
-                          endIcon={<KeyboardArrowDownIcon />}
-                          onClick={(e) => {
-                            handleClick(e, rows.abandonedTicketID);
-                          }}
-                        >
-                          اختر إجراء
-                        </Button>
-                        <StyledMenu
-                          id="demo-customized-menu"
-                          MenuListProps={{
-                            'aria-labelledby': 'demo-customized-button',
-                          }}
-                          anchorEl={anchorEl}
-                          open={open1}
-                          onClose={handleClose1}
-                        >
-                          <MenuItem
-                            disableRipple
+          {allAbandoned?.length > 0 ? (
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 700 }} aria-label="customized table">
+                <TableHead>
+                  <TableRow>
+                    <StyledTableCell>الفرقة</StyledTableCell>
+                    <StyledTableCell align="center">رقم العداد </StyledTableCell>
+                    <StyledTableCell align="center">اسم المشترك </StyledTableCell>
+                    <StyledTableCell align="center">عدد الفواتير</StyledTableCell>
+                    <StyledTableCell align="center">الذمم </StyledTableCell>
+                    <StyledTableCell align="center">رقم الهاتف </StyledTableCell>
+                    <StyledTableCell align="center">عنوان العداد </StyledTableCell>
+                    <StyledTableCell align="center">موقع العداد </StyledTableCell>
+                    <StyledTableCell align="center">موقع الفني </StyledTableCell>
+                    <StyledTableCell align="center" />
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {allAbandoned.map((rows) => {
+                    return (
+                      <StyledTableRow key={rows.abandonedTicketID}>
+                        <StyledTableCell component="th" scope="row">
+                          {inputValues.Team}
+                        </StyledTableCell>
+                        <StyledTableCell align="center">{rows.meter_NO}</StyledTableCell>
+                        <StyledTableCell align="center">{rows.cusT_Name}</StyledTableCell>
+                        <StyledTableCell align="center">{rows.nO_DOC}</StyledTableCell>
+                        <StyledTableCell align="center">{rows.customeR_BALANCE}</StyledTableCell>
+                        <StyledTableCell align="center">{rows.teL_NUMBER}</StyledTableCell>
+                        <StyledTableCell align="center" sx={{ minWidth: '20vh' }}>
+                          {concate(rows.districtName, rows.zoneName, rows.streetName)}
+                        </StyledTableCell>
+                        <StyledTableCell align="center">
+                          <Button
+                            aria-haspopup="true"
+                            variant="contained"
+                            disableElevatio
                             onClick={() => {
-                              consent(2);
+                              // handleClickOpenMap(rows.x_POSITION, rows.y_POSITION);
+                              handleClickOpenSapMap(rows.saP_X_POSITION, rows.saP_Y_POSITION);
                             }}
                           >
-                            <ThumbUpAltIcon />
-                            موافقة
-                          </MenuItem>
-                          <Divider sx={{ my: 0.5 }} />
-                          <MenuItem
-                            disableRipple
+                            Map
+                          </Button>
+                        </StyledTableCell>
+                        <StyledTableCell align="center">
+                          <Button
+                            aria-haspopup="true"
+                            variant="contained"
+                            disableElevatio
                             onClick={() => {
-                              reject(3);
+                              // handleClickOpenSapMap(rows.saP_X_POSITION, rows.saP_Y_POSITION);
+                              handleClickOpenMap(rows.x_POSITION, rows.y_POSITION);
                             }}
                           >
-                            <ClearIcon />
-                            رفض
-                          </MenuItem>
-                        </StyledMenu>
-                      </>
-                    </StyledTableCell>
-                  </StyledTableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <Dialog fullWidth={fullWidth} maxWidth={maxWidth} open={open} onClose={handleClose}>
-          <DialogTitle sx={{ margin: 'auto' }}>موقع العداد</DialogTitle>
-          <DialogContent>
-            <Map lang={map.langSap} latt={map.lattSap} />
-            <Box
-              noValidate
-              component="form"
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                m: 'auto',
-                width: '50vh',
-              }}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose}>Close</Button>
-          </DialogActions>
-        </Dialog>
-        <Dialog fullWidth={fullWidth} maxWidth={maxWidth} open={openSapMap} onClose={handleCloseSap}>
-          <DialogTitle sx={{ margin: 'auto' }}>موقع الفني</DialogTitle>
-          <DialogContent>
-            <Map lang={map.lang} latt={map.latt} />
-            <Box
-              noValidate
-              component="form"
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                m: 'auto',
-                width: '50vh',
-              }}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseSap}>Close</Button>
-          </DialogActions>
-        </Dialog>
-      </Container>
+                            Map
+                          </Button>
+                        </StyledTableCell>
+                        <StyledTableCell align="center">
+                          <>
+                            <Button
+                              id="demo-customized-button"
+                              aria-haspopup="true"
+                              variant="contained"
+                              disableElevatio
+                              endIcon={<KeyboardArrowDownIcon />}
+                              onClick={(e) => {
+                                handleClick(e, rows.abandonedTicketID);
+                              }}
+                            >
+                              اختر إجراء
+                            </Button>
+                            <StyledMenu
+                              id="demo-customized-menu"
+                              MenuListProps={{
+                                'aria-labelledby': 'demo-customized-button',
+                              }}
+                              anchorEl={anchorEl}
+                              open={open1}
+                              onClose={handleClose1}
+                            >
+                              <MenuItem
+                                disableRipple
+                                onClick={() => {
+                                  consent(2);
+                                }}
+                              >
+                                <ThumbUpAltIcon />
+                                موافقة
+                              </MenuItem>
+                              <Divider sx={{ my: 0.5 }} />
+                              <MenuItem
+                                disableRipple
+                                onClick={() => {
+                                  reject(3);
+                                }}
+                              >
+                                <ClearIcon />
+                                رفض
+                              </MenuItem>
+                            </StyledMenu>
+                          </>
+                        </StyledTableCell>
+                      </StyledTableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          ) : (
+            <Box sx={{ display: 'flex', justifyContent: 'center', margin: 'auto', marginTop: '5vh' }}>
+              <Grid item xs={12} md={12} lg={12}>
+                <Typography variant="h5" component="h1" paragraph>
+                  لا يوجد
+                </Typography>
+              </Grid>
+            </Box>
+          )}
+
+          <br />
+
+          <Dialog fullWidth={fullWidth} maxWidth={maxWidth} open={open} onClose={handleClose}>
+            <DialogTitle sx={{ margin: 'auto' }}>موقع العداد</DialogTitle>
+            <DialogContent>
+              <Map lang={map.langSap} latt={map.lattSap} />
+              <Box
+                noValidate
+                component="form"
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  m: 'auto',
+                  width: '50vh',
+                }}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose}>Close</Button>
+            </DialogActions>
+          </Dialog>
+          <Dialog fullWidth={fullWidth} maxWidth={maxWidth} open={openSapMap} onClose={handleCloseSap}>
+            <DialogTitle sx={{ margin: 'auto' }}>موقع الفني</DialogTitle>
+            <DialogContent>
+              <Map lang={map.lang} latt={map.latt} />
+              <Box
+                noValidate
+                component="form"
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  m: 'auto',
+                  width: '50vh',
+                }}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseSap}>Close</Button>
+            </DialogActions>
+          </Dialog>
+        </Container>
       </Page>
     </>
   );
