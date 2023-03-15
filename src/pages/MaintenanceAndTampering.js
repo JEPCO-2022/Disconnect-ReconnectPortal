@@ -12,8 +12,8 @@ import {
   Select,
   TextField,
   Typography,
-  Menu,
   Dialog,
+  Menu,
   DialogTitle,
   DialogContent,
   DialogContentText,
@@ -21,7 +21,6 @@ import {
   DialogActions,
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import ClearIcon from '@mui/icons-material/Clear';
 import Paper from '@mui/material/Paper';
 import { styled, alpha } from '@mui/material/styles';
 import Table from '@mui/material/Table';
@@ -43,16 +42,10 @@ import {
   getBranchesLookup,
   getCitiesLookup,
   getTeamsLookup,
-  getEngineerAbandonedDecision,
-  getAllUsers,
-  SaveEngineerAbandonedDecision,
+  getMaintenanceAndVigilanceReport,
 } from '../Redux/Customer/CustomerAction';
 import '../index.css';
 import useSettings from '../hooks/useSettings';
-
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
 
 const StyledMenu = styled((props) => (
   <Menu
@@ -91,13 +84,6 @@ const StyledMenu = styled((props) => (
   },
 }));
 
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Gingerbread', 356, 16.0, 49, 3.9),
-];
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: '#2065D1',
@@ -116,17 +102,14 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     border: 0,
   },
 }));
-
-export default function PageNine() {
+const MaintenanceAndTampering = () => {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
   const location = useLocation();
   const CitiesList = useSelector((state) => state.Customer.CitiesList);
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
   const TeamsList = useSelector((state) => state.Customer.TeamList);
-  const allAbandoned = useSelector((state) => state.Customer.AllAbandoned);
-  const allUsers = useSelector((state) => state.Customer.AllUsers);
-  const data = useSelector((state) => state.Customer.engineerAbandonedDecision);
+  const DataReport = useSelector((state) => state.Customer.MaintenanceAndVigilanceReport);
   const [inputValues, setinputValues] = useState({
     City: '',
     Branch: '',
@@ -134,51 +117,28 @@ export default function PageNine() {
     startDate: moment().format('YYYY-MM-DD'),
     endDate: moment().format('YYYY-MM-DD'),
   });
-
-  const [ID, setID] = useState(0);
-  const isAdmin = localStorage.getItem('isAdmin');
-  const userName = localStorage.getItem('userName');
   // const isAdmin = useSelector((state) => state.Login.isAdmin);
   // const userName = useSelector((state) => state.Login.userName);
+  const isAdmin = localStorage.getItem('isAdmin');
+  const canExport = localStorage.getItem('canExport');
+  const userName = localStorage.getItem('userName');
   const [errorMessageCity, setErrorMessageCity] = useState('');
   const [errorMessageBranch, setErrorMessageBranch] = useState('');
   const [errorMessageTeam, setErrorMessageTeam] = useState('');
   const [flagCity, setflagCity] = useState(false);
   const [flagBranch, setflagBranch] = useState(false);
   const [flagTeam, setflagTeam] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
-  const [openSapMap, setOpenSapMap] = useState(false);
   const [fullWidth, setFullWidth] = useState(true);
   const [ticketid, setTicketid] = useState('');
   const [maxWidth, setMaxWidth] = useState('sm');
-  const [map, setMap] = useState({
-    langSap: '',
-    lang: '',
-    lattSap: '',
-    latt: '',
-  });
-  const open1 = Boolean(anchorEl);
-  const handleClickOpenMap = (xPostionSap, yPostionSap) => {
-    setOpen(true);
-    setMap({ langSap: xPostionSap, lattSap: yPostionSap });
-  };
-  const handleClickOpenSapMap = (xPostion, yPostion) => {
-    setOpenSapMap(true);
-    setMap({ lang: xPostion, latt: yPostion });
-  };
-  const handleClose1 = () => {
-    setAnchorEl(null);
-  };
+  const [sourceImage, setSourceImage] = useState('');
   const handleClose = () => {
     setOpen(false);
   };
-  const handleCloseSap = () => {
-    setOpenSapMap(false);
-  };
-  const handleClick = (event, e) => {
-    setAnchorEl(event.currentTarget);
-    setTicketid(e);
+  const handleOpen = (srcImage) => {
+    setOpen(true);
+    setSourceImage(srcImage);
   };
   function callTeamLookup(branchId) {
     setinputValues({ ...inputValues, Branch: branchId, Team: '' });
@@ -188,7 +148,8 @@ export default function PageNine() {
   }
   function callBranchLookup(cityID) {
     setinputValues({ ...inputValues, City: cityID, Branch: '', Team: '' });
-    dispatch(getBranchesLookup(cityID, userName, isAdmin));
+    const isAdminBoolean = isAdmin === 'true';
+    dispatch(getBranchesLookup(cityID, userName, isAdminBoolean));
     setErrorMessageCity('');
     setflagCity(false);
   }
@@ -198,9 +159,6 @@ export default function PageNine() {
     setflagTeam(false);
   }
   const handleTab = (e) => {
-    const startdate = moment(inputValues.startDate.$d).format('YYYY-MM-DD');
-    const enddate = moment(inputValues.endDate.$d).format('YYYY-MM-DD');
-    const branchnumber = inputValues.Branch.toString();
     if (inputValues.City === '') {
       setErrorMessageCity('مطلوب');
       setflagCity(true);
@@ -210,38 +168,30 @@ export default function PageNine() {
       setflagBranch(true);
       return false;
     }
-    dispatch(getEngineerAbandonedDecision(startdate, enddate, branchnumber, inputValues.Team));
+    const startdate = moment(inputValues.startDate.$d).format('YYYY-MM-DD');
+    const enddate = moment(inputValues.endDate.$d).format('YYYY-MM-DD');
+    const branchnumber = inputValues.Branch.toString();
+    dispatch(getMaintenanceAndVigilanceReport(startdate, enddate, branchnumber, inputValues.Team));
   };
   useEffect(() => {
     dispatch(getCitiesLookup());
-    dispatch(getAllUsers());
   }, []);
-  function consent(e) {
-    for (let index = 0; index < allUsers.length; index += 1) {
-      if (allUsers[index].username === userName) {
-        setID(allUsers.id);
-      }
+  function showImage() {
+    if (!(sourceImage === undefined || sourceImage === '')) {
+      return (
+        <>
+          <InputLabel sx={{ display: 'inline' }}> صوره : </InputLabel>
+          <img src={`data:image/jpeg;base64,${sourceImage}`} alt="images" className="srcImage" />
+        </>
+      );
     }
-    const ticketString = ticketid.toString();
-    dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
-    window.location.reload(true);
-  }
-  function reject(e) {
-    for (let index = 0; index < allUsers.length; index += 1) {
-      if (allUsers[index].username === userName) {
-        setID(allUsers.id);
-      }
-    }
-    const ticketString = ticketid.toString();
-    dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
-    window.location.reload(true);
-  }
-  function concate(districtName, zoneName, streetName) {
-    if (districtName === undefined) districtName = '';
-    if (zoneName === undefined) zoneName = '';
-    if (streetName === undefined) streetName = '';
-    const name = `${districtName} ${zoneName}  شارع  ${streetName}`;
-    return name;
+    return (
+      <>
+        <Typography variant="h3" component="h1" paragraph align="center">
+          لا يوجد صوره
+        </Typography>
+      </>
+    );
   }
   return (
     <>
@@ -251,7 +201,7 @@ export default function PageNine() {
             <Grid container spacing={2}>
               <Grid item xs={12} md={12} lg={12}>
                 <Typography variant="h4" component="h1" paragraph>
-                  تقرير المهجور
+                  تقرير عبث وصيانة
                 </Typography>
                 <Divider light />
               </Grid>
@@ -347,7 +297,6 @@ export default function PageNine() {
                   <h4 className="errorMessage">{errorMessageTeam}</h4>
                 </FormControl>
               </Grid>
-
               <Grid item xs={12} md={12} lg={12}>
                 <Button className="nxt-btn-12-grid" variant="contained" fullwidth onClick={() => handleTab(1)}>
                   إحضار
@@ -355,109 +304,39 @@ export default function PageNine() {
               </Grid>
             </Grid>
           </Card>
-
-          {allAbandoned?.length > 0 ? (
+          <br />
+          <br />
+          {DataReport?.length > 0 ? (
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 700 }} aria-label="customized table">
                 <TableHead>
                   <TableRow>
                     <StyledTableCell>الفرقة</StyledTableCell>
                     <StyledTableCell align="center">رقم العداد </StyledTableCell>
-                    <StyledTableCell align="center">اسم المشترك </StyledTableCell>
-                    <StyledTableCell align="center">عدد الفواتير</StyledTableCell>
-                    <StyledTableCell align="center">الذمم </StyledTableCell>
-                    <StyledTableCell align="center">رقم الهاتف </StyledTableCell>
-                    <StyledTableCell align="center">عنوان العداد </StyledTableCell>
-                    <StyledTableCell align="center">موقع العداد </StyledTableCell>
-                    <StyledTableCell align="center">موقع الفني </StyledTableCell>
+                    <StyledTableCell align="center"> صيانة او عبث </StyledTableCell>
                     <StyledTableCell align="center" />
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {allAbandoned.map((rows) => {
+                  {DataReport.map((rows) => {
                     return (
                       <StyledTableRow key={rows.abandonedTicketID}>
                         <StyledTableCell component="th" scope="row">
                           {rows.teaM_NO}
                         </StyledTableCell>
                         <StyledTableCell align="center">{rows.meter_NO}</StyledTableCell>
-                        <StyledTableCell align="center">{rows.cusT_Name}</StyledTableCell>
-                        <StyledTableCell align="center">{rows.nO_DOC}</StyledTableCell>
-                        <StyledTableCell align="center">{rows.customeR_BALANCE}</StyledTableCell>
-                        <StyledTableCell align="center">{rows.teL_NUMBER}</StyledTableCell>
-                        <StyledTableCell align="center" sx={{ minWidth: '20vh' }}>
-                          {concate(rows.districtName, rows.zoneName, rows.streetName)}
-                        </StyledTableCell>
+                        <StyledTableCell align="center">{rows.maintenanceAndVigilanceType}</StyledTableCell>
                         <StyledTableCell align="center">
                           <Button
                             aria-haspopup="true"
                             variant="contained"
                             disableElevatio
                             onClick={() => {
-                              // handleClickOpenMap(rows.x_POSITION, rows.y_POSITION);
-                              handleClickOpenSapMap(rows.saP_X_POSITION, rows.saP_Y_POSITION);
+                              handleOpen(rows.vigilanceImage);
                             }}
                           >
-                            Map
+                            صورة
                           </Button>
-                        </StyledTableCell>
-                        <StyledTableCell align="center">
-                          <Button
-                            aria-haspopup="true"
-                            variant="contained"
-                            disableElevatio
-                            onClick={() => {
-                              // handleClickOpenSapMap(rows.saP_X_POSITION, rows.saP_Y_POSITION);
-                              handleClickOpenMap(rows.x_POSITION, rows.y_POSITION);
-                            }}
-                          >
-                            Map
-                          </Button>
-                        </StyledTableCell>
-                        <StyledTableCell align="center">
-                          <>
-                            <Button
-                              id="demo-customized-button"
-                              aria-haspopup="true"
-                              variant="contained"
-                              disableElevatio
-                              endIcon={<KeyboardArrowDownIcon />}
-                              onClick={(e) => {
-                                handleClick(e, rows.abandonedTicketID);
-                              }}
-                            >
-                              اختر إجراء
-                            </Button>
-                            <StyledMenu
-                              id="demo-customized-menu"
-                              MenuListProps={{
-                                'aria-labelledby': 'demo-customized-button',
-                              }}
-                              anchorEl={anchorEl}
-                              open={open1}
-                              onClose={handleClose1}
-                            >
-                              <MenuItem
-                                disableRipple
-                                onClick={() => {
-                                  consent(2);
-                                }}
-                              >
-                                <ThumbUpAltIcon />
-                                موافقة
-                              </MenuItem>
-                              <Divider sx={{ my: 0.5 }} />
-                              <MenuItem
-                                disableRipple
-                                onClick={() => {
-                                  reject(3);
-                                }}
-                              >
-                                <ClearIcon />
-                                رفض
-                              </MenuItem>
-                            </StyledMenu>
-                          </>
                         </StyledTableCell>
                       </StyledTableRow>
                     );
@@ -474,13 +353,11 @@ export default function PageNine() {
               </Grid>
             </Box>
           )}
-
           <br />
-
           <Dialog fullWidth={fullWidth} maxWidth={maxWidth} open={open} onClose={handleClose}>
-            <DialogTitle sx={{ margin: 'auto' }}>موقع الفني</DialogTitle>
+            <DialogTitle sx={{ margin: 'auto' }}>صورة العداد</DialogTitle>
+            {showImage()}
             <DialogContent>
-              <Map lang={map.langSap} latt={map.lattSap} />
               <Box
                 noValidate
                 component="form"
@@ -496,27 +373,11 @@ export default function PageNine() {
               <Button onClick={handleClose}>Close</Button>
             </DialogActions>
           </Dialog>
-          <Dialog fullWidth={fullWidth} maxWidth={maxWidth} open={openSapMap} onClose={handleCloseSap}>
-            <DialogTitle sx={{ margin: 'auto' }}>موقع العداد</DialogTitle>
-            <DialogContent>
-              <Map lang={map.lang} latt={map.latt} />
-              <Box
-                noValidate
-                component="form"
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  m: 'auto',
-                  width: '50vh',
-                }}
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleCloseSap}>Close</Button>
-            </DialogActions>
-          </Dialog>
+          ;
         </Container>
       </Page>
     </>
   );
-}
+};
+
+export default MaintenanceAndTampering;

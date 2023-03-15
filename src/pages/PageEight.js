@@ -14,6 +14,7 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
+import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { addUserBranches, getUserBranches, ClearAllUserBranch } from '../Redux/Customer/CustomerAction';
@@ -31,6 +32,7 @@ let alzarqaOfices = {};
 let madabaOfices = {};
 export default function PageEight() {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
   const [productsArray, setProductsArray] = useState([]);
   const [values, setValues] = useState([]);
   const [ref, setRef] = useState(true);
@@ -131,8 +133,13 @@ export default function PageEight() {
       mearged.push({ ...results[index], ...results2[index] });
     }
     dispatch(addUserBranches(userName, mearged));
+
     setOpen(true);
+    setTimeout(() => {
+      navigate(`/dashboard/AllUsersAndRoles`);
+    }, 4000);
   }
+
   function boolCheckedDefalut(branchid, cityid) {
     for (let index = 0; index < objectOfArrayBranch.length; index += 1) {
       if (objectOfArrayBranch[index].BranchID === branchid) {
@@ -203,7 +210,7 @@ export default function PageEight() {
           إرسال
         </Button>
       </Container>
-      <Snackbar open={open} autoHideDuration={1500} severity="success" onClose={handleClose}>
+      <Snackbar open={open} autoHideDuration={4000} severity="success" onClose={handleClose}>
         <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
           تمت الإرسال بنجاح
         </Alert>

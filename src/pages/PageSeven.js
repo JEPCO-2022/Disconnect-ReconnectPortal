@@ -23,6 +23,7 @@ export default function PageSeven() {
   const timeMinutes = String(timeSecond).split(':');
   const time = `  ${timeMinutes[1]}: ${timeMinutes[0]}`;
   useEffect(() => {
+    console.log(id);
     dispatch(getTicketsDetails(id));
   }, []);
   function showImage(srcImage) {
@@ -77,6 +78,7 @@ export default function PageSeven() {
       </>
     );
   }
+
   return (
     <>
       <Container>
@@ -118,7 +120,7 @@ export default function PageSeven() {
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> رقم الهاتف : </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                0797466629
+                {data.teL_NUMBER}
               </Typography>
             </Grid>
           </Grid>
@@ -212,7 +214,7 @@ export default function PageSeven() {
                 className="nxt-btn-12-grid"
                 variant="contained"
                 fullwidth
-                onClick={() => navigate(`/dashboard/user/five`)}
+                onClick={() => navigate(`/dashboard/user/detailsbyteam`)}
               >
                 رجوع
               </Button>

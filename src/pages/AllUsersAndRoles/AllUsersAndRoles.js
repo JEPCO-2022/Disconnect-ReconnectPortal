@@ -21,7 +21,6 @@ import ClearIcon from '@mui/icons-material/Clear';
 import { useNavigate } from 'react-router-dom';
 import { getAllUsers, deleteUser } from '../../Redux/Customer/CustomerAction';
 
-
 // hooks
 import useSettings from '../../hooks/useSettings';
 
@@ -101,6 +100,7 @@ export default function AllUsersAndRoles() {
     setName(fullName);
     setUserName(username);
   };
+  console.log(allUsers);
   const handleCloseDelete = () => {
     setAnchorEl(null);
     dispatch(deleteUser(id));
@@ -117,7 +117,7 @@ export default function AllUsersAndRoles() {
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
           <Grid container spacing={2}>
-          <Grid item xs={6} md={6} lg={6}>
+            <Grid item xs={6} md={6} lg={6}>
               <Typography variant="h4" component="h1" paragraph>
                 المستخدمون والصلاحيات
               </Typography>
@@ -128,7 +128,9 @@ export default function AllUsersAndRoles() {
                 className="nxt-btn-12-grid"
                 variant="contained"
                 fullwidth
-                onClick={()=>{navigate('/dashboard/user/CreateNewUser')}}
+                onClick={() => {
+                  navigate('/dashboard/user/CreateNewUser');
+                }}
               >
                 إضافة مستخدم
               </Button>
@@ -155,14 +157,17 @@ export default function AllUsersAndRoles() {
               <TableRow>
                 <StyledTableCell align="center">الاسم الكامل</StyledTableCell>
                 <StyledTableCell align="center">اسم المستخدم</StyledTableCell>
-                <StyledTableCell align="center"/>
+                <StyledTableCell align="center" />
               </TableRow>
             </TableHead>
             <TableBody>
               {allUsers
                 .filter((item) => {
-                  return search.toLowerCase() === '' ? item : item.name.toLowerCase().includes(search);
+                  return search.toLowerCase() === ''
+                    ? item
+                    : item.name.toLowerCase().includes(search) || item.username.toLowerCase().includes(search);
                 })
+
                 .map((row, index) => {
                   const labelId = `enhanced-table-checkbox-${index}`;
                   return (
@@ -199,7 +204,6 @@ export default function AllUsersAndRoles() {
                             onClose={handleClose}
                           >
                             <MenuItem
-                              // to={`/dashboard/EditUserInfo/${allUsers.id}`}
                               disableRipple
                               onClick={() => {
                                 navigate(`/dashboard/EditUserInfo/${id}`, {
@@ -212,7 +216,7 @@ export default function AllUsersAndRoles() {
                             </MenuItem>
                             <MenuItem
                               onClick={() => {
-                                navigate(`/dashboard/eight/${id}`, { state: { username: userName } });
+                                navigate(`/dashboard/permission/${id}`, { state: { username: userName } });
                               }}
                               disableRipple
                             >

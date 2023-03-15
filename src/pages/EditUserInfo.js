@@ -17,9 +17,11 @@ import {
 } from '@mui/material';
 // hooks
 import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useState, useEffect, useContext } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router';
 import { userUpdateInfo, getAllUsers } from '../Redux/Customer/CustomerAction';
 import useSettings from '../hooks/useSettings';
 // components
@@ -32,25 +34,34 @@ export default function EditUserInfo() {
   const [ref, useRef] = useState(false);
   const location = useLocation();
   const dispatch = useDispatch();
-  const nameLocation = '';
+  let nameLocation = '';
   let idLocation = '';
   let userNameLocation = '';
+  const allUsers = useSelector((state) => state.Customer.AllUsers);
   const [flagFullName, setflagFullName] = useState(false);
   const [flagUserName, setflagUserName] = useState(false);
   const [flagPass, setflagPass] = useState(false);
   const [administrator, setAdministrator] = useState(true);
   const [exportFiles, setExportFiles] = useState(true);
+  const navigate = useNavigate();
   const [inputValues, setinputValues] = useState({
     id: '',
     fullName: '',
     userName: '',
     passowrd: '',
   });
-
-  useEffect(() => {
+  function getPasswordUsers() {
+    let pass = '';
+    dispatch(getAllUsers());
+    nameLocation = location.state.fullName;
     idLocation = location.state.idNumber;
     userNameLocation = location.state.username;
-    setinputValues({ id: idLocation, userName: userNameLocation, fullName: '', passowrd: '' });
+    for (let index = 0; index < allUsers.length; index += 1)
+      if (allUsers[index].username === userNameLocation) pass = allUsers[index].password;
+    setinputValues({ id: idLocation, userName: userNameLocation, fullName: nameLocation, passowrd: pass });
+  }
+  useEffect(() => {
+    getPasswordUsers();
   }, [ref]);
 
   function handleClick() {
@@ -148,7 +159,6 @@ export default function EditUserInfo() {
                 fullWidth
                 label="كلمة المرور"
                 variant="outlined"
-                type="password"
                 autoComplete="current-password"
                 onChange={(e) => {
                   setinputValues({ ...inputValues, passowrd: e.target.value });
@@ -190,10 +200,19 @@ export default function EditUserInfo() {
                 </RadioGroup>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
+
+            <Grid item xs={12} md={12} lg={12}>
               <Button
+                endIcon={<ArrowBackIcon />}
+                variant="contained"
+                fullwidth
+                onClick={() => navigate(`/dashboard/AllUsersAndRoles`)}
+              >
+                رجوع
+              </Button>
+              <Button
+                sx={{ marginLeft: 2 }}
                 endIcon={<ModeEditOutlineIcon />}
-                className="nxt-btn-12-grid"
                 variant="contained"
                 fullwidth
                 onClick={(e) => {
@@ -202,6 +221,13 @@ export default function EditUserInfo() {
               >
                 تعديل
               </Button>
+            </Grid>
+            <Snackbar open={open} autoHideDuration={1500} severity="success" onClose={handleClose}>
+              <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+                تم التعديل بنجاح
+              </Alert>
+            </Snackbar>
+            <Grid item xs={12} md={6} lg={6}>
               <Snackbar open={open} autoHideDuration={1500} severity="success" onClose={handleClose}>
                 <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
                   تم التعديل بنجاح

@@ -13,8 +13,15 @@
   .visible {
     visibility: visible !important;
   }
-
-
   .errorMessage{
     color: red;
   }
+
+  .srcImage{
+    margin: 10px auto;
+    max-width : 70vh;
+    max-height : 60vh;
+  }
+
+
+  

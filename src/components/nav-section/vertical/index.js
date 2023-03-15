@@ -5,6 +5,7 @@ import { List, Box, ListSubheader } from '@mui/material';
 //
 import { NavListRoot } from './NavList';
 
+
 // ----------------------------------------------------------------------
 
 export const ListSubheaderStyle = styled((props) => <ListSubheader disableSticky disableGutters {...props} />)(
@@ -27,8 +28,7 @@ NavSectionVertical.propTypes = {
   navConfig: PropTypes.array,
 };
 
-export default function NavSectionVertical({ navConfig=[], isCollapse = false, ...other }) {
-  
+export default function NavSectionVertical({ navConfig = [], isCollapse = false, ...other }) {
   return (
     <>
       <Box>

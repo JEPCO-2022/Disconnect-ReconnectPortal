@@ -79,10 +79,12 @@
     "redux-thunk": "^2.4.2",
     "simplebar": "^5.3.6",
     "simplebar-react": "^2.3.6",
+    "styles": "^0.2.1",
     "stylis": "^4.1.0",
     "stylis-plugin-rtl": "^2.1.1",
     "xlsx": "^0.18.5",
-    "xlsx-js-style": "^1.2.0"
+    "xlsx-js-style": "^1.2.0",
+    "xlsx-style": "^0.8.13"
   },
   "devDependencies": {
     "@babel/core": "^7.17.9",

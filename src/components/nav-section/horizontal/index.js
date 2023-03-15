@@ -20,7 +20,7 @@ NavSectionHorizontal.propTypes = {
   navConfig: PropTypes.array,
 };
 
-function NavSectionHorizontal({ navConfig=[] }) {
+function NavSectionHorizontal({ navConfig = [] }) {
   return (
     <Stack direction="row" justifyContent="center" sx={{ bgcolor: 'background.neutral', borderRadius: 1, px: 0.5 }}>
       <Stack direction="row" sx={{ ...hideScrollbar, py: 1 }}>

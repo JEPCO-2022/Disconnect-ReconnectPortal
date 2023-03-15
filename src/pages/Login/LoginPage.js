@@ -1,7 +1,8 @@
 import { Helmet } from 'react-helmet-async';
 // @mui
+import { Link, Container, Typography, Divider, Stack, Button, Grid } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Link, Container, Typography, Divider, Stack, Button } from '@mui/material';
+import image from './logo-wide (1).png';
 // hooks
 import LoginForm from './LoginForm';
 import useResponsive from '../../hooks/useResponsive';
@@ -46,15 +47,6 @@ export default function LoginPage() {
 
   return (
     <>
-      {/* <img
-        src="/logo/logo.png"
-        alt="logo"
-        sx={{
-          position: 'fixed',
-          top: { xs: 16, sm: 24, md: 40 },
-          left: { xs: 16, sm: 24, md: 40 },
-        }}
-      /> */}
       <Helmet>
         <title>تسجيل دخول</title>
       </Helmet>
@@ -67,13 +59,15 @@ export default function LoginPage() {
             <img width="1750vh" src="/assets/illustrations/mainicon.svg" alt="login" />
           </StyledSection>
         )}
-
         <Container maxWidth="sm">
           <StyledContent>
-            <Typography variant="h4" gutterBottom>
+            <Grid container direction="column" alignItems="center">
+              <img src={image} alt="Logo" className="m-4" />
+            </Grid>
+            {/* <Typography variant="h6" gutterBottom>
               تسجيل دخول
-            </Typography>
-            <br />
+            </Typography> */}
+
             {/* <Typography variant="body2" sx={{ mb: 5 }}>
               Don’t have an account? {''}
               <Link variant="subtitle2">Get started</Link>

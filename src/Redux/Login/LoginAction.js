@@ -8,6 +8,7 @@ export const GET_USER_TOKEN = 'GET_USER_TOKEN';
 export const SET_USER_INFO = 'SET_USER_INFO';
 
 export const SET_LOGIN_REQ = 'SET_LOGIN_REQ';
+export const SET_LOGIN_INFORMATION = 'SET_LOGIN_INFORMATION';
 export const SET_LOGIN_ERR = 'SET_LOGIN_ERR';
 export const SET_LOGIN_SUCCESS = 'SET_LOGIN_SUCCESS';
 
@@ -27,14 +28,18 @@ export const setLoginErr = () => {
     type: SET_LOGIN_ERR,
   };
 };
-export const setLoginSuccess = (username, userToken) => {
+export const setLoginInformation = () => {
+  return {
+    type: SET_LOGIN_INFORMATION,
+  };
+};
+export const setLoginSuccess = (username, userToken, canExport, isAdmin) => {
   console.log({ username, userToken });
   return {
     type: SET_LOGIN_SUCCESS,
-    payload: { username, userToken },
+    payload: { username, userToken, canExport, isAdmin },
   };
 };
-
 export const userLogin = (username, password) => async (dispatch) => {
   dispatch(setLoginReq());
 
@@ -66,16 +71,17 @@ export const userLogin = (username, password) => async (dispatch) => {
     localStorage.setItem('user', genertedToken);
     localStorage.setItem('userName', username);
 
-
     const infoTokenResponse = await axios(config);
 
     console.log(infoTokenResponse.data.body);
-    console.log(infoTokenResponse.data.body.isAdmin);
     localStorage.setItem('isAdmin', infoTokenResponse.data.body.isAdmin);
-
+    localStorage.setItem('canExport', infoTokenResponse.data.body.canExport);
+    const filedata = infoTokenResponse.data.body;
     if (infoTokenResponse.data.statusCode) {
       // console.log('no Cookie');
-      dispatch(setLoginSuccess(username, genertedToken));
+      dispatch(setLoginSuccess(username, genertedToken, filedata.canExport, filedata.isAdmin));
+
+      dispatch(setLoginInformation(filedata));
     } else {
       // console.log('login errorXO');
       dispatch(setLoginErr());

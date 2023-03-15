@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 // @mui
-import * as FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
-// import { SiMicrosoftexcel } from "react-icons/si";
+import FileSaver from 'file-saver';
 import {
   Box,
   Button,
@@ -33,7 +32,6 @@ import TableRow from '@mui/material/TableRow';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers-pro';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import Radio from '@mui/material/Radio';
-import { useIdleTimer } from 'react-idle-timer';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import '../index.css';
 import { read, utils, writeFile } from 'xlsx';
@@ -83,9 +81,12 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 export default function PageFour() {
   const { themeStretch } = useSettings();
-  const userName = localStorage.getItem('userName');
+  // const canExport = useSelector((state) => state.Login.canExport);
+  // const isAdmin = useSelector((state) => state.Login.isAdmin);
   const isAdmin = localStorage.getItem('isAdmin');
-  const boolValue = isAdmin === 'true';
+  const canExport = localStorage.getItem('canExport');
+  const userName = localStorage.getItem('userName');
+  // const userName = useSelector((state) => state.Login.userName);
   const CitiesList = useSelector((state) => state.Customer.CitiesList);
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
   const TeamsList = useSelector((state) => state.Customer.TeamList);
@@ -104,7 +105,7 @@ export default function PageFour() {
   const [flagCity, setflagCity] = useState(false);
   const [flagBranch, setflagBranch] = useState(false);
   const [flagTeam, setflagTeam] = useState(false);
-
+  const [search, setSearch] = useState('');
   const [t, setT] = useState('');
   const [inputValues, setinputValues] = useState({
     City: '',
@@ -116,28 +117,6 @@ export default function PageFour() {
   const [valueRDG, setValueRBG] = useState('1');
   const fileExtension = '.xlsx';
   const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-  function convertTicketStatusID(ticketNumber) {
-    switch (ticketNumber) {
-      case 1:
-        return 'جديده';
-      case 2:
-        return 'الوصول';
-      case 3:
-        return 'تحديد الموقع';
-      case 4:
-        return 'مسح العدادات';
-      case 5:
-        return 'إغلاق';
-      case 6:
-        return 'لم يتم الوصول إليه';
-      case 7:
-        return 'إعاده فتحها';
-      case 8:
-        return 'منتهي الصلاحية';
-      default:
-        return 0;
-    }
-  }
   function callTeamLookup(branchId) {
     setinputValues({ ...inputValues, Branch: branchId, Team: '' });
     dispatch(getTeamsLookup(branchId));
@@ -146,7 +125,8 @@ export default function PageFour() {
   }
   function callBranchLookup(cityID) {
     setinputValues({ ...inputValues, City: cityID, Branch: '', Team: '' });
-    dispatch(getBranchesLookup(cityID, userName, boolValue));
+    const isAdminBoolean = isAdmin === 'true';
+    dispatch(getBranchesLookup(cityID, userName, isAdminBoolean));
     setErrorMessageCity('');
     setflagCity(false);
   }
@@ -189,15 +169,14 @@ export default function PageFour() {
   }
 
   const exportToCSV = (apiData, fileName) => {
-    const customMergeHeaders = ['رقم الفرقة', 'رقم العداد', 'الإجراء الحالي'];
-    const customHeadings = apiData?.reduce((acc, curr) => {
+    const customHeadings = apiData.reduce((acc, curr) => {
       const _users = acc;
       return [
         ..._users,
         {
-          'رقم الفرقة': curr.teaM_NO,
-          'رقم العداد': curr.meter_NO,
-          'الإجراء الحالي': convertTicketStatusID(curr.ticketStatusID),
+          'رقم الفرقة': curr.TEAM_NO,
+          ' رقم العداد	 ': curr.Meter_NO,
+          ' الإجراء الحالي': curr.TicketStatusNameAR,
         },
       ];
     }, []);
@@ -211,20 +190,22 @@ export default function PageFour() {
       {
         width: 30,
       },
+      {
+        width: 30,
+      },
     ];
-    const head = ['تفاصيل الكشف حسب الفرقة'];
-    const merge = [{ s: { c: 0, r: 0 }, e: { c: 2, r: 0 } }];
-    const ws = XLSX.utils.json_to_sheet(customHeadings);
+    const head = [' تفاصيل الكشف حسب المكتب '];
+    const merge = [{ s: { c: 0, r: 0 }, e: { c: 3, r: 0 } }];
+    const ws = XLSX.utils.json_to_sheet(customHeadings, { origin: 'A2' });
     ws['!cols'] = RowInfo;
     ws['!merges'] = merge;
     const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
-    XLSX.utils.sheet_add_aoa(ws, [customMergeHeaders], { origin: 'A2' });
     XLSX.utils.sheet_add_aoa(ws, [head], { origin: 'A1' });
     const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
     const data = new Blob([excelBuffer], { type: fileType });
     FileSaver.saveAs(data, fileName + fileExtension);
   };
-
+  console.log(tableData);
   return (
     <>
       <Page title="تفاصيل الكشف حسب الفرقة">
@@ -335,20 +316,38 @@ export default function PageFour() {
               </Grid>
             </Grid>
           </Card>
+
+          <br />
+
           <br />
           {tableData?.length > 0 ? (
             <>
-              <Grid textAlign="end" item xs={12} md={6} lg={6}>
-                <Button
-                  endIcon={<FileDownloadIcon />}
-                  variant="outlined"
-                  onClick={() => {
-                    exportToCSV(tableData, 'القطع والوصل');
-                  }}
-                  fullwidth
-                >
-                  تنزيل
-                </Button>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={12} lg={12}>
+                  <Divider light />
+                </Grid>
+                <Grid item xs={12} md={12} lg={12}>
+                  <TextField
+                    fullWidth
+                    placeholder="ابحث عن مستخدم "
+                    onChange={(event) => {
+                      setSearch(event.target.value);
+                    }}
+                  />
+                </Grid>
+                <Grid textAlign="end" item xs={12} md={12} lg={12}>
+                  <Button
+                    className={canExport === 'true' ? 'visible' : 'invisible'}
+                    endIcon={<FileDownloadIcon />}
+                    variant="outlined"
+                    onClick={() => {
+                      exportToCSV(tableData, 'تفاصيل الكشف حسب الفرقة');
+                    }}
+                    fullwidth
+                  >
+                    تنزيل
+                  </Button>
+                </Grid>
               </Grid>
               <br />
               <TableContainer component={Paper}>
@@ -362,32 +361,38 @@ export default function PageFour() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {tableData.map((data) => (
-                      <StyledTableRow key={data.id}>
-                        <StyledTableCell component="th" scope="row">
-                          {data.teaM_NO}
-                        </StyledTableCell>
-                        <StyledTableCell align="center">{data.meter_NO}</StyledTableCell>
-                        <StyledTableCell align="center">{convertTicketStatusID(data.ticketStatusID)}</StyledTableCell>
-                        <StyledTableCell align="center">
-                          <Button
-                            onClick={() => {
-                              navigate(`/dashboard/user/seven/${data.id}`, {
-                                state: {
-                                  ticketID: data.id,
-                                  teamNumber: data.teaM_NO,
-                                  customName: data.cusT_Name,
-                                  fileNumber: data.file_NO,
-                                  meterNumber: data.meter_NO,
-                                },
-                              });
-                            }}
-                          >
-                            تفاصيل
-                          </Button>
-                        </StyledTableCell>
-                      </StyledTableRow>
-                    ))}
+                    {tableData
+                      .filter((item) => {
+                        return search === ''
+                          ? item
+                          : item.Meter_NO.includes(search) || item.TicketStatusNameAR.includes(search);
+                      })
+                      .map((data) => (
+                        <StyledTableRow key={data.id}>
+                          <StyledTableCell component="th" scope="row">
+                            {data.TEAM_NO}
+                          </StyledTableCell>
+                          <StyledTableCell align="center">{data.Meter_NO}</StyledTableCell>
+                          <StyledTableCell align="center">{data.TicketStatusNameAR}</StyledTableCell>
+                          <StyledTableCell align="center">
+                            <Button
+                              onClick={() => {
+                                navigate(`/dashboard/user/detailsdetiction/${data.ID}`, {
+                                  state: {
+                                    ticketID: data.ID,
+                                    teamNumber: data.TEAM_NO,
+                                    customName: data.CUST_Name,
+                                    fileNumber: data.File_NO,
+                                    meterNumber: data.Meter_NO,
+                                  },
+                                });
+                              }}
+                            >
+                              تفاصيل
+                            </Button>
+                          </StyledTableCell>
+                        </StyledTableRow>
+                      ))}
                   </TableBody>
                 </Table>
               </TableContainer>

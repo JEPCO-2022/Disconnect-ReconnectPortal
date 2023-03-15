@@ -34,7 +34,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import Radio from '@mui/material/Radio';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import '../index.css';
-import { DownloadTableExcel } from 'react-export-table-to-excel';
 // hooks
 import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment/moment';
@@ -66,13 +65,17 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 export default function PageFour() {
   const { themeStretch } = useSettings();
-  const userName = localStorage.getItem('userName');
-  const isAdmin = localStorage.getItem('isAdmin');
-  const boolValue = isAdmin === 'true';
   const CitiesList = useSelector((state) => state.Customer.CitiesList);
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
+  console.log(BranchesList);
   const TeamList = useSelector((state) => state.Customer.TeamInfo);
   const clearAll = useSelector((state) => state.Customer.clearAll);
+  // const userName = useSelector((state) => state.Login.userName);
+  // const isAdmin = useSelector((state) => state.Login.isAdmin);
+  // const canExport = useSelector((state) => state.Login.canExport);
+  const isAdmin = localStorage.getItem('isAdmin');
+  const canExport = localStorage.getItem('canExport');
+  const userName = localStorage.getItem('userName');
   const dispatch = useDispatch();
   const tableRef = useRef(null);
   const separator = '';
@@ -83,7 +86,6 @@ export default function PageFour() {
   const [flagFullName, setflagFullName] = useState(false);
   const [errorMessageCity, setErrorMessageCity] = useState('');
   const [errorMessageBranch, setErrorMessageBranch] = useState('');
-  const [ignored, forceUpdate] = useReducer((x) => x + 1, 0);
   const fileExtension = '.xlsx';
   const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
   const [inputValues, setinputValues] = useState({
@@ -93,17 +95,18 @@ export default function PageFour() {
   });
   const [valueRDG, setValueRBG] = useState('1');
   function callBranchLookup(cityID) {
-    dispatch(getBranchesLookup(cityID, userName, boolValue));
+    const isAdminBoolean = isAdmin === 'true';
+    dispatch(getBranchesLookup(cityID, userName, isAdminBoolean));
   }
   const handleChangeRadioGroup = (event) => {
     setValueRBG(event.target.value);
   };
+
   useEffect(() => {
     refresh();
     dispatch(getCitiesLookup());
     dispatch(ClearAllUserBranch());
   }, []);
-
   function refresh() {
     if (window.localStorage) {
       if (!localStorage.getItem('reload')) {
@@ -134,12 +137,6 @@ export default function PageFour() {
     dispatch(getTeamInfo(data));
   };
   const exportToCSV = (apiData, fileName) => {
-    const customMergeHeaders = [
-      'رقم الفرقة',
-      'العدادات المنجزه في ألايام السابقة',
-      'العدادات المنجزه في الكشف اليومي',
-      'إجمالي العدادات في الكشف',
-    ];
     const customHeadings = apiData.reduce((acc, curr) => {
       const _users = acc;
       return [
@@ -168,11 +165,10 @@ export default function PageFour() {
     ];
     const head = ['العدادات المنجزه حسب المكتب '];
     const merge = [{ s: { c: 0, r: 0 }, e: { c: 3, r: 0 } }];
-    const ws = XLSX.utils.json_to_sheet(customHeadings);
+    const ws = XLSX.utils.json_to_sheet(customHeadings, { origin: 'A2' });
     ws['!cols'] = RowInfo;
     ws['!merges'] = merge;
     const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
-    XLSX.utils.sheet_add_aoa(ws, [customMergeHeaders], { origin: 'A2' });
     XLSX.utils.sheet_add_aoa(ws, [head], { origin: 'A1' });
     const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
     const data = new Blob([excelBuffer], { type: fileType });
@@ -279,10 +275,11 @@ export default function PageFour() {
           <>
             <Grid textAlign="end" item xs={12} md={6} lg={6}>
               <Button
+                className={canExport === 'true' ? 'visible' : 'invisible'}
                 endIcon={<FileDownloadIcon />}
                 variant="outlined"
                 onClick={() => {
-                  exportToCSV(TeamList, 'القطع والوصل');
+                  exportToCSV(TeamList, 'العدادات المنجزه حسب المكتب');
                 }}
                 fullwidth
               >
