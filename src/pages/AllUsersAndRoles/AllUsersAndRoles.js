@@ -100,7 +100,6 @@ export default function AllUsersAndRoles() {
     setName(fullName);
     setUserName(username);
   };
-  console.log(allUsers);
   const handleCloseDelete = () => {
     setAnchorEl(null);
     dispatch(deleteUser(id));

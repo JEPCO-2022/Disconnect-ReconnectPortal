@@ -67,7 +67,6 @@ export default function PageFour() {
   const { themeStretch } = useSettings();
   const CitiesList = useSelector((state) => state.Customer.CitiesList);
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
-  console.log(BranchesList);
   const TeamList = useSelector((state) => state.Customer.TeamInfo);
   const clearAll = useSelector((state) => state.Customer.clearAll);
   // const userName = useSelector((state) => state.Login.userName);
@@ -181,13 +180,13 @@ export default function PageFour() {
         <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
           <Grid container spacing={2}>
             {/* <Grid item xs={12} md={12} lg={12} /> */}
-            <Grid item xs={12} md={12} lg={12}>
+            <Grid item xs={8} md={12} lg={12}>
               <Typography variant="h4" component="h1" paragraph>
                 العدادات المنجزه حسب المكتب
               </Typography>
               <Divider light />
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
+            <Grid item xs={8} md={6} lg={6}>
               <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label"> المحافظة</InputLabel>
                 <Select
@@ -211,7 +210,7 @@ export default function PageFour() {
                 <h4 className="errorMessage">{errorMessageCity}</h4>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
+            <Grid item xs={8} md={6} lg={6}>
               <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label"> المكتب</InputLabel>
                 <Select
@@ -229,13 +228,15 @@ export default function PageFour() {
                   }}
                 >
                   {BranchesList.map((t) => (
-                    <MenuItem value={t.branchID}>{t.branchName}</MenuItem>
+                    <MenuItem sx={{ width: '180px', height: '100%' }} value={t.branchID}>
+                      {t.branchName}
+                    </MenuItem>
                   ))}
                 </Select>
                 <h4 className="errorMessage">{errorMessageBranch}</h4>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
+            <Grid item xs={8} md={6} lg={6}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DesktopDatePicker
                   label="تاريخ التقرير"
@@ -248,7 +249,7 @@ export default function PageFour() {
                 />
               </LocalizationProvider>
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
+            <Grid item xs={8} md={6} lg={6}>
               <FormLabel id="demo-row-radio-buttons-group-label" sx={{ display: 'inline-block' }}>
                 نوع الكشف:
               </FormLabel>

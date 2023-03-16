@@ -205,7 +205,6 @@ export default function PageFour() {
     const data = new Blob([excelBuffer], { type: fileType });
     FileSaver.saveAs(data, fileName + fileExtension);
   };
-  console.log(tableData);
   return (
     <>
       <Page title="تفاصيل الكشف حسب الفرقة">

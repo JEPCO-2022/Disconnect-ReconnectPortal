@@ -19,6 +19,9 @@ import {
   DialogContentText,
   Box,
   DialogActions,
+  FormLabel,
+  FormControlLabel,
+  Radio,
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import Paper from '@mui/material/Paper';
@@ -133,6 +136,7 @@ const MaintenanceAndTampering = () => {
   const [ticketid, setTicketid] = useState('');
   const [maxWidth, setMaxWidth] = useState('sm');
   const [sourceImage, setSourceImage] = useState('');
+  const [typeReport, setTypeReport] = useState(1);
   const handleClose = () => {
     setOpen(false);
   };
@@ -171,8 +175,13 @@ const MaintenanceAndTampering = () => {
     const startdate = moment(inputValues.startDate.$d).format('YYYY-MM-DD');
     const enddate = moment(inputValues.endDate.$d).format('YYYY-MM-DD');
     const branchnumber = inputValues.Branch.toString();
-    dispatch(getMaintenanceAndVigilanceReport(startdate, enddate, branchnumber, inputValues.Team));
+    dispatch(getMaintenanceAndVigilanceReport(startdate, enddate, branchnumber, inputValues.Team, typeReport));
   };
+  const handChangeTyprReport = (event) => {
+    setTypeReport(event.target.value);
+    return 0;
+  };
+
   useEffect(() => {
     dispatch(getCitiesLookup());
   }, []);
@@ -297,6 +306,22 @@ const MaintenanceAndTampering = () => {
                   <h4 className="errorMessage">{errorMessageTeam}</h4>
                 </FormControl>
               </Grid>
+              <Grid item xs={12} md={6} lg={6}>
+                <FormControl>
+                  <FormLabel id="demo-radio-buttons-group-label">مشرف؟</FormLabel>
+                  <RadioGroup
+                    row
+                    aria-labelledby="demo-radio-buttons-group-label"
+                    defaultValue="1"
+                    name="radio-buttons-group"
+                    onChange={handChangeTyprReport}
+                  >
+                    <FormControlLabel control={<Radio value={1} />} label="صيانة" />
+                    <FormControlLabel control={<Radio value={2} />} label="عبث" />
+                    <FormControlLabel control={<Radio value={3} />} label="الكل" />
+                  </RadioGroup>
+                </FormControl>
+              </Grid>
               <Grid item xs={12} md={12} lg={12}>
                 <Button className="nxt-btn-12-grid" variant="contained" fullwidth onClick={() => handleTab(1)}>
                   إحضار
@@ -312,6 +337,7 @@ const MaintenanceAndTampering = () => {
                 <TableHead>
                   <TableRow>
                     <StyledTableCell>الفرقة</StyledTableCell>
+                    <StyledTableCell align="center"> اسم المشترك </StyledTableCell>
                     <StyledTableCell align="center">رقم العداد </StyledTableCell>
                     <StyledTableCell align="center"> صيانة او عبث </StyledTableCell>
                     <StyledTableCell align="center" />
