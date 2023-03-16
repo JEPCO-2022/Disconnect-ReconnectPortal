@@ -18,6 +18,7 @@ import {
   setclearAll,
   setengineerAbandonedDecision,
   setsaveEngineerAbandonedDecision,
+  setmaintenanceAndVigilanceReport,
 } from './CustomerAction';
 
 const initialState = {
@@ -36,6 +37,7 @@ const initialState = {
   UsersBranches: [],
   alluserBranch: [],
   engineerAbandonedDecision: [],
+  MaintenanceAndVigilanceReport: [],
   clearAll: [],
 };
 
@@ -50,6 +52,11 @@ const CustomerReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         AllAbandoned: action.payload,
+      };
+    case setmaintenanceAndVigilanceReport:
+      return {
+        ...state,
+        MaintenanceAndVigilanceReport: action.payload,
       };
     case setsaveEngineerAbandonedDecision:
       return {

@@ -29,8 +29,6 @@ const MENU_OPTIONS = [
 export default function AccountPopover() {
   const userName = useSelector((state) => state.Login.userName);
   const FullName = useSelector((state) => state.Login.FullName);
-  console.log(userName);
-  console.log(FullName);
   const [open, setOpen] = useState(null);
 
   const handleOpen = (event) => {

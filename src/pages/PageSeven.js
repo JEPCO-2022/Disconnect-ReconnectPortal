@@ -43,6 +43,23 @@ export default function PageSeven() {
       </>
     );
   }
+  function telephonChecked(phoneNumber) {
+    if (phoneNumber === undefined || phoneNumber === '')
+      return (
+        <>
+          <Typography sx={{ display: 'inline' }} paragraph>
+            لا يوجد
+          </Typography>
+        </>
+      );
+    return (
+      <>
+        <Typography sx={{ display: 'inline' }} paragraph>
+          {phoneNumber}
+        </Typography>
+      </>
+    );
+  }
   function daysChecked(days) {
     if (days === 'undefined' || days === '')
       return (
@@ -60,6 +77,23 @@ export default function PageSeven() {
       </>
     );
   }
+  function governateNameChecked(governateName) {
+    if (governateName === undefined || governateName === '')
+      return (
+        <>
+          <Typography sx={{ display: 'inline' }} paragraph>
+            لا يوجد
+          </Typography>
+        </>
+      );
+    return (
+      <>
+        <Typography sx={{ display: 'inline' }} paragraph>
+          {governateName}
+        </Typography>
+      </>
+    );
+  }
   function timeChecked(time) {
     if (time === '  undefined: undefined' || time === '')
       return (
@@ -73,6 +107,158 @@ export default function PageSeven() {
       <>
         <Typography sx={{ display: 'inline' }} paragraph>
           {time}
+        </Typography>
+      </>
+    );
+  }
+  function districtNameChecked(districtName) {
+    if (districtName === undefined || districtName === '')
+      return (
+        <>
+          <Typography sx={{ display: 'inline' }} paragraph>
+            لا يوجد
+          </Typography>
+        </>
+      );
+    return (
+      <>
+        <Typography sx={{ display: 'inline' }} paragraph>
+          {districtName}
+        </Typography>
+      </>
+    );
+  }
+  function zoneNameChecked(zoneName) {
+    if (zoneName === undefined || zoneName === '')
+      return (
+        <>
+          <Typography sx={{ display: 'inline' }} paragraph>
+            لا يوجد
+          </Typography>
+        </>
+      );
+    return (
+      <>
+        <Typography sx={{ display: 'inline' }} paragraph>
+          {zoneName}
+        </Typography>
+      </>
+    );
+  }
+  function streetNameChecked(streetName) {
+    if (streetName === undefined || streetName === '')
+      return (
+        <>
+          <Typography sx={{ display: 'inline' }} paragraph>
+            لا يوجد
+          </Typography>
+        </>
+      );
+    return (
+      <>
+        <Typography sx={{ display: 'inline' }} paragraph>
+          {streetName}
+        </Typography>
+      </>
+    );
+  }
+  function buildingNumberChecked(buildingNumber) {
+    if (buildingNumber === undefined || buildingNumber === '')
+      return (
+        <>
+          <Typography sx={{ display: 'inline' }} paragraph>
+            لا يوجد
+          </Typography>
+        </>
+      );
+    return (
+      <>
+        <Typography sx={{ display: 'inline' }} paragraph>
+          {buildingNumber}
+        </Typography>
+      </>
+    );
+  }
+  function sourceTypeChecked(sourceType) {
+    if (sourceType === undefined || sourceType === '')
+      return (
+        <>
+          <Typography sx={{ display: 'inline' }} paragraph>
+            لا يوجد
+          </Typography>
+        </>
+      );
+    return (
+      <>
+        <Typography sx={{ display: 'inline' }} paragraph>
+          {sourceType}
+        </Typography>
+      </>
+    );
+  }
+  function nearestLandmarkChecked(nearestLandmark) {
+    if (nearestLandmark === undefined || nearestLandmark === '')
+      return (
+        <>
+          <Typography sx={{ display: 'inline' }} paragraph>
+            لا يوجد
+          </Typography>
+        </>
+      );
+    return (
+      <>
+        <Typography sx={{ display: 'inline' }} paragraph>
+          {nearestLandmark}
+        </Typography>
+      </>
+    );
+  }
+  function mapChecked(xPosition, yPostion) {
+    if (xPosition === undefined || xPosition === '')
+      return (
+        <>
+          <Typography sx={{ display: 'inline' }} paragraph>
+            لا يوجد موقع
+          </Typography>
+        </>
+      );
+    return (
+      <>
+        <Map lang={xPosition} latt={yPostion} />
+      </>
+    );
+  }
+
+  function disconnectionMethodChecked(disconnectionMethod) {
+    if (disconnectionMethod === undefined || disconnectionMethod === '')
+      return (
+        <>
+          <Typography sx={{ display: 'inline' }} paragraph>
+            لا يوجد
+          </Typography>
+        </>
+      );
+    return (
+      <>
+        <Typography sx={{ display: 'inline' }} paragraph>
+          {disconnectionMethod}
+        </Typography>
+      </>
+    );
+  }
+  function noteChecked(note) {
+    if (note === undefined || note === '')
+      return (
+        <>
+          <Typography sx={{ display: 'inline' }} paragraph>
+            لا يوجد
+          </Typography>
+        </>
+      );
+    return (
+      <>
+        <Typography sx={{ display: 'inline' }} paragraph>
+          {note}
         </Typography>
       </>
     );
@@ -118,7 +304,7 @@ export default function PageSeven() {
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> رقم الهاتف : </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                0797466629
+                {telephonChecked(data.teL_NUMBER)}
               </Typography>
             </Grid>
           </Grid>
@@ -131,48 +317,48 @@ export default function PageSeven() {
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> المحافظة: </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                {data.governateName}
+                {governateNameChecked(data.governateName)}
               </Typography>
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> المنطقه : </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                {data.districtName}
+                {districtNameChecked(data.districtName)}
               </Typography>
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> الحي : </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                {data.zoneName}
+                {zoneNameChecked(data.zoneName)}
               </Typography>
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> المعلم : </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                {data.nearestLandmark}
+                {nearestLandmarkChecked(data.nearestLandmark)}
               </Typography>
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> الشارع : </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                {data.streetName}
+                {streetNameChecked(data.streetName)}
               </Typography>
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> رقم البناية : </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                {data.buildingNumber}
+                {buildingNumberChecked(data.buildingNumber)}
               </Typography>
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> المصدر : </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                {data.sourceType}
+                {sourceTypeChecked(data.sourceType)}
               </Typography>
             </Grid>
             <Grid item xs={12} md={12} lg={12}>
               <InputLabel sx={{ display: 'inline' }}> الخريطه : </InputLabel>
-              <Map lang={data.x_POSITION} latt={data.y_POSITION} />
+              {mapChecked(data.x_POSITION, data.y_POSITION)}
             </Grid>
           </Grid>
           <br />
@@ -184,7 +370,7 @@ export default function PageSeven() {
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> طريقة الفصل : </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                {data.disconnectionMethod}
+                {disconnectionMethodChecked(data.disconnectionMethod)}
               </Typography>
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
@@ -198,7 +384,7 @@ export default function PageSeven() {
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> ملاحظه : </InputLabel>
               <Typography sx={{ display: 'inline' }} paragraph>
-                {data.note}
+                {noteChecked(data.note)}
               </Typography>
             </Grid>
             <Grid item xs={12} md={12} lg={12}>
@@ -212,7 +398,7 @@ export default function PageSeven() {
                 className="nxt-btn-12-grid"
                 variant="contained"
                 fullwidth
-                onClick={() => navigate(`/dashboard/user/five`)}
+                onClick={() => navigate(`/dashboard/user/detailsbyteam`)}
               >
                 رجوع
               </Button>

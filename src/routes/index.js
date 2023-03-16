@@ -10,6 +10,7 @@ import LogoOnlyLayout from '../layouts/LogoOnlyLayout';
 import LoadingScreen from '../components/LoadingScreen';
 import CreateNewUser from '../pages/CreateNewUser';
 import AllUsersAndRoles from '../pages/AllUsersAndRoles/AllUsersAndRoles';
+import MaintenanceAndTampering from '../pages/MaintenanceAndTampering';
 // ----------------------------------------------------------------------
 
 const Loadable = (Component) => (props) => {
@@ -38,16 +39,17 @@ export default function Router() {
         { path: 'three', element: <PageThree /> },
         { path: 'AllUsersAndRoles', element: <AllUsersAndRoles /> },
         { path: 'EditUserInfo/:id', element: <EditUserInfo /> },
-        { path: 'eight/:id', element: <PageEight /> },
+        { path: 'permission/:id', element: <PageEight /> },
         {
           path: 'user',
           children: [
-            { element: <Navigate to="/dashboard/user/four" replace />, index: true },
-            { path: 'four', element: <PageFour /> },
-            { path: 'five', element: <PageFive /> },
+            { element: <Navigate to="/dashboard/user/meterdonebybranche" replace />, index: true },
+            { path: 'meterdonebybranche', element: <PageFour /> },
+            { path: 'detailsbyteam', element: <PageFive /> },
             { path: 'CreateNewUser', element: <CreateNewUser /> },
-            { path: 'seven/:id', element: <PageSeven /> },
-            { path: 'nine', element: <PageNine /> },
+            { path: 'detailsdetiction/:id', element: <PageSeven /> },
+            { path: 'abandoned', element: <PageNine /> },
+            { path: 'maintenanceandtampering', element: <MaintenanceAndTampering /> },
           ],
         },
       ],
@@ -78,3 +80,4 @@ const PageSix = Loadable(lazy(() => import('../pages/CreateNewUser')));
 const PageSeven = Loadable(lazy(() => import('../pages/PageSeven')));
 const NotFound = Loadable(lazy(() => import('../pages/Page404')));
 const EditUserInfo = Loadable(lazy(() => import('../pages/EditUserInfo')));
+// const MaintenanceAndTampering = Loadable(lazy(() => import('../pages/MaintenanceAndTampering')));

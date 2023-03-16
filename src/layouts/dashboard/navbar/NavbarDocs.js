@@ -18,9 +18,8 @@ export default function NavbarDocs() {
       // cookie.remove('userName');
       localStorage.removeItem('user');
       localStorage.removeItem('userName');
+      localStorage.removeItem('isAdmin');
       // localStorage.clear();
-
-
 
       navigate(`/login`);
     }

@@ -61,6 +61,10 @@ export const requestsaveEngineerAbandonedDecision = 'requestsaveEngineerAbandone
 export const setsaveEngineerAbandonedDecision = 'setsaveEngineerAbandonedDecision';
 export const errorsaveEngineerAbandonedDecision = 'errorsaveEngineerAbandonedDecision';
 
+export const requestMaintenanceAndVigilanceReport = 'requestMaintenanceAndVigilanceReport';
+export const setmaintenanceAndVigilanceReport = 'setmaintenanceAndVigilanceReport';
+export const errormaintenanceAndVigilanceReport = 'errormaintenanceAndVigilanceReport';
+
 export const requestClearAll = 'requestClearAll';
 export const setclearAll = 'setclearAll';
 export const errorclearAll = 'errorclearAll';
@@ -337,6 +341,22 @@ export const errorClearAll = () => {
   };
 };
 
+export const RequestMaintenanceAndVigilanceReport = () => {
+  return {
+    type: requestMaintenanceAndVigilanceReport,
+  };
+};
+export const setMaintenanceAndVigilanceReport = (data) => {
+  return {
+    type: setmaintenanceAndVigilanceReport,
+    payload: data,
+  };
+};
+export const errorMaintenanceAndVigilanceReport = () => {
+  return {
+    type: errormaintenanceAndVigilanceReport,
+  };
+};
 export const getCitiesLookup = () => async (dispatch) => {
   dispatch(RequestCitiesLookup());
   const userToken = await cookie.load('user');
@@ -366,13 +386,15 @@ export const getCitiesLookup = () => async (dispatch) => {
     console.log('no Cookie');
   }
 };
-export const getBranchesLookup = (CityID) => async (dispatch) => {
+export const getBranchesLookup = (CityID, username, isadmin) => async (dispatch) => {
   dispatch(RequestBranchesLookup());
   const userToken = await cookie.load('user');
   if (userToken) {
     const Data = {
       LanguageId: 'AR',
       CitiyID: CityID,
+      UserName: username,
+      IsAdmin: isadmin,
     };
 
     const config = {
@@ -784,6 +806,43 @@ export const SaveEngineerAbandonedDecision =
       } catch (error) {
         console.log(error);
         dispatch(errorengineerAbandonedDecision());
+      }
+    } else {
+      console.log('no Cookie');
+    }
+  };
+
+export const getMaintenanceAndVigilanceReport =
+  (Startdate, Enddate, officeNumber, teamNumber, type) => async (dispatch) => {
+    dispatch(RequestMaintenanceAndVigilanceReport());
+    const userToken = await cookie.load('user');
+    if (userToken) {
+      const Data = {
+        LanguageId: 'AR',
+        StartDate: Startdate,
+        EndDate: Enddate,
+        OFFICE_NO: officeNumber,
+        TEAM_NO: teamNumber,
+        ReportType: type,
+      };
+
+      const config = {
+        method: 'post',
+        url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/MaintenanceAndVigilanceReport/GetMaintenanceAndVigilanceReport',
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          'Content-Type': 'application/json',
+        },
+        data: Data,
+      };
+
+      try {
+        const fileDataAPIResponce = await axios(config);
+        const fileData = fileDataAPIResponce.data.body;
+        dispatch(setMaintenanceAndVigilanceReport(fileData));
+      } catch (error) {
+        console.log(error);
+        dispatch(errorMaintenanceAndVigilanceReport());
       }
     } else {
       console.log('no Cookie');

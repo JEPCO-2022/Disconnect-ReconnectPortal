@@ -4,6 +4,7 @@ import {
   SET_USER_INFO,
   SET_LOGIN_ERR,
   SET_LOGIN_REQ,
+  SET_LOGIN_INFORMATION,
   SET_LOGIN_SUCCESS,
 } from './LoginAction';
 
@@ -16,6 +17,8 @@ export default function loginReducer(
     isLogged: false,
     isError: false,
     FullName: '',
+    canExport: false,
+    isAdmin: false,
   },
   action = {}
 ) {
@@ -46,7 +49,13 @@ export default function loginReducer(
         isError: false,
         isLogged: true,
         FullName: action.payload.fullName,
-        isAdmin:action.payload.isAdmin,
+        canExport: action.payload.canExport,
+        isAdmin: action.payload.isAdmin,
+      };
+    case SET_LOGIN_INFORMATION:
+      return {
+        ...state,
+        loginInfo: action.payload,
       };
 
     case SET_USER_INFO:

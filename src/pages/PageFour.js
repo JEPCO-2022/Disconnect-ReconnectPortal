@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useReducer, useCallback } from 'react';
 // @mui
 import {
+  Box,
   Button,
   Card,
   Checkbox,
@@ -33,7 +34,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import Radio from '@mui/material/Radio';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import '../index.css';
-import { DownloadTableExcel } from 'react-export-table-to-excel';
 // hooks
 import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment/moment';
@@ -43,7 +43,6 @@ import useSettings from '../hooks/useSettings';
 import Page from '../components/Page';
 
 // ----------------------------------------------------------------------
-
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: '#2065D1',
@@ -70,6 +69,12 @@ export default function PageFour() {
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
   const TeamList = useSelector((state) => state.Customer.TeamInfo);
   const clearAll = useSelector((state) => state.Customer.clearAll);
+  // const userName = useSelector((state) => state.Login.userName);
+  // const isAdmin = useSelector((state) => state.Login.isAdmin);
+  // const canExport = useSelector((state) => state.Login.canExport);
+  const isAdmin = localStorage.getItem('isAdmin');
+  const canExport = localStorage.getItem('canExport');
+  const userName = localStorage.getItem('userName');
   const dispatch = useDispatch();
   const tableRef = useRef(null);
   const separator = '';
@@ -88,17 +93,29 @@ export default function PageFour() {
     DateReport: `${year}${separator}-${month < 10 ? `0${month}` : `${month}`}-${separator}${date}`,
   });
   const [valueRDG, setValueRBG] = useState('1');
-  const [showElement, setshowElement] = useState(0);
   function callBranchLookup(cityID) {
-    dispatch(getBranchesLookup(cityID));
+    const isAdminBoolean = isAdmin === 'true';
+    dispatch(getBranchesLookup(cityID, userName, isAdminBoolean));
   }
   const handleChangeRadioGroup = (event) => {
     setValueRBG(event.target.value);
   };
+
   useEffect(() => {
+    refresh();
     dispatch(getCitiesLookup());
     dispatch(ClearAllUserBranch());
   }, []);
+  function refresh() {
+    if (window.localStorage) {
+      if (!localStorage.getItem('reload')) {
+        localStorage.reload = true;
+        window.location.reload();
+      } else {
+        localStorage.removeItem('reload');
+      }
+    }
+  }
   const handleTab = (e) => {
     if (inputValues.City === '') {
       setErrorMessageCity('مطلوب');
@@ -107,7 +124,6 @@ export default function PageFour() {
     if (inputValues.Branch === '') {
       setErrorMessageBranch('مطلوب');
       setflagFullName(true);
-      setshowElement(0);
       return false;
     }
     const officeNumber = `${inputValues.Branch}`;
@@ -118,13 +134,10 @@ export default function PageFour() {
       TRANSACTION_TYPE: valueRDG,
     };
     dispatch(getTeamInfo(data));
-    setshowElement(e);
   };
   const exportToCSV = (apiData, fileName) => {
     const customHeadings = apiData.reduce((acc, curr) => {
       const _users = acc;
-      console.log('curr', curr);
-      console.log('acc', acc);
       return [
         ..._users,
         {
@@ -135,10 +148,27 @@ export default function PageFour() {
         },
       ];
     }, []);
-    console.log(customHeadings);
-    const ws = XLSX.utils.json_to_sheet(customHeadings);
-    // XLSX.utils.sheet_add_aoa(ws, [['Name', 'Birthday', 'Age', 'City']], { origin: 'A1' });
+    const RowInfo = [
+      {
+        width: 10,
+      },
+      {
+        width: 30,
+      },
+      {
+        width: 30,
+      },
+      {
+        width: 30,
+      },
+    ];
+    const head = ['العدادات المنجزه حسب المكتب '];
+    const merge = [{ s: { c: 0, r: 0 }, e: { c: 3, r: 0 } }];
+    const ws = XLSX.utils.json_to_sheet(customHeadings, { origin: 'A2' });
+    ws['!cols'] = RowInfo;
+    ws['!merges'] = merge;
     const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
+    XLSX.utils.sheet_add_aoa(ws, [head], { origin: 'A1' });
     const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
     const data = new Blob([excelBuffer], { type: fileType });
     FileSaver.saveAs(data, fileName + fileExtension);
@@ -147,17 +177,16 @@ export default function PageFour() {
   return (
     <Page title="العدادات المنجزه حسب المكتب">
       <Container maxWidth={themeStretch ? false : 'xl'}>
-
         <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
           <Grid container spacing={2}>
             {/* <Grid item xs={12} md={12} lg={12} /> */}
-            <Grid item xs={12} md={12} lg={12}>
-            <Typography variant="h4" component="h1" paragraph>
-          العدادات المنجزه حسب المكتب
-        </Typography>
+            <Grid item xs={8} md={12} lg={12}>
+              <Typography variant="h4" component="h1" paragraph>
+                العدادات المنجزه حسب المكتب
+              </Typography>
               <Divider light />
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
+            <Grid item xs={8} md={6} lg={6}>
               <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label"> المحافظة</InputLabel>
                 <Select
@@ -181,7 +210,7 @@ export default function PageFour() {
                 <h4 className="errorMessage">{errorMessageCity}</h4>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
+            <Grid item xs={8} md={6} lg={6}>
               <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label"> المكتب</InputLabel>
                 <Select
@@ -199,13 +228,15 @@ export default function PageFour() {
                   }}
                 >
                   {BranchesList.map((t) => (
-                    <MenuItem value={t.branchID}>{t.branchName}</MenuItem>
+                    <MenuItem sx={{ width: '180px', height: '100%' }} value={t.branchID}>
+                      {t.branchName}
+                    </MenuItem>
                   ))}
                 </Select>
                 <h4 className="errorMessage">{errorMessageBranch}</h4>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
+            <Grid item xs={8} md={6} lg={6}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DesktopDatePicker
                   label="تاريخ التقرير"
@@ -218,7 +249,7 @@ export default function PageFour() {
                 />
               </LocalizationProvider>
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
+            <Grid item xs={8} md={6} lg={6}>
               <FormLabel id="demo-row-radio-buttons-group-label" sx={{ display: 'inline-block' }}>
                 نوع الكشف:
               </FormLabel>
@@ -241,44 +272,60 @@ export default function PageFour() {
           </Grid>
         </Card>
         <br />
-        <Grid textAlign="end" item xs={12} md={6} lg={6}>
-          <Button
-            endIcon={<FileDownloadIcon />}
-            className={showElement === 1 ? 'visible nxt-btn-12-grid' : 'invisible'}
-            variant="outlined"
-            onClick={() => {
-              exportToCSV(TeamList, 'القطع والوصل');
-            }}
-            fullwidth
-          >
-            تنزيل
-          </Button>
-        </Grid>
-        <br />
-        <TableContainer component={Paper} className={showElement === 1 ? 'visible' : 'invisible'} ref={tableRef}>
-          <Table sx={{ minWidth: 700 }} aria-label="customized table" ref={tableRef}>
-            <TableHead>
-              <TableRow>
-                <StyledTableCell>الفرقة</StyledTableCell>
-                <StyledTableCell align="center"> إجمالي العدادات في الكشف</StyledTableCell>
-                <StyledTableCell align="center">العدادات المنجزه في الكشف اليومي </StyledTableCell>
-                <StyledTableCell align="center"> العدادات المنجزه في الأيام السابقة </StyledTableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {TeamList.map((TeamList) => (
-                <StyledTableRow key={TeamList.teaM_NO}>
-                  <StyledTableCell component="th" scope="row">
-                    {TeamList.teaM_NO}
-                  </StyledTableCell>
-                  <StyledTableCell align="center">{TeamList.teamTotalTicketsNum}</StyledTableCell>
-                  <StyledTableCell align="center">{TeamList.closeDisConnectionTicketsNum}</StyledTableCell>
-                  <StyledTableCell align="center">{TeamList.previousDayTicketsNumClosed}</StyledTableCell>
-                </StyledTableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        {TeamList?.length > 0 ? (
+          <>
+            <Grid textAlign="end" item xs={12} md={6} lg={6}>
+              <Button
+                className={canExport === 'true' ? 'visible' : 'invisible'}
+                endIcon={<FileDownloadIcon />}
+                variant="outlined"
+                onClick={() => {
+                  exportToCSV(TeamList, 'العدادات المنجزه حسب المكتب');
+                }}
+                fullwidth
+              >
+                تنزيل
+              </Button>
+            </Grid>
+            <br />
+            <TableContainer component={Paper} id="here">
+              <Table sx={{ minWidth: 700 }} aria-label="customized table" ref={tableRef}>
+                <TableHead>
+                  <TableRow>
+                    <StyledTableCell>الفرقة</StyledTableCell>
+                    <StyledTableCell align="center"> إجمالي العدادات في الكشف</StyledTableCell>
+                    <StyledTableCell align="center">العدادات المنجزه في الكشف اليومي </StyledTableCell>
+                    <StyledTableCell align="center"> العدادات المنجزه في الأيام السابقة </StyledTableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {TeamList.map((TeamList) => (
+                    <StyledTableRow key={TeamList.teaM_NO}>
+                      <StyledTableCell component="th" scope="row">
+                        {TeamList.teaM_NO}
+                      </StyledTableCell>
+                      <StyledTableCell align="center">{TeamList.teamTotalTicketsNum}</StyledTableCell>
+                      <StyledTableCell align="center">{TeamList.closeDisConnectionTicketsNum}</StyledTableCell>
+                      <StyledTableCell align="center">{TeamList.previousDayTicketsNumClosed}</StyledTableCell>
+                    </StyledTableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </>
+        ) : (
+          <>
+            <Grid textAlign="end" item xs={12} md={6} lg={6}>
+              <Box sx={{ display: 'flex', justifyContent: 'center', margin: 'auto', marginTop: '5vh' }}>
+                <Grid item xs={12} md={12} lg={12}>
+                  <Typography variant="h5" component="h1" paragraph>
+                    لا يوجد
+                  </Typography>
+                </Grid>
+              </Box>
+            </Grid>
+          </>
+        )}
       </Container>
     </Page>
   );

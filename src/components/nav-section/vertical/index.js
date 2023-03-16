@@ -5,6 +5,7 @@ import { List, Box, ListSubheader } from '@mui/material';
 //
 import { NavListRoot } from './NavList';
 
+
 // ----------------------------------------------------------------------
 
 export const ListSubheaderStyle = styled((props) => <ListSubheader disableSticky disableGutters {...props} />)(
@@ -27,26 +28,28 @@ NavSectionVertical.propTypes = {
   navConfig: PropTypes.array,
 };
 
-export default function NavSectionVertical({ navConfig, isCollapse = false, ...other }) {
+export default function NavSectionVertical({ navConfig = [], isCollapse = false, ...other }) {
   return (
-    <Box {...other}>
-      {navConfig.map((group) => (
-        <List key={group.subheader} disablePadding sx={{ px: 2 }}>
-          <ListSubheaderStyle
-            sx={{
-              ...(isCollapse && {
-                opacity: 0,
-              }),
-            }}
-          >
-            {group.subheader}
-          </ListSubheaderStyle>
+    <>
+      <Box>
+        {navConfig.map((group) => (
+          <List key={group.subheader} disablePadding sx={{ px: 2 }}>
+            <ListSubheaderStyle
+              sx={{
+                ...(isCollapse && {
+                  opacity: 0,
+                }),
+              }}
+            >
+              {group.subheader}
+            </ListSubheaderStyle>
 
-          {group.items.map((list) => (
-            <NavListRoot key={list.title + list.path} list={list} isCollapse={isCollapse} />
-          ))}
-        </List>
-      ))}
-    </Box>
+            {group.items.map((list) => (
+              <NavListRoot key={list.title + list.path} list={list} isCollapse={isCollapse} />
+            ))}
+          </List>
+        ))}
+      </Box>
+    </>
   );
 }
