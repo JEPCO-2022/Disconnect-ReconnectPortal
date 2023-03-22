@@ -81,12 +81,12 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 export default function PageFour() {
   const { themeStretch } = useSettings();
-  // const canExport = useSelector((state) => state.Login.canExport);
-  // const isAdmin = useSelector((state) => state.Login.isAdmin);
-  const isAdmin = localStorage.getItem('isAdmin');
-  const canExport = localStorage.getItem('canExport');
-  const userName = localStorage.getItem('userName');
-  // const userName = useSelector((state) => state.Login.userName);
+  const canExport = useSelector((state) => state.Login.canExport);
+  const isAdmin = useSelector((state) => state.Login.isAdmin);
+  const userName = useSelector((state) => state.Login.userName);
+  // const isAdmin = localStorage.getItem('isAdmin');
+  // const canExport = localStorage.getItem('canExport');
+  // const userName = localStorage.getItem('userName');
   const CitiesList = useSelector((state) => state.Customer.CitiesList);
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
   const TeamsList = useSelector((state) => state.Customer.TeamList);
@@ -126,7 +126,7 @@ export default function PageFour() {
   function callBranchLookup(cityID) {
     setinputValues({ ...inputValues, City: cityID, Branch: '', Team: '' });
     const isAdminBoolean = isAdmin === 'true';
-    dispatch(getBranchesLookup(cityID, userName, isAdminBoolean));
+    dispatch(getBranchesLookup(cityID, userName, isAdmin));
     setErrorMessageCity('');
     setflagCity(false);
   }
@@ -168,6 +168,12 @@ export default function PageFour() {
     setflagTeam(false);
   }
 
+  function phoneNumberChecked(phoneNumber) {
+    if (phoneNumber === null || phoneNumber === undefined || phoneNumber === '') {
+      return <StyledTableCell align="center">لا يوجد</StyledTableCell>;
+    }
+    return <StyledTableCell align="center">{phoneNumber} </StyledTableCell>;
+  }
   const exportToCSV = (apiData, fileName) => {
     const customHeadings = apiData.reduce((acc, curr) => {
       const _users = acc;
@@ -175,8 +181,12 @@ export default function PageFour() {
         ..._users,
         {
           'رقم الفرقة': curr.TEAM_NO,
-          ' رقم العداد	 ': curr.Meter_NO,
-          ' الإجراء الحالي': curr.TicketStatusNameAR,
+          ' رقم العداد	 ': curr.meter_NO,
+          ' اسم المشترك	 ': curr.cusT_Name,
+          ' الإجراء الحالي': curr.ticketStatusNameAR,
+          ' عدد الفواتير	 ': curr.nO_DOC,
+          '  الذمم	 ': curr.customeR_BALANCE,
+          '  رقم الهاتف	 ': curr.teL_NUMBER,
         },
       ];
     }, []);
@@ -185,17 +195,26 @@ export default function PageFour() {
         width: 10,
       },
       {
-        width: 30,
+        width: 20,
       },
       {
-        width: 30,
+        width: 20,
       },
       {
-        width: 30,
+        width: 20,
+      },
+      {
+        width: 10,
+      },
+      {
+        width: 15,
+      },
+      {
+        width: 20,
       },
     ];
     const head = [' تفاصيل الكشف حسب المكتب '];
-    const merge = [{ s: { c: 0, r: 0 }, e: { c: 3, r: 0 } }];
+    const merge = [{ s: { c: 0, r: 0 }, e: { c: 6, r: 0 } }];
     const ws = XLSX.utils.json_to_sheet(customHeadings, { origin: 'A2' });
     ws['!cols'] = RowInfo;
     ws['!merges'] = merge;
@@ -328,7 +347,7 @@ export default function PageFour() {
                 <Grid item xs={12} md={12} lg={12}>
                   <TextField
                     fullWidth
-                    placeholder="ابحث عن مستخدم "
+                    placeholder="بحث"
                     onChange={(event) => {
                       setSearch(event.target.value);
                     }}
@@ -336,7 +355,7 @@ export default function PageFour() {
                 </Grid>
                 <Grid textAlign="end" item xs={12} md={12} lg={12}>
                   <Button
-                    className={canExport === 'true' ? 'visible' : 'invisible'}
+                    className={canExport ? 'visible' : 'invisible'}
                     endIcon={<FileDownloadIcon />}
                     variant="outlined"
                     onClick={() => {
@@ -355,7 +374,11 @@ export default function PageFour() {
                     <TableRow>
                       <StyledTableCell>الفرقة</StyledTableCell>
                       <StyledTableCell align="center">رقم العداد </StyledTableCell>
+                      <StyledTableCell align="center">اسم المشترك </StyledTableCell>
                       <StyledTableCell align="center">الإجراء الحالي</StyledTableCell>
+                      <StyledTableCell align="center">عدد الفواتير</StyledTableCell>
+                      <StyledTableCell align="center">الذمم </StyledTableCell>
+                      <StyledTableCell align="center">رقم الهاتف </StyledTableCell>
                       <StyledTableCell align="center">تفاصيل</StyledTableCell>
                     </TableRow>
                   </TableHead>
@@ -364,25 +387,33 @@ export default function PageFour() {
                       .filter((item) => {
                         return search === ''
                           ? item
-                          : item.Meter_NO.includes(search) || item.TicketStatusNameAR.includes(search);
+                          : item.meter_NO.includes(search) ||
+                              item.cusT_Name.includes(search) ||
+                              item.ticketStatusNameAR.includes(search);
+                        // item.nO_DOC.includes(search)
+                        // item.customeR_BALANCE.includes(search);
                       })
                       .map((data) => (
                         <StyledTableRow key={data.id}>
                           <StyledTableCell component="th" scope="row">
-                            {data.TEAM_NO}
+                            {data.teaM_NO}
                           </StyledTableCell>
-                          <StyledTableCell align="center">{data.Meter_NO}</StyledTableCell>
-                          <StyledTableCell align="center">{data.TicketStatusNameAR}</StyledTableCell>
+                          <StyledTableCell align="center">{data.meter_NO}</StyledTableCell>
+                          <StyledTableCell align="center">{data.cusT_Name}</StyledTableCell>
+                          <StyledTableCell align="center">{data.ticketStatusNameAR}</StyledTableCell>
+                          <StyledTableCell align="center">{data.nO_DOC}</StyledTableCell>
+                          <StyledTableCell align="center"> {data.customeR_BALANCE}</StyledTableCell>
+                          {phoneNumberChecked(data.teL_NUMBER)}
                           <StyledTableCell align="center">
                             <Button
                               onClick={() => {
-                                navigate(`/dashboard/user/detailsdetiction/${data.ID}`, {
+                                navigate(`/dashboard/user/detailsdetiction/${data.id}`, {
                                   state: {
-                                    ticketID: data.ID,
-                                    teamNumber: data.TEAM_NO,
-                                    customName: data.CUST_Name,
-                                    fileNumber: data.File_NO,
-                                    meterNumber: data.Meter_NO,
+                                    ticketID: data.id,
+                                    teamNumber: data.teaM_NO,
+                                    customName: data.cusT_Name,
+                                    fileNumber: data.file_NO,
+                                    meterNumber: data.meter_NO,
                                   },
                                 });
                               }}

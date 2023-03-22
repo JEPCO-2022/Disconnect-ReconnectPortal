@@ -67,14 +67,17 @@ export default function PageFour() {
   const { themeStretch } = useSettings();
   const CitiesList = useSelector((state) => state.Customer.CitiesList);
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
-  const TeamList = useSelector((state) => state.Customer.TeamInfo);
+  let TeamList = useSelector((state) => state.Customer.TeamInfo);
   const clearAll = useSelector((state) => state.Customer.clearAll);
-  // const userName = useSelector((state) => state.Login.userName);
-  // const isAdmin = useSelector((state) => state.Login.isAdmin);
-  // const canExport = useSelector((state) => state.Login.canExport);
-  const isAdmin = localStorage.getItem('isAdmin');
-  const canExport = localStorage.getItem('canExport');
-  const userName = localStorage.getItem('userName');
+  const userName = useSelector((state) => state.Login.userName);
+  const isAdmin = useSelector((state) => state.Login.isAdmin);
+  const canExport = useSelector((state) => state.Login.canExport);
+  console.log(userName);
+  console.log(isAdmin);
+  console.log(canExport);
+  // const isAdmin = localStorage.getItem('isAdmin');
+  // const canExport = localStorage.getItem('canExport');
+  // const userName = localStorage.getItem('userName');
   const dispatch = useDispatch();
   const tableRef = useRef(null);
   const separator = '';
@@ -94,28 +97,33 @@ export default function PageFour() {
   });
   const [valueRDG, setValueRBG] = useState('1');
   function callBranchLookup(cityID) {
-    const isAdminBoolean = isAdmin === 'true';
-    dispatch(getBranchesLookup(cityID, userName, isAdminBoolean));
+    // const isAdminBoolean = isAdmin === 'true';
+    dispatch(getBranchesLookup(cityID, userName, isAdmin));
   }
   const handleChangeRadioGroup = (event) => {
     setValueRBG(event.target.value);
   };
 
   useEffect(() => {
-    refresh();
+    console.log(TeamList);
+    // const navigation = window.performance.getEntriesByType('navigation')[0];
+    // if (navigation.type === 'reload') {
+    //   console.log('Page was refreshed');
+    // }
+    // refresh();
     dispatch(getCitiesLookup());
     dispatch(ClearAllUserBranch());
   }, []);
-  function refresh() {
-    if (window.localStorage) {
-      if (!localStorage.getItem('reload')) {
-        localStorage.reload = true;
-        window.location.reload();
-      } else {
-        localStorage.removeItem('reload');
-      }
-    }
-  }
+  // function refresh() {
+  //   if (window.localStorage) {
+  //     if (!localStorage.getItem('reload')) {
+  //       localStorage.reload = true;
+  //       window.location.reload();
+  //     } else {
+  //       localStorage.removeItem('reload');
+  //     }
+  //   }
+  // }
   const handleTab = (e) => {
     if (inputValues.City === '') {
       setErrorMessageCity('مطلوب');
@@ -145,6 +153,7 @@ export default function PageFour() {
           '  العدادات المنجزه في الأيام السابقة': curr.previousDayTicketsNumClosed,
           ' العدادات المنجزه في الكشف اليوم ': curr.closeDisConnectionTicketsNum,
           '  إجمالي العدادات في الكشف': curr.teamTotalTicketsNum,
+          ' العدادات المنجزه خارج الكشف ': curr.teamTotalTicketsNum,
         },
       ];
     }, []);
@@ -153,17 +162,20 @@ export default function PageFour() {
         width: 10,
       },
       {
-        width: 30,
+        width: 24,
       },
       {
-        width: 30,
+        width: 24,
       },
       {
-        width: 30,
+        width: 23,
+      },
+      {
+        width: 23,
       },
     ];
     const head = ['العدادات المنجزه حسب المكتب '];
-    const merge = [{ s: { c: 0, r: 0 }, e: { c: 3, r: 0 } }];
+    const merge = [{ s: { c: 0, r: 0 }, e: { c: 4, r: 0 } }];
     const ws = XLSX.utils.json_to_sheet(customHeadings, { origin: 'A2' });
     ws['!cols'] = RowInfo;
     ws['!merges'] = merge;
@@ -173,7 +185,6 @@ export default function PageFour() {
     const data = new Blob([excelBuffer], { type: fileType });
     FileSaver.saveAs(data, fileName + fileExtension);
   };
-
   return (
     <Page title="العدادات المنجزه حسب المكتب">
       <Container maxWidth={themeStretch ? false : 'xl'}>
@@ -186,7 +197,7 @@ export default function PageFour() {
               </Typography>
               <Divider light />
             </Grid>
-            <Grid item xs={8} md={6} lg={6}>
+            <Grid item xs={12} md={6} lg={6}>
               <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label"> المحافظة</InputLabel>
                 <Select
@@ -210,7 +221,7 @@ export default function PageFour() {
                 <h4 className="errorMessage">{errorMessageCity}</h4>
               </FormControl>
             </Grid>
-            <Grid item xs={8} md={6} lg={6}>
+            <Grid item xs={12} md={6} lg={6}>
               <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label"> المكتب</InputLabel>
                 <Select
@@ -236,7 +247,7 @@ export default function PageFour() {
                 <h4 className="errorMessage">{errorMessageBranch}</h4>
               </FormControl>
             </Grid>
-            <Grid item xs={8} md={6} lg={6}>
+            <Grid item xs={12} md={6} lg={6}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DesktopDatePicker
                   label="تاريخ التقرير"
@@ -249,7 +260,7 @@ export default function PageFour() {
                 />
               </LocalizationProvider>
             </Grid>
-            <Grid item xs={8} md={6} lg={6}>
+            <Grid item xs={12} md={6} lg={6}>
               <FormLabel id="demo-row-radio-buttons-group-label" sx={{ display: 'inline-block' }}>
                 نوع الكشف:
               </FormLabel>
@@ -276,7 +287,7 @@ export default function PageFour() {
           <>
             <Grid textAlign="end" item xs={12} md={6} lg={6}>
               <Button
-                className={canExport === 'true' ? 'visible' : 'invisible'}
+                className={canExport ? 'visible' : 'invisible'}
                 endIcon={<FileDownloadIcon />}
                 variant="outlined"
                 onClick={() => {
@@ -296,6 +307,7 @@ export default function PageFour() {
                     <StyledTableCell align="center"> إجمالي العدادات في الكشف</StyledTableCell>
                     <StyledTableCell align="center">العدادات المنجزه في الكشف اليومي </StyledTableCell>
                     <StyledTableCell align="center"> العدادات المنجزه في الأيام السابقة </StyledTableCell>
+                    <StyledTableCell align="center"> العدادات المنجزه خارج الكشف </StyledTableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -306,6 +318,7 @@ export default function PageFour() {
                       </StyledTableCell>
                       <StyledTableCell align="center">{TeamList.teamTotalTicketsNum}</StyledTableCell>
                       <StyledTableCell align="center">{TeamList.closeDisConnectionTicketsNum}</StyledTableCell>
+                      <StyledTableCell align="center">{TeamList.previousDayTicketsNumClosed}</StyledTableCell>
                       <StyledTableCell align="center">{TeamList.previousDayTicketsNumClosed}</StyledTableCell>
                     </StyledTableRow>
                   ))}

@@ -41,13 +41,12 @@ export default function loginReducer(
         FullName: '',
       };
     case SET_LOGIN_SUCCESS:
-      console.log(action.payload);
       return {
         ...state,
         userName: action.payload.username,
         userToken: action.payload.userToken,
         isError: false,
-        isLogged: true,
+        isLogged: false,
         FullName: action.payload.fullName,
         canExport: action.payload.canExport,
         isAdmin: action.payload.isAdmin,

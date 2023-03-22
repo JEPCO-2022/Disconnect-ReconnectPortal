@@ -27,7 +27,7 @@ export default function PageSeven() {
   }, []);
   function showImage(srcImage) {
     const sourceImage = srcImage;
-    if (!(srcImage === undefined || srcImage === '')) {
+    if (!(srcImage === undefined || srcImage === '' || srcImage === '22')) {
       return (
         <>
           <InputLabel sx={{ display: 'inline' }}> صوره : </InputLabel>

@@ -39,6 +39,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Page from '../components/Page';
 import { userLogin } from '../Redux/Login/LoginAction';
 import Map from '../components/Map';
+
 import {
   getBranchesLookup,
   getCitiesLookup,
@@ -121,6 +122,7 @@ export default function PageNine() {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
   const location = useLocation();
+  const canExport = localStorage.getItem('canExport');
   const CitiesList = useSelector((state) => state.Customer.CitiesList);
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
   const TeamsList = useSelector((state) => state.Customer.TeamList);
@@ -136,10 +138,10 @@ export default function PageNine() {
   });
 
   const [ID, setID] = useState(0);
-  const isAdmin = localStorage.getItem('isAdmin');
-  const userName = localStorage.getItem('userName');
-  // const isAdmin = useSelector((state) => state.Login.isAdmin);
-  // const userName = useSelector((state) => state.Login.userName);
+  // const isAdmin = localStorage.getItem('isAdmin');
+  // const userName = localStorage.getItem('userName');
+  const isAdmin = useSelector((state) => state.Login.isAdmin);
+  const userName = useSelector((state) => state.Login.userName);
   const [errorMessageCity, setErrorMessageCity] = useState('');
   const [errorMessageBranch, setErrorMessageBranch] = useState('');
   const [errorMessageTeam, setErrorMessageTeam] = useState('');
@@ -149,9 +151,11 @@ export default function PageNine() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
   const [openSapMap, setOpenSapMap] = useState(false);
+  const [openImage, setOpenImage] = useState(false);
   const [fullWidth, setFullWidth] = useState(true);
   const [ticketid, setTicketid] = useState('');
   const [maxWidth, setMaxWidth] = useState('sm');
+  const [imageSrc, setImageSrc] = useState('sm');
   const [map, setMap] = useState({
     langSap: '',
     lang: '',
@@ -176,6 +180,9 @@ export default function PageNine() {
   const handleCloseSap = () => {
     setOpenSapMap(false);
   };
+  const handleCloseImage = () => {
+    setOpenImage(false);
+  };
   const handleClick = (event, e) => {
     setAnchorEl(event.currentTarget);
     setTicketid(e);
@@ -188,6 +195,7 @@ export default function PageNine() {
   }
   function callBranchLookup(cityID) {
     setinputValues({ ...inputValues, City: cityID, Branch: '', Team: '' });
+    const isAdminBoolean = isAdmin === 'true';
     dispatch(getBranchesLookup(cityID, userName, isAdmin));
     setErrorMessageCity('');
     setflagCity(false);
@@ -197,7 +205,7 @@ export default function PageNine() {
     setErrorMessageTeam('');
     setflagTeam(false);
   }
-  const handleTab = (e) => {
+  const handleTab = () => {
     const startdate = moment(inputValues.startDate.$d).format('YYYY-MM-DD');
     const enddate = moment(inputValues.endDate.$d).format('YYYY-MM-DD');
     const branchnumber = inputValues.Branch.toString();
@@ -210,6 +218,7 @@ export default function PageNine() {
       setflagBranch(true);
       return false;
     }
+
     dispatch(getEngineerAbandonedDecision(startdate, enddate, branchnumber, inputValues.Team));
   };
   useEffect(() => {
@@ -223,8 +232,13 @@ export default function PageNine() {
       }
     }
     const ticketString = ticketid.toString();
+    console.log(ticketString);
+    console.log(e);
+    console.log(userName);
+    console.log(ID);
     dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
-    window.location.reload(true);
+    // handleTab();
+    // window.location.reload(true);
   }
   function reject(e) {
     for (let index = 0; index < allUsers.length; index += 1) {
@@ -242,6 +256,33 @@ export default function PageNine() {
     if (streetName === undefined) streetName = '';
     const name = `${districtName} ${zoneName}  شارع  ${streetName}`;
     return name;
+  }
+  function imageSetSrc(srcimage) {
+    setOpenImage(true);
+    setImageSrc(srcimage);
+  }
+  function imageChcked() {
+    const sourceImage = imageSrc;
+    if (!(imageSrc === undefined || imageSrc === '' || imageSrc === '22')) {
+      return (
+        <>
+          <img src={`data:image/jpeg;base64,${sourceImage}`} alt="images" className="srcImage" />
+        </>
+      );
+    }
+    return (
+      <>
+        <Typography variant="h3" component="h1" paragraph align="center">
+          لا يوجد صوره
+        </Typography>
+      </>
+    );
+  }
+  function phoneNumberChecked(phoneNumber) {
+    if (phoneNumber === null || phoneNumber === undefined || phoneNumber === '') {
+      return <StyledTableCell align="center">لا يوجد</StyledTableCell>;
+    }
+    return <StyledTableCell align="center">{phoneNumber} </StyledTableCell>;
   }
   return (
     <>
@@ -355,116 +396,132 @@ export default function PageNine() {
               </Grid>
             </Grid>
           </Card>
-
+          <br />
+          <br />
           {allAbandoned?.length > 0 ? (
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 700 }} aria-label="customized table">
-                <TableHead>
-                  <TableRow>
-                    <StyledTableCell>الفرقة</StyledTableCell>
-                    <StyledTableCell align="center">رقم العداد </StyledTableCell>
-                    <StyledTableCell align="center">اسم المشترك </StyledTableCell>
-                    <StyledTableCell align="center">عدد الفواتير</StyledTableCell>
-                    <StyledTableCell align="center">الذمم </StyledTableCell>
-                    <StyledTableCell align="center">رقم الهاتف </StyledTableCell>
-                    <StyledTableCell align="center">عنوان العداد </StyledTableCell>
-                    <StyledTableCell align="center">موقع العداد </StyledTableCell>
-                    <StyledTableCell align="center">موقع الفني </StyledTableCell>
-                    <StyledTableCell align="center" />
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {allAbandoned.map((rows) => {
-                    return (
-                      <StyledTableRow key={rows.abandonedTicketID}>
-                        <StyledTableCell component="th" scope="row">
-                          {rows.teaM_NO}
-                        </StyledTableCell>
-                        <StyledTableCell align="center">{rows.meter_NO}</StyledTableCell>
-                        <StyledTableCell align="center">{rows.cusT_Name}</StyledTableCell>
-                        <StyledTableCell align="center">{rows.nO_DOC}</StyledTableCell>
-                        <StyledTableCell align="center">{rows.customeR_BALANCE}</StyledTableCell>
-                        <StyledTableCell align="center">{rows.teL_NUMBER}</StyledTableCell>
-                        <StyledTableCell align="center" sx={{ minWidth: '20vh' }}>
-                          {concate(rows.districtName, rows.zoneName, rows.streetName)}
-                        </StyledTableCell>
-                        <StyledTableCell align="center">
-                          <Button
-                            aria-haspopup="true"
-                            variant="contained"
-                            disableElevatio
-                            onClick={() => {
-                              // handleClickOpenMap(rows.x_POSITION, rows.y_POSITION);
-                              handleClickOpenSapMap(rows.saP_X_POSITION, rows.saP_Y_POSITION);
-                            }}
-                          >
-                            Map
-                          </Button>
-                        </StyledTableCell>
-                        <StyledTableCell align="center">
-                          <Button
-                            aria-haspopup="true"
-                            variant="contained"
-                            disableElevatio
-                            onClick={() => {
-                              // handleClickOpenSapMap(rows.saP_X_POSITION, rows.saP_Y_POSITION);
-                              handleClickOpenMap(rows.x_POSITION, rows.y_POSITION);
-                            }}
-                          >
-                            Map
-                          </Button>
-                        </StyledTableCell>
-                        <StyledTableCell align="center">
-                          <>
+            <>
+              <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 700 }} aria-label="customized table">
+                  <TableHead>
+                    <TableRow>
+                      <StyledTableCell>الفرقة</StyledTableCell>
+                      <StyledTableCell align="center">رقم العداد </StyledTableCell>
+                      <StyledTableCell align="center">اسم المشترك </StyledTableCell>
+                      <StyledTableCell align="center">عدد الفواتير</StyledTableCell>
+                      <StyledTableCell align="center">الذمم </StyledTableCell>
+                      <StyledTableCell align="center">رقم الهاتف </StyledTableCell>
+                      <StyledTableCell align="center">عنوان العداد </StyledTableCell>
+                      <StyledTableCell align="center">صورة العداد </StyledTableCell>
+                      <StyledTableCell align="center">موقع العداد </StyledTableCell>
+                      <StyledTableCell align="center">موقع الفني </StyledTableCell>
+                      <StyledTableCell align="center" />
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {allAbandoned.map((rows) => {
+                      return (
+                        <StyledTableRow key={rows.abandonedTicketID}>
+                          <StyledTableCell component="th" scope="row">
+                            {rows.teaM_NO}
+                          </StyledTableCell>
+                          <StyledTableCell align="center">{rows.meter_NO}</StyledTableCell>
+                          <StyledTableCell align="center">{rows.cusT_Name}</StyledTableCell>
+                          <StyledTableCell align="center">{rows.nO_DOC}</StyledTableCell>
+                          <StyledTableCell align="center">{rows.customeR_BALANCE}</StyledTableCell>
+                          {phoneNumberChecked(rows.teL_NUMBER)}
+                          <StyledTableCell align="center" sx={{ minWidth: '20vh' }}>
+                            {concate(rows.districtName, rows.zoneName, rows.streetName)}
+                          </StyledTableCell>
+                          <StyledTableCell align="center">
                             <Button
-                              id="demo-customized-button"
                               aria-haspopup="true"
                               variant="contained"
                               disableElevatio
-                              endIcon={<KeyboardArrowDownIcon />}
-                              onClick={(e) => {
-                                handleClick(e, rows.abandonedTicketID);
+                              onClick={() => {
+                                imageSetSrc(rows.notArrivedImage);
                               }}
                             >
-                              اختر إجراء
+                              صورة
                             </Button>
-                            <StyledMenu
-                              id="demo-customized-menu"
-                              MenuListProps={{
-                                'aria-labelledby': 'demo-customized-button',
+                          </StyledTableCell>
+                          <StyledTableCell align="center">
+                            <Button
+                              aria-haspopup="true"
+                              variant="contained"
+                              disableElevatio
+                              onClick={() => {
+                                // handleClickOpenMap(rows.x_POSITION, rows.y_POSITION);
+                                handleClickOpenSapMap(rows.saP_X_POSITION, rows.saP_Y_POSITION);
                               }}
-                              anchorEl={anchorEl}
-                              open={open1}
-                              onClose={handleClose1}
                             >
-                              <MenuItem
-                                disableRipple
-                                onClick={() => {
-                                  consent(2);
+                              Map
+                            </Button>
+                          </StyledTableCell>
+                          <StyledTableCell align="center">
+                            <Button
+                              aria-haspopup="true"
+                              variant="contained"
+                              disableElevatio
+                              onClick={() => {
+                                // handleClickOpenSapMap(rows.saP_X_POSITION, rows.saP_Y_POSITION);
+                                handleClickOpenMap(rows.x_POSITION, rows.y_POSITION);
+                              }}
+                            >
+                              Map
+                            </Button>
+                          </StyledTableCell>
+                          <StyledTableCell align="center">
+                            <>
+                              <Button
+                                id="demo-customized-button"
+                                aria-haspopup="true"
+                                variant="contained"
+                                disableElevatio
+                                endIcon={<KeyboardArrowDownIcon />}
+                                onClick={(e) => {
+                                  handleClick(e, rows.abandonedTicketID);
                                 }}
                               >
-                                <ThumbUpAltIcon />
-                                موافقة
-                              </MenuItem>
-                              <Divider sx={{ my: 0.5 }} />
-                              <MenuItem
-                                disableRipple
-                                onClick={() => {
-                                  reject(3);
+                                اختر إجراء
+                              </Button>
+                              <StyledMenu
+                                id="demo-customized-menu"
+                                MenuListProps={{
+                                  'aria-labelledby': 'demo-customized-button',
                                 }}
+                                anchorEl={anchorEl}
+                                open={open1}
+                                onClose={handleClose1}
                               >
-                                <ClearIcon />
-                                رفض
-                              </MenuItem>
-                            </StyledMenu>
-                          </>
-                        </StyledTableCell>
-                      </StyledTableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                                <MenuItem
+                                  disableRipple
+                                  onClick={() => {
+                                    consent(2);
+                                  }}
+                                >
+                                  <ThumbUpAltIcon />
+                                  موافقة
+                                </MenuItem>
+                                <Divider sx={{ my: 0.5 }} />
+                                <MenuItem
+                                  disableRipple
+                                  onClick={() => {
+                                    reject(3);
+                                  }}
+                                >
+                                  <ClearIcon />
+                                  رفض
+                                </MenuItem>
+                              </StyledMenu>
+                            </>
+                          </StyledTableCell>
+                        </StyledTableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </>
           ) : (
             <Box sx={{ display: 'flex', justifyContent: 'center', margin: 'auto', marginTop: '5vh' }}>
               <Grid item xs={12} md={12} lg={12}>
@@ -474,9 +531,7 @@ export default function PageNine() {
               </Grid>
             </Box>
           )}
-
           <br />
-
           <Dialog fullWidth={fullWidth} maxWidth={maxWidth} open={open} onClose={handleClose}>
             <DialogTitle sx={{ margin: 'auto' }}>موقع الفني</DialogTitle>
             <DialogContent>
@@ -513,6 +568,25 @@ export default function PageNine() {
             </DialogContent>
             <DialogActions>
               <Button onClick={handleCloseSap}>Close</Button>
+            </DialogActions>
+          </Dialog>
+          <Dialog fullWidth={fullWidth} maxWidth={maxWidth} open={openImage} onClose={handleCloseImage}>
+            <DialogTitle sx={{ margin: 'auto' }}>صورة العداد</DialogTitle>
+            <DialogContent>
+              {imageChcked()}
+              <Box
+                noValidate
+                component="form"
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  m: 'auto',
+                  width: '50vh',
+                }}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseImage}>Close</Button>
             </DialogActions>
           </Dialog>
         </Container>

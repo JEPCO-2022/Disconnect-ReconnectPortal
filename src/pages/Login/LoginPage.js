@@ -54,15 +54,13 @@ export default function LoginPage() {
 
       <StyledRoot>
         <Container maxWidth="sm">
-
           <StyledContent>
-    
             <Grid container direction="column" alignItems="center">
               {/* <img src={image} alt="Logo" className="m-4" /> */}
               <img width="250vh" src="/assets/illustrations/mainicon.svg" alt="Logo" />
-            <Typography variant="h4" sx={{ px: 5, mt: 4 }}>
-         بوابة الاستعلام عن تطبيق القطع والوصل
-          </Typography>
+              <Typography variant="h4" sx={{ px: 5, mt: 4 }}>
+                بوابة الاستعلام عن تطبيق القطع والوصل
+              </Typography>
             </Grid>
 
             <LoginForm />

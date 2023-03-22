@@ -23,5 +23,10 @@
     max-height : 60vh;
   }
 
+  .imageDialog{
+    margin: 10px auto;
+    max-height : 40vh;
+  }
+
 
   

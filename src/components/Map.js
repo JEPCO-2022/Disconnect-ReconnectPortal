@@ -28,7 +28,7 @@ const Mapsss = (props) => {
     <>
       <div style={{ height: '60vh', width: '100%' }}>
         <GoogleMapReact
-          bootstrapURLKeys={{ key: 'AIzaSyA7f_t2Ccx3tdV_Mz2pT0zdVioGU6SiKS4' }}
+          bootstrapURLKeys={{ key: 'AIzaSyDoBo7XEMLVpE4lj-CZVfqKkwxVIEv9p98' }}
           defaultCenter={defaultProps.center}
           defaultZoom={defaultProps.zoom}
           shouldUnregisterMapOnUnmount

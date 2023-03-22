@@ -23,6 +23,9 @@ import {
   FormControlLabel,
   Radio,
 } from '@mui/material';
+import * as XLSX from 'xlsx';
+import FileSaver from 'file-saver';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import Paper from '@mui/material/Paper';
 import { styled, alpha } from '@mui/material/styles';
@@ -120,11 +123,14 @@ const MaintenanceAndTampering = () => {
     startDate: moment().format('YYYY-MM-DD'),
     endDate: moment().format('YYYY-MM-DD'),
   });
-  // const isAdmin = useSelector((state) => state.Login.isAdmin);
-  // const userName = useSelector((state) => state.Login.userName);
-  const isAdmin = localStorage.getItem('isAdmin');
-  const canExport = localStorage.getItem('canExport');
-  const userName = localStorage.getItem('userName');
+  const fileExtension = '.xlsx';
+  const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+  const isAdmin = useSelector((state) => state.Login.isAdmin);
+  const userName = useSelector((state) => state.Login.userName);
+  const canExport = useSelector((state) => state.Login.canExport);
+  // const isAdmin = localStorage.getItem('isAdmin');
+  // const canExport = localStorage.getItem('canExport');
+  // const userName = localStorage.getItem('userName');
   const [errorMessageCity, setErrorMessageCity] = useState('');
   const [errorMessageBranch, setErrorMessageBranch] = useState('');
   const [errorMessageTeam, setErrorMessageTeam] = useState('');
@@ -136,6 +142,7 @@ const MaintenanceAndTampering = () => {
   const [ticketid, setTicketid] = useState('');
   const [maxWidth, setMaxWidth] = useState('sm');
   const [sourceImage, setSourceImage] = useState('');
+  const [showTable, setShowTable] = useState(false);
   const [typeReport, setTypeReport] = useState(1);
   const handleClose = () => {
     setOpen(false);
@@ -152,8 +159,8 @@ const MaintenanceAndTampering = () => {
   }
   function callBranchLookup(cityID) {
     setinputValues({ ...inputValues, City: cityID, Branch: '', Team: '' });
-    const isAdminBoolean = isAdmin === 'true';
-    dispatch(getBranchesLookup(cityID, userName, isAdminBoolean));
+    // const isAdminBoolean = isAdmin === 'true';
+    dispatch(getBranchesLookup(cityID, userName, isAdmin));
     setErrorMessageCity('');
     setflagCity(false);
   }
@@ -176,6 +183,9 @@ const MaintenanceAndTampering = () => {
     const enddate = moment(inputValues.endDate.$d).format('YYYY-MM-DD');
     const branchnumber = inputValues.Branch.toString();
     dispatch(getMaintenanceAndVigilanceReport(startdate, enddate, branchnumber, inputValues.Team, typeReport));
+    if (DataReport?.length > 0) {
+      setShowTable(true);
+    }
   };
   const handChangeTyprReport = (event) => {
     setTypeReport(event.target.value);
@@ -183,13 +193,13 @@ const MaintenanceAndTampering = () => {
   };
 
   useEffect(() => {
+    setShowTable(false);
     dispatch(getCitiesLookup());
   }, []);
   function showImage() {
-    if (!(sourceImage === undefined || sourceImage === '')) {
+    if (!(sourceImage === undefined || sourceImage === '' || sourceImage === '22')) {
       return (
         <>
-          <InputLabel sx={{ display: 'inline' }}> صوره : </InputLabel>
           <img src={`data:image/jpeg;base64,${sourceImage}`} alt="images" className="srcImage" />
         </>
       );
@@ -202,9 +212,60 @@ const MaintenanceAndTampering = () => {
       </>
     );
   }
+
+  const exportToCSV = (apiData, fileName) => {
+    const customHeadings = apiData.reduce((acc, curr) => {
+      const _users = acc;
+      return [
+        ..._users,
+        {
+          'رقم الفرقة': curr.TEAM_NO,
+          ' رقم العداد	 ': curr.meter_NO,
+          ' اسم المشترك	 ': curr.cusT_Name,
+          ' الإجراء الحالي': curr.ticketStatusNameAR,
+          ' عدد الفواتير	 ': curr.nO_DOC,
+          '  الذمم	 ': curr.customeR_BALANCE,
+          '  رقم الهاتف	 ': curr.teL_NUMBER,
+        },
+      ];
+    }, []);
+    const RowInfo = [
+      {
+        width: 10,
+      },
+      {
+        width: 20,
+      },
+      {
+        width: 20,
+      },
+      {
+        width: 20,
+      },
+      {
+        width: 10,
+      },
+      {
+        width: 15,
+      },
+      {
+        width: 20,
+      },
+    ];
+    const head = [' تفاصيل الكشف حسب المكتب '];
+    const merge = [{ s: { c: 0, r: 0 }, e: { c: 6, r: 0 } }];
+    const ws = XLSX.utils.json_to_sheet(customHeadings, { origin: 'A2' });
+    ws['!cols'] = RowInfo;
+    ws['!merges'] = merge;
+    const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
+    XLSX.utils.sheet_add_aoa(ws, [head], { origin: 'A1' });
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const data = new Blob([excelBuffer], { type: fileType });
+    FileSaver.saveAs(data, fileName + fileExtension);
+  };
   return (
     <>
-      <Page title="تقرير المهجور">
+      <Page title="تقرير عبث وصيانة">
         <Container maxWidth={themeStretch ? false : 'xl'}>
           <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
             <Grid container spacing={2}>
@@ -332,44 +393,67 @@ const MaintenanceAndTampering = () => {
           <br />
           <br />
           {DataReport?.length > 0 ? (
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 700 }} aria-label="customized table">
-                <TableHead>
-                  <TableRow>
-                    <StyledTableCell>الفرقة</StyledTableCell>
-                    <StyledTableCell align="center"> اسم المشترك </StyledTableCell>
-                    <StyledTableCell align="center">رقم العداد </StyledTableCell>
-                    <StyledTableCell align="center"> صيانة او عبث </StyledTableCell>
-                    <StyledTableCell align="center" />
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {DataReport.map((rows) => {
-                    return (
-                      <StyledTableRow key={rows.abandonedTicketID}>
-                        <StyledTableCell component="th" scope="row">
-                          {rows.teaM_NO}
-                        </StyledTableCell>
-                        <StyledTableCell align="center">{rows.meter_NO}</StyledTableCell>
-                        <StyledTableCell align="center">{rows.maintenanceAndVigilanceType}</StyledTableCell>
-                        <StyledTableCell align="center">
-                          <Button
-                            aria-haspopup="true"
-                            variant="contained"
-                            disableElevatio
-                            onClick={() => {
-                              handleOpen(rows.vigilanceImage);
-                            }}
-                          >
-                            صورة
-                          </Button>
-                        </StyledTableCell>
-                      </StyledTableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <>
+              <Grid textAlign="end" item xs={12} md={12} lg={12}>
+                <Button
+                  className={canExport ? 'visible' : 'invisible'}
+                  endIcon={<FileDownloadIcon />}
+                  variant="outlined"
+                  onClick={() => {
+                    exportToCSV(DataReport, 'تقرير عبث وصيانة');
+                  }}
+                  fullwidth
+                >
+                  تنزيل
+                </Button>
+              </Grid>
+              <br />
+              <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 700 }} aria-label="customized table">
+                  <TableHead>
+                    <TableRow>
+                      <StyledTableCell>الفرقة</StyledTableCell>
+                      <StyledTableCell align="center">رقم العداد </StyledTableCell>
+                      <StyledTableCell align="center">اسم المشترك </StyledTableCell>
+                      <StyledTableCell align="center"> صيانة او عبث </StyledTableCell>
+                      <StyledTableCell align="center">عدد الفواتير</StyledTableCell>
+                      <StyledTableCell align="center">الذمم </StyledTableCell>
+                      <StyledTableCell align="center">رقم الهاتف </StyledTableCell>
+                      <StyledTableCell align="center" />
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {DataReport.map((rows) => {
+                      return (
+                        <StyledTableRow key={rows.abandonedTicketID}>
+                          <StyledTableCell component="th" scope="row">
+                            {rows.teaM_NO}
+                          </StyledTableCell>
+                          <StyledTableCell align="center">{rows.meter_NO}</StyledTableCell>
+                          <StyledTableCell align="center">{rows.meter_NO}</StyledTableCell>
+                          <StyledTableCell align="center">{rows.meter_NO}</StyledTableCell>
+                          <StyledTableCell align="center">{rows.meter_NO}</StyledTableCell>
+                          <StyledTableCell align="center">{rows.maintenanceAndVigilanceType}</StyledTableCell>
+                          <StyledTableCell align="center">{rows.maintenanceAndVigilanceType}</StyledTableCell>
+                          <StyledTableCell align="center">
+                            <Button
+                              aria-haspopup="true"
+                              variant="contained"
+                              disableElevatio
+                              onClick={() => {
+                                handleOpen(rows.vigilanceImage);
+                              }}
+                            >
+                              صورة
+                            </Button>
+                          </StyledTableCell>
+                        </StyledTableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </>
           ) : (
             <Box sx={{ display: 'flex', justifyContent: 'center', margin: 'auto', marginTop: '5vh' }}>
               <Grid item xs={12} md={12} lg={12}>
