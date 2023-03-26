@@ -68,6 +68,7 @@ export default function CreateNewUser() {
     setinputValues({ fullName: '', passowrd: '', userName: '' });
   };
   const handleClose = () => {
+    setOpenError(false);
     setOpen(false);
   };
   const handChangeAdminstration = (event) => {
@@ -96,14 +97,12 @@ export default function CreateNewUser() {
   return (
     <Page title="إضافة مستخدم جديد">
       <Container maxWidth={themeStretch ? false : 'xl'}>
-
         <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
           <Grid container spacing={2}>
-
             <Grid item xs={12} md={12} lg={12}>
-            <Typography variant="h4" component="h1" paragraph>
-          إضافة مستخدم جديد
-        </Typography>
+              <Typography variant="h4" component="h1" paragraph>
+                إضافة مستخدم جديد
+              </Typography>
               <Divider light />
             </Grid>
             <Grid item xs={12} md={12} lg={6}>

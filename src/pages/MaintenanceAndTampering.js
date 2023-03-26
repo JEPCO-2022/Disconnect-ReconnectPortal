@@ -49,6 +49,7 @@ import {
   getCitiesLookup,
   getTeamsLookup,
   getMaintenanceAndVigilanceReport,
+  clearPersistedState,
 } from '../Redux/Customer/CustomerAction';
 import '../index.css';
 import useSettings from '../hooks/useSettings';
@@ -193,6 +194,7 @@ const MaintenanceAndTampering = () => {
   };
 
   useEffect(() => {
+    dispatch(clearPersistedState());
     setShowTable(false);
     dispatch(getCitiesLookup());
   }, []);
@@ -212,20 +214,25 @@ const MaintenanceAndTampering = () => {
       </>
     );
   }
-
+  function phoneNumberChecked(phoneNumber) {
+    const non = 'لا يوجد';
+    if (phoneNumber === undefined || phoneNumber === '' || phoneNumber === null) return non;
+    return phoneNumber;
+  }
   const exportToCSV = (apiData, fileName) => {
     const customHeadings = apiData.reduce((acc, curr) => {
       const _users = acc;
       return [
         ..._users,
         {
-          'رقم الفرقة': curr.TEAM_NO,
+          'رقم الفرقة': curr.teaM_NO,
           ' رقم العداد	 ': curr.meter_NO,
           ' اسم المشترك	 ': curr.cusT_Name,
-          ' الإجراء الحالي': curr.ticketStatusNameAR,
+          ' الإجراء الحالي': curr.maintenanceAndVigilanceType,
           ' عدد الفواتير	 ': curr.nO_DOC,
           '  الذمم	 ': curr.customeR_BALANCE,
-          '  رقم الهاتف	 ': curr.teL_NUMBER,
+          '  رقم الهاتف	 ': phoneNumberChecked(curr.teL_NUMBER),
+          '  الموقع	 ': concate(curr.districtName, curr.zoneName, curr.streetName),
         },
       ];
     }, []);
@@ -251,9 +258,12 @@ const MaintenanceAndTampering = () => {
       {
         width: 20,
       },
+      {
+        width: 40,
+      },
     ];
     const head = [' تفاصيل الكشف حسب المكتب '];
-    const merge = [{ s: { c: 0, r: 0 }, e: { c: 6, r: 0 } }];
+    const merge = [{ s: { c: 0, r: 0 }, e: { c: 7, r: 0 } }];
     const ws = XLSX.utils.json_to_sheet(customHeadings, { origin: 'A2' });
     ws['!cols'] = RowInfo;
     ws['!merges'] = merge;
@@ -263,6 +273,16 @@ const MaintenanceAndTampering = () => {
     const data = new Blob([excelBuffer], { type: fileType });
     FileSaver.saveAs(data, fileName + fileExtension);
   };
+  function concate(districtName, zoneName, streetName) {
+    if (districtName === undefined) districtName = '';
+    if (zoneName === undefined) zoneName = '';
+    if (streetName === undefined) streetName = '';
+    const name = `${districtName} ${zoneName} شارع ${streetName}`;
+    const non = 'لا يوجد';
+    if (districtName === ' ' && zoneName === ' ' && streetName === ' ') return non;
+    return name;
+  }
+  console.log(DataReport);
   return (
     <>
       <Page title="تقرير عبث وصيانة">
@@ -419,6 +439,7 @@ const MaintenanceAndTampering = () => {
                       <StyledTableCell align="center">عدد الفواتير</StyledTableCell>
                       <StyledTableCell align="center">الذمم </StyledTableCell>
                       <StyledTableCell align="center">رقم الهاتف </StyledTableCell>
+                      <StyledTableCell align="center"> الموقع </StyledTableCell>
                       <StyledTableCell align="center" />
                     </TableRow>
                   </TableHead>
@@ -430,11 +451,15 @@ const MaintenanceAndTampering = () => {
                             {rows.teaM_NO}
                           </StyledTableCell>
                           <StyledTableCell align="center">{rows.meter_NO}</StyledTableCell>
-                          <StyledTableCell align="center">{rows.meter_NO}</StyledTableCell>
-                          <StyledTableCell align="center">{rows.meter_NO}</StyledTableCell>
-                          <StyledTableCell align="center">{rows.meter_NO}</StyledTableCell>
+                          <StyledTableCell align="center">{rows.cusT_Name}</StyledTableCell>
                           <StyledTableCell align="center">{rows.maintenanceAndVigilanceType}</StyledTableCell>
-                          <StyledTableCell align="center">{rows.maintenanceAndVigilanceType}</StyledTableCell>
+                          <StyledTableCell align="center">{rows.nO_DOC}</StyledTableCell>
+                          <StyledTableCell align="center">{rows.customeR_BALANCE}</StyledTableCell>
+                          <StyledTableCell align="center">{phoneNumberChecked(rows.teL_NUMBER)}</StyledTableCell>
+                          <StyledTableCell align="center" sx={{ minWidth: '20vh' }}>
+                            {concate(rows.districtName, rows.zoneName, rows.streetName)}
+                          </StyledTableCell>
+
                           <StyledTableCell align="center">
                             <Button
                               aria-haspopup="true"

@@ -137,7 +137,7 @@ export default function PageEight() {
     setOpen(true);
     setTimeout(() => {
       navigate(`/dashboard/AllUsersAndRoles`);
-    }, 4000);
+    }, 2000);
   }
 
   function boolCheckedDefalut(branchid, cityid) {

@@ -46,7 +46,7 @@ export default function loginReducer(
         userName: action.payload.username,
         userToken: action.payload.userToken,
         isError: false,
-        isLogged: false,
+        isLogged: true,
         FullName: action.payload.fullName,
         canExport: action.payload.canExport,
         isAdmin: action.payload.isAdmin,

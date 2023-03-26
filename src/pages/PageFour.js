@@ -37,7 +37,7 @@ import '../index.css';
 // hooks
 import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment/moment';
-import { getBranchesLookup, getCitiesLookup, getTeamInfo, ClearAllUserBranch } from '../Redux/Customer/CustomerAction';
+import { getBranchesLookup, getCitiesLookup, getTeamInfo, clearPersistedState } from '../Redux/Customer/CustomerAction';
 import useSettings from '../hooks/useSettings';
 // components
 import Page from '../components/Page';
@@ -67,14 +67,11 @@ export default function PageFour() {
   const { themeStretch } = useSettings();
   const CitiesList = useSelector((state) => state.Customer.CitiesList);
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
-  let TeamList = useSelector((state) => state.Customer.TeamInfo);
+  const TeamList = useSelector((state) => state.Customer.TeamInfo);
   const clearAll = useSelector((state) => state.Customer.clearAll);
   const userName = useSelector((state) => state.Login.userName);
   const isAdmin = useSelector((state) => state.Login.isAdmin);
   const canExport = useSelector((state) => state.Login.canExport);
-  console.log(userName);
-  console.log(isAdmin);
-  console.log(canExport);
   // const isAdmin = localStorage.getItem('isAdmin');
   // const canExport = localStorage.getItem('canExport');
   // const userName = localStorage.getItem('userName');
@@ -112,7 +109,7 @@ export default function PageFour() {
     // }
     // refresh();
     dispatch(getCitiesLookup());
-    dispatch(ClearAllUserBranch());
+    dispatch(clearPersistedState());
   }, []);
   // function refresh() {
   //   if (window.localStorage) {
@@ -150,9 +147,9 @@ export default function PageFour() {
         ..._users,
         {
           'رقم الفرقة': curr.teaM_NO,
-          '  العدادات المنجزه في الأيام السابقة': curr.previousDayTicketsNumClosed,
-          ' العدادات المنجزه في الكشف اليوم ': curr.closeDisConnectionTicketsNum,
           '  إجمالي العدادات في الكشف': curr.teamTotalTicketsNum,
+          ' العدادات المنجزه في الكشف اليوم ': curr.closeDisConnectionTicketsNum,
+          '  العدادات المنجزه في الأيام السابقة': curr.previousDayTicketsNumClosed,
           ' العدادات المنجزه خارج الكشف ': curr.teamTotalTicketsNum,
         },
       ];
@@ -165,7 +162,7 @@ export default function PageFour() {
         width: 24,
       },
       {
-        width: 24,
+        width: 26,
       },
       {
         width: 23,

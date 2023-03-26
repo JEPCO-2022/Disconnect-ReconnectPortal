@@ -23,14 +23,15 @@ export default function LoginForm() {
   const [flag, setflag] = React.useState(false);
 
   const userToken = useSelector((state) => state.Login.userToken);
-  const isLogged = useSelector((state) => state.Login.isLogged);
+  // const isLogged = useSelector((state) => state.Login.isLogged);
+  const isLogged = localStorage.getItem('isLogged');
 
-  // React.useEffect(() => {
-  // console.log(isLogged);
-  // if (isLogged) {
-  // navigate('/dashboard/user/meterdonebybranche');
-  // }
-  // }, [isLogged]);
+  React.useEffect(() => {
+    console.log(isLogged);
+    if (isLogged === 'true') {
+      navigate('/dashboard/user/meterdonebybranche');
+    }
+  }, [isLogged]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,10 +43,10 @@ export default function LoginForm() {
     //
     if (dispatch(userLogin(user)) !== inputvalues.username || dispatch(userLogin(pass)) !== inputvalues.password) {
       console.log(dispatch(userLogin(user, pass)));
-      const isAdmin = localStorage.getItem('isAdmin');
-      navigate('/dashboard/user/meterdonebybranche');
-    } else {
+      // navigate('/dashboard/user/meterdonebybranche');
       setflag(true);
+    } else {
+      const isAdmin = localStorage.getItem('isAdmin');
     }
   };
 

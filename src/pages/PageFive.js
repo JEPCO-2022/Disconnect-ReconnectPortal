@@ -40,6 +40,7 @@ import moment from 'moment/moment';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ClearAllUserBranch,
+  clearPersistedState,
   getBranchesLookup,
   getCitiesLookup,
   getMeterReportByTeam,
@@ -134,6 +135,7 @@ export default function PageFour() {
     setValueRBG(event.target.value);
   };
   useEffect(() => {
+    // dispatch(clearPersistedState());
     dispatch(getCitiesLookup());
     dispatch(ClearAllUserBranch());
   }, []);
@@ -170,9 +172,9 @@ export default function PageFour() {
 
   function phoneNumberChecked(phoneNumber) {
     if (phoneNumber === null || phoneNumber === undefined || phoneNumber === '') {
-      return <StyledTableCell align="center">لا يوجد</StyledTableCell>;
+      return 'لا يوجد';
     }
-    return <StyledTableCell align="center">{phoneNumber} </StyledTableCell>;
+    return phoneNumber;
   }
   const exportToCSV = (apiData, fileName) => {
     const customHeadings = apiData.reduce((acc, curr) => {
@@ -180,13 +182,14 @@ export default function PageFour() {
       return [
         ..._users,
         {
-          'رقم الفرقة': curr.TEAM_NO,
+          'رقم الفرقة': curr.teaM_NO,
           ' رقم العداد	 ': curr.meter_NO,
           ' اسم المشترك	 ': curr.cusT_Name,
           ' الإجراء الحالي': curr.ticketStatusNameAR,
           ' عدد الفواتير	 ': curr.nO_DOC,
           '  الذمم	 ': curr.customeR_BALANCE,
-          '  رقم الهاتف	 ': curr.teL_NUMBER,
+          '  رقم الهاتف	 ': phoneNumberChecked(curr.teL_NUMBER),
+          '  الموقع	 ': concate(curr.districtName, curr.zoneName, curr.streetName),
         },
       ];
     }, []);
@@ -212,9 +215,12 @@ export default function PageFour() {
       {
         width: 20,
       },
+      {
+        width: 40,
+      },
     ];
     const head = [' تفاصيل الكشف حسب المكتب '];
-    const merge = [{ s: { c: 0, r: 0 }, e: { c: 6, r: 0 } }];
+    const merge = [{ s: { c: 0, r: 0 }, e: { c: 7, r: 0 } }];
     const ws = XLSX.utils.json_to_sheet(customHeadings, { origin: 'A2' });
     ws['!cols'] = RowInfo;
     ws['!merges'] = merge;
@@ -224,6 +230,15 @@ export default function PageFour() {
     const data = new Blob([excelBuffer], { type: fileType });
     FileSaver.saveAs(data, fileName + fileExtension);
   };
+  function concate(districtName, zoneName, streetName) {
+    if (districtName === undefined) districtName = '';
+    if (zoneName === undefined) zoneName = '';
+    if (streetName === undefined) streetName = '';
+    const name = `${districtName} ${zoneName} شارع ${streetName}`;
+    const non = 'لا يوجد';
+    if (districtName === ' ' && zoneName === ' ' && streetName === ' ') return non;
+    return name;
+  }
   return (
     <>
       <Page title="تفاصيل الكشف حسب الفرقة">
@@ -379,6 +394,7 @@ export default function PageFour() {
                       <StyledTableCell align="center">عدد الفواتير</StyledTableCell>
                       <StyledTableCell align="center">الذمم </StyledTableCell>
                       <StyledTableCell align="center">رقم الهاتف </StyledTableCell>
+                      <StyledTableCell align="center"> الموقع </StyledTableCell>
                       <StyledTableCell align="center">تفاصيل</StyledTableCell>
                     </TableRow>
                   </TableHead>
@@ -403,7 +419,11 @@ export default function PageFour() {
                           <StyledTableCell align="center">{data.ticketStatusNameAR}</StyledTableCell>
                           <StyledTableCell align="center">{data.nO_DOC}</StyledTableCell>
                           <StyledTableCell align="center"> {data.customeR_BALANCE}</StyledTableCell>
-                          {phoneNumberChecked(data.teL_NUMBER)}
+                          <StyledTableCell align="center">{phoneNumberChecked(data.teL_NUMBER)}</StyledTableCell>
+
+                          <StyledTableCell align="center">
+                            {concate(data.districtName, data.zoneName, data.streetName)}
+                          </StyledTableCell>
                           <StyledTableCell align="center">
                             <Button
                               onClick={() => {

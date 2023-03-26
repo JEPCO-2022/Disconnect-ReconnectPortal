@@ -20,6 +20,9 @@ import {
   Box,
   DialogActions,
 } from '@mui/material';
+import * as XLSX from 'xlsx';
+import FileSaver from 'file-saver';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ClearIcon from '@mui/icons-material/Clear';
 import Paper from '@mui/material/Paper';
@@ -39,7 +42,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import Page from '../components/Page';
 import { userLogin } from '../Redux/Login/LoginAction';
 import Map from '../components/Map';
-
 import {
   getBranchesLookup,
   getCitiesLookup,
@@ -47,6 +49,7 @@ import {
   getEngineerAbandonedDecision,
   getAllUsers,
   SaveEngineerAbandonedDecision,
+  clearPersistedState,
 } from '../Redux/Customer/CustomerAction';
 import '../index.css';
 import useSettings from '../hooks/useSettings';
@@ -119,6 +122,8 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 export default function PageNine() {
+  const fileExtension = '.xlsx';
+  const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
   const location = useLocation();
@@ -222,25 +227,11 @@ export default function PageNine() {
     dispatch(getEngineerAbandonedDecision(startdate, enddate, branchnumber, inputValues.Team));
   };
   useEffect(() => {
+    dispatch(clearPersistedState());
     dispatch(getCitiesLookup());
     dispatch(getAllUsers());
   }, []);
   function consent(e) {
-    for (let index = 0; index < allUsers.length; index += 1) {
-      if (allUsers[index].username === userName) {
-        setID(allUsers.id);
-      }
-    }
-    const ticketString = ticketid.toString();
-    console.log(ticketString);
-    console.log(e);
-    console.log(userName);
-    console.log(ID);
-    dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
-    // handleTab();
-    // window.location.reload(true);
-  }
-  function reject(e) {
     for (let index = 0; index < allUsers.length; index += 1) {
       if (allUsers[index].username === userName) {
         setID(allUsers.id);
@@ -284,6 +275,62 @@ export default function PageNine() {
     }
     return <StyledTableCell align="center">{phoneNumber} </StyledTableCell>;
   }
+  console.log(allAbandoned);
+  const exportToCSV = (apiData, fileName) => {
+    // console.log(apiData);
+    const customHeadings = apiData.reduce((acc, curr) => {
+      const _users = acc;
+      return [
+        ..._users,
+        {
+          'رقم الفرقة': curr.teaM_NO,
+          ' رقم العداد	 ': curr.meter_NO,
+          ' اسم المشترك	 ': curr.cusT_Name,
+          ' الإجراء الحالي': curr.maintenanceAndVigilanceType,
+          ' عدد الفواتير	 ': curr.nO_DOC,
+          '  الذمم	 ': curr.customeR_BALANCE,
+          '  رقم الهاتف	 ': phoneNumberChecked(curr.teL_NUMBER),
+          '  الموقع	 ': concate(curr.districtName, curr.zoneName, curr.streetName),
+        },
+      ];
+    }, []);
+    const RowInfo = [
+      {
+        width: 10,
+      },
+      {
+        width: 20,
+      },
+      {
+        width: 20,
+      },
+      {
+        width: 20,
+      },
+      {
+        width: 10,
+      },
+      {
+        width: 15,
+      },
+      {
+        width: 20,
+      },
+      {
+        width: 40,
+      },
+    ];
+    const head = [' تفاصيل الكشف حسب المكتب '];
+    const merge = [{ s: { c: 0, r: 0 }, e: { c: 7, r: 0 } }];
+    const ws = XLSX.utils.json_to_sheet(customHeadings, { origin: 'A2' });
+    ws['!cols'] = RowInfo;
+    ws['!merges'] = merge;
+    const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
+    XLSX.utils.sheet_add_aoa(ws, [head], { origin: 'A1' });
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const data = new Blob([excelBuffer], { type: fileType });
+    FileSaver.saveAs(data, fileName + fileExtension);
+  };
   return (
     <>
       <Page title="تقرير المهجور">
@@ -400,6 +447,21 @@ export default function PageNine() {
           <br />
           {allAbandoned?.length > 0 ? (
             <>
+              <Grid textAlign="end" item xs={12} md={12} lg={12}>
+                <Button
+                  className={canExport ? 'visible' : 'invisible'}
+                  endIcon={<FileDownloadIcon />}
+                  variant="outlined"
+                  onClick={() => {
+                    exportToCSV(allAbandoned, 'تقرير عبث وصيانة');
+                  }}
+                  fullwidth
+                >
+                  تنزيل
+                </Button>
+              </Grid>
+              <br />
+              <br />
               <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 700 }} aria-label="customized table">
                   <TableHead>
@@ -500,13 +562,22 @@ export default function PageNine() {
                                   }}
                                 >
                                   <ThumbUpAltIcon />
-                                  موافقة
+                                  موافقة مع فصل
+                                </MenuItem>
+                                <MenuItem
+                                  disableRipple
+                                  onClick={() => {
+                                    consent(3);
+                                  }}
+                                >
+                                  <ThumbUpAltIcon />
+                                  موافقة بدون فصل
                                 </MenuItem>
                                 <Divider sx={{ my: 0.5 }} />
                                 <MenuItem
                                   disableRipple
                                   onClick={() => {
-                                    reject(3);
+                                    consent(4);
                                   }}
                                 >
                                   <ClearIcon />

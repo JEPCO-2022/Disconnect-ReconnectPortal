@@ -69,6 +69,8 @@ export const requestClearAll = 'requestClearAll';
 export const setclearAll = 'setclearAll';
 export const errorclearAll = 'errorclearAll';
 
+export const CLEAR_PERSISTED_STATE = 'CLEAR_PERSISTED_STATE';
+
 export const RequestCitiesLookup = () => {
   return {
     type: requestCityLookup,
@@ -848,4 +850,6 @@ export const getMaintenanceAndVigilanceReport =
       console.log('no Cookie');
     }
   };
+
+export const clearPersistedState = () => ({ type: CLEAR_PERSISTED_STATE });
 // emergency portal can help you with this "if you need any help please get back to the same file in that application"

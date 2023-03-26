@@ -19,6 +19,7 @@ import {
   setengineerAbandonedDecision,
   setsaveEngineerAbandonedDecision,
   setmaintenanceAndVigilanceReport,
+  CLEAR_PERSISTED_STATE,
 } from './CustomerAction';
 
 const initialState = {
@@ -43,6 +44,8 @@ const initialState = {
 
 const CustomerReducer = (state = initialState, action = {}) => {
   switch (action.type) {
+    case CLEAR_PERSISTED_STATE:
+      return initialState;
     case setclearAll:
       return {
         ...state,

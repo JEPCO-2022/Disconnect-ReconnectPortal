@@ -19,8 +19,8 @@ export default function NavbarDocs() {
       localStorage.removeItem('user');
       localStorage.removeItem('userName');
       localStorage.removeItem('isAdmin');
+      localStorage.removeItem('isLogged');
       // localStorage.clear();
-
       navigate(`/login`);
     }
   }

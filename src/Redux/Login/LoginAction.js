@@ -74,6 +74,7 @@ export const userLogin = (username, password) => async (dispatch) => {
     console.log(infoTokenResponse.data.body);
     localStorage.setItem('isAdmin', infoTokenResponse.data.body.isAdmin);
     localStorage.setItem('canExport', infoTokenResponse.data.body.canExport);
+    localStorage.setItem('isLogged', true);
     const filedata = infoTokenResponse.data.body;
     if (infoTokenResponse.data.statusCode) {
       console.log('no Cookie');
