@@ -19,6 +19,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import ExcelJS from 'exceljs';
 import * as FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
 import Paper from '@mui/material/Paper';
@@ -36,6 +37,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import '../index.css';
 // hooks
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import moment from 'moment/moment';
 import { getBranchesLookup, getCitiesLookup, getTeamInfo, clearPersistedState } from '../Redux/Customer/CustomerAction';
 import useSettings from '../hooks/useSettings';
@@ -72,9 +74,11 @@ export default function PageFour() {
   const userName = useSelector((state) => state.Login.userName);
   const isAdmin = useSelector((state) => state.Login.isAdmin);
   const canExport = useSelector((state) => state.Login.canExport);
-  // const isAdmin = localStorage.getItem('isAdmin');
+  const isLogged = localStorage.getItem('isLogged');
+  console.log(userName);
+  // const isAdmin= localStorage.getItem('isAdmin');
   // const canExport = localStorage.getItem('canExport');
-  // const userName = localStorage.getItem('userName');
+  const userNameLocalStorage = localStorage.getItem('userName');
   const dispatch = useDispatch();
   const tableRef = useRef(null);
   const separator = '';
@@ -85,6 +89,7 @@ export default function PageFour() {
   const [flagFullName, setflagFullName] = useState(false);
   const [errorMessageCity, setErrorMessageCity] = useState('');
   const [errorMessageBranch, setErrorMessageBranch] = useState('');
+  const navigate = useNavigate();
   const fileExtension = '.xlsx';
   const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
   const [inputValues, setinputValues] = useState({
@@ -102,7 +107,13 @@ export default function PageFour() {
   };
 
   useEffect(() => {
-    console.log(TeamList);
+    if (!(isLogged === 'true')) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('isAdmin');
+      navigate('/login');
+    }
+    // console.log(TeamList);
     // const navigation = window.performance.getEntriesByType('navigation')[0];
     // if (navigation.type === 'reload') {
     //   console.log('Page was refreshed');
@@ -146,41 +157,58 @@ export default function PageFour() {
       return [
         ..._users,
         {
-          'رقم الفرقة': curr.teaM_NO,
-          '  إجمالي العدادات في الكشف': curr.teamTotalTicketsNum,
-          ' العدادات المنجزه في الكشف اليوم ': curr.closeDisConnectionTicketsNum,
-          '  العدادات المنجزه في الأيام السابقة': curr.previousDayTicketsNumClosed,
-          ' العدادات المنجزه خارج الكشف ': curr.teamTotalTicketsNum,
+          teamTotalTicketsNum: curr.teamTotalTicketsNum,
+          closeDisConnectionTicketsNum: curr.closeDisConnectionTicketsNum,
+          previousDayTicketsNumClosed: curr.previousDayTicketsNumClosed,
+          previousDayTicketsNumClosede: curr.previousDayTicketsNumClosed,
         },
       ];
     }, []);
-    const RowInfo = [
-      {
-        width: 10,
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Sheet 1', {
+      pageSetup: {
+        orientation: 'landscape',
+        fitToPage: true,
+        fitToHeight: 5,
+        fitToWidth: 7,
+        paperSize: 9,
       },
-      {
-        width: 24,
-      },
-      {
-        width: 26,
-      },
-      {
-        width: 23,
-      },
-      {
-        width: 23,
-      },
-    ];
-    const head = ['العدادات المنجزه حسب المكتب '];
-    const merge = [{ s: { c: 0, r: 0 }, e: { c: 4, r: 0 } }];
-    const ws = XLSX.utils.json_to_sheet(customHeadings, { origin: 'A2' });
-    ws['!cols'] = RowInfo;
-    ws['!merges'] = merge;
-    const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
-    XLSX.utils.sheet_add_aoa(ws, [head], { origin: 'A1' });
-    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    const data = new Blob([excelBuffer], { type: fileType });
-    FileSaver.saveAs(data, fileName + fileExtension);
+    });
+    worksheet.addRow([fileName]);
+    worksheet.addRow([
+      ' رقم الفرقة',
+      ' إجمالي العدادات في الكشف	 ',
+      ' العدادات المنجزه في الكشف اليومي ',
+      ' العدادات المنجزه في الأيام السابقة',
+      ' العدادات المنجزه خارج الكشف ',
+    ]);
+    customHeadings.map((e) =>
+      worksheet.addRow([
+        e.teamTotalTicketsNum,
+        e.closeDisConnectionTicketsNum,
+        e.previousDayTicketsNumClosed,
+        e.previousDayTicketsNumClosed,
+      ])
+    );
+    worksheet.columns[0].width = 10;
+    worksheet.columns[1].width = 30;
+    worksheet.columns[2].width = 30;
+    worksheet.columns[3].width = 30;
+    worksheet.columns[4].width = 30;
+    worksheet.mergeCells('A1:H1');
+    worksheet.eachRow((row) => {
+      row.eachCell((cell) => {
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      });
+    });
+    workbook.xlsx.writeBuffer().then((buffer) => {
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${fileName}.xlsx`;
+      a.click();
+    });
   };
   return (
     <Page title="العدادات المنجزه حسب المكتب">

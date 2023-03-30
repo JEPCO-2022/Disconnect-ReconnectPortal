@@ -22,7 +22,14 @@ export default function PageSeven() {
   const timeSecond = String(date[1]);
   const timeMinutes = String(timeSecond).split(':');
   const time = `  ${timeMinutes[1]}: ${timeMinutes[0]}`;
+  const isLogged = localStorage.getItem('isLogged');
   useEffect(() => {
+    if (!(isLogged === 'true')) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('isAdmin');
+      navigate('/login');
+    }
     dispatch(getTicketsDetails(id));
   }, []);
   function showImage(srcImage) {

@@ -23,6 +23,7 @@ import {
   FormControlLabel,
   Radio,
 } from '@mui/material';
+import ExcelJS from 'exceljs';
 import * as XLSX from 'xlsx';
 import FileSaver from 'file-saver';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
@@ -39,7 +40,7 @@ import TableRow from '@mui/material/TableRow';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers-pro';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import moment from 'moment/moment';
-import { useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import Page from '../components/Page';
 import { userLogin } from '../Redux/Login/LoginAction';
@@ -129,6 +130,7 @@ const MaintenanceAndTampering = () => {
   const isAdmin = useSelector((state) => state.Login.isAdmin);
   const userName = useSelector((state) => state.Login.userName);
   const canExport = useSelector((state) => state.Login.canExport);
+  const navigate = useNavigate();
   // const isAdmin = localStorage.getItem('isAdmin');
   // const canExport = localStorage.getItem('canExport');
   // const userName = localStorage.getItem('userName');
@@ -145,6 +147,7 @@ const MaintenanceAndTampering = () => {
   const [sourceImage, setSourceImage] = useState('');
   const [showTable, setShowTable] = useState(false);
   const [typeReport, setTypeReport] = useState(1);
+  const isLogged = localStorage.getItem('isLogged');
   const handleClose = () => {
     setOpen(false);
   };
@@ -194,6 +197,12 @@ const MaintenanceAndTampering = () => {
   };
 
   useEffect(() => {
+    if (!(isLogged === 'true')) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('isAdmin');
+      navigate('/login');
+    }
     dispatch(clearPersistedState());
     setShowTable(false);
     dispatch(getCitiesLookup());
@@ -225,53 +234,74 @@ const MaintenanceAndTampering = () => {
       return [
         ..._users,
         {
-          'رقم الفرقة': curr.teaM_NO,
-          ' رقم العداد	 ': curr.meter_NO,
-          ' اسم المشترك	 ': curr.cusT_Name,
-          ' الإجراء الحالي': curr.maintenanceAndVigilanceType,
-          ' عدد الفواتير	 ': curr.nO_DOC,
-          '  الذمم	 ': curr.customeR_BALANCE,
-          '  رقم الهاتف	 ': phoneNumberChecked(curr.teL_NUMBER),
-          '  الموقع	 ': concate(curr.districtName, curr.zoneName, curr.streetName),
+          teaM_NO: curr.teaM_NO,
+          meter_NO: curr.meter_NO,
+          cusT_Name: curr.cusT_Name,
+          maintenanceAndVigilanceType: curr.maintenanceAndVigilanceType,
+          nO_DOC: curr.nO_DOC,
+          customeR_BALANCE: curr.customeR_BALANCE,
+          teL_NUMBER: phoneNumberChecked(curr.teL_NUMBER),
+          location: concate(curr.districtName, curr.zoneName, curr.streetName),
         },
       ];
     }, []);
-    const RowInfo = [
-      {
-        width: 10,
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Sheet 1', {
+      pageSetup: {
+        orientation: 'landscape',
+        fitToPage: true,
+        fitToHeight: 5,
+        fitToWidth: 7,
+        paperSize: 9,
       },
-      {
-        width: 20,
-      },
-      {
-        width: 20,
-      },
-      {
-        width: 20,
-      },
-      {
-        width: 10,
-      },
-      {
-        width: 15,
-      },
-      {
-        width: 20,
-      },
-      {
-        width: 40,
-      },
-    ];
-    const head = [' تفاصيل الكشف حسب المكتب '];
-    const merge = [{ s: { c: 0, r: 0 }, e: { c: 7, r: 0 } }];
-    const ws = XLSX.utils.json_to_sheet(customHeadings, { origin: 'A2' });
-    ws['!cols'] = RowInfo;
-    ws['!merges'] = merge;
-    const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
-    XLSX.utils.sheet_add_aoa(ws, [head], { origin: 'A1' });
-    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    const data = new Blob([excelBuffer], { type: fileType });
-    FileSaver.saveAs(data, fileName + fileExtension);
+    });
+    worksheet.addRow([fileName]);
+    worksheet.addRow([
+      ' رقم الفرقة',
+      'رقم العداد',
+      ' اسم المشترك',
+      ' صيانة او عبث ',
+      ' عدد الفواتير	',
+      ' الذمم',
+      'رقم الهاتف',
+      ' الموقع ',
+    ]);
+    customHeadings.map((e) =>
+      worksheet.addRow([
+        e.teaM_NO,
+        e.meter_NO,
+        e.cusT_Name,
+        e.maintenanceAndVigilanceType,
+        e.nO_DOC,
+        e.customeR_BALANCE,
+        e.teL_NUMBER,
+        e.location,
+      ])
+    );
+    worksheet.columns[0].width = 10;
+    worksheet.columns[1].width = 20;
+    worksheet.columns[2].width = 30;
+    worksheet.columns[3].width = 10;
+    worksheet.columns[3].width = 15;
+    worksheet.columns[4].width = 10;
+    worksheet.columns[5].width = 10;
+    worksheet.columns[6].width = 25;
+    worksheet.columns[7].width = 50;
+
+    worksheet.mergeCells('A1:H1');
+    worksheet.eachRow((row) => {
+      row.eachCell((cell) => {
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      });
+    });
+    workbook.xlsx.writeBuffer().then((buffer) => {
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${fileName}.xlsx`;
+      a.click();
+    });
   };
   function concate(districtName, zoneName, streetName) {
     if (districtName === undefined) districtName = '';

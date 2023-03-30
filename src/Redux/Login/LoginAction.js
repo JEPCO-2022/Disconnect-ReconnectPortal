@@ -33,11 +33,11 @@ export const setLoginInformation = () => {
     type: SET_LOGIN_INFORMATION,
   };
 };
-export const setLoginSuccess = (username, userToken, canExport, isAdmin) => {
+export const setLoginSuccess = (username, userToken, canExport, isAdmin, ID) => {
   // console.log({ username, userToken });
   return {
     type: SET_LOGIN_SUCCESS,
-    payload: { username, userToken, canExport, isAdmin },
+    payload: { username, userToken, canExport, isAdmin, ID },
   };
 };
 export const userLogin = (username, password) => async (dispatch) => {
@@ -74,11 +74,12 @@ export const userLogin = (username, password) => async (dispatch) => {
     console.log(infoTokenResponse.data.body);
     localStorage.setItem('isAdmin', infoTokenResponse.data.body.isAdmin);
     localStorage.setItem('canExport', infoTokenResponse.data.body.canExport);
+    localStorage.setItem('id', infoTokenResponse.data.body.id);
     localStorage.setItem('isLogged', true);
     const filedata = infoTokenResponse.data.body;
     if (infoTokenResponse.data.statusCode) {
       console.log('no Cookie');
-      dispatch(setLoginSuccess(username, genertedToken, filedata.canExport, filedata.isAdmin));
+      dispatch(setLoginSuccess(username, genertedToken, filedata.canExport, filedata.isAdmin, filedata.id));
       dispatch(setLoginInformation(filedata));
     } else {
       console.log('login errorXO');

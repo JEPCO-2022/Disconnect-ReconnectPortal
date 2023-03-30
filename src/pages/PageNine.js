@@ -20,16 +20,19 @@ import {
   Box,
   DialogActions,
 } from '@mui/material';
+import ExcelJS from 'exceljs';
 import * as XLSX from 'xlsx';
 import FileSaver from 'file-saver';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ClearIcon from '@mui/icons-material/Clear';
+import UnpublishedIcon from '@mui/icons-material/Unpublished';
 import Paper from '@mui/material/Paper';
 import { styled, alpha } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
+import VerifiedIcon from '@mui/icons-material/Verified';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
@@ -37,7 +40,7 @@ import TableRow from '@mui/material/TableRow';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers-pro';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import moment from 'moment/moment';
-import { useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import Page from '../components/Page';
 import { userLogin } from '../Redux/Login/LoginAction';
@@ -127,7 +130,7 @@ export default function PageNine() {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
   const location = useLocation();
-  const canExport = localStorage.getItem('canExport');
+
   const CitiesList = useSelector((state) => state.Customer.CitiesList);
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
   const TeamsList = useSelector((state) => state.Customer.TeamList);
@@ -142,11 +145,14 @@ export default function PageNine() {
     endDate: moment().format('YYYY-MM-DD'),
   });
 
-  const [ID, setID] = useState(0);
+  // const [ID, setID] = useState(0);
+  // const canExport = localStorage.getItem('canExport');
   // const isAdmin = localStorage.getItem('isAdmin');
   // const userName = localStorage.getItem('userName');
+  const canExport = useSelector((state) => state.Login.canExport);
   const isAdmin = useSelector((state) => state.Login.isAdmin);
   const userName = useSelector((state) => state.Login.userName);
+  const ID = useSelector((state) => state.Login.id);
   const [errorMessageCity, setErrorMessageCity] = useState('');
   const [errorMessageBranch, setErrorMessageBranch] = useState('');
   const [errorMessageTeam, setErrorMessageTeam] = useState('');
@@ -158,9 +164,11 @@ export default function PageNine() {
   const [openSapMap, setOpenSapMap] = useState(false);
   const [openImage, setOpenImage] = useState(false);
   const [fullWidth, setFullWidth] = useState(true);
+  const navigate = useNavigate();
   const [ticketid, setTicketid] = useState('');
   const [maxWidth, setMaxWidth] = useState('sm');
   const [imageSrc, setImageSrc] = useState('sm');
+  const isLogged = localStorage.getItem('isLogged');
   const [map, setMap] = useState({
     langSap: '',
     lang: '',
@@ -210,7 +218,7 @@ export default function PageNine() {
     setErrorMessageTeam('');
     setflagTeam(false);
   }
-  const handleTab = () => {
+  function handleTab() {
     const startdate = moment(inputValues.startDate.$d).format('YYYY-MM-DD');
     const enddate = moment(inputValues.endDate.$d).format('YYYY-MM-DD');
     const branchnumber = inputValues.Branch.toString();
@@ -223,20 +231,33 @@ export default function PageNine() {
       setflagBranch(true);
       return false;
     }
-
-    dispatch(getEngineerAbandonedDecision(startdate, enddate, branchnumber, inputValues.Team));
-  };
+    // dispatch(getEngineerAbandonedDecision(startdate, enddate, branchnumber, inputValues.Team));
+  }
   useEffect(() => {
-    dispatch(clearPersistedState());
+    if (!(isLogged === 'true')) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('isAdmin');
+      navigate('/login');
+    }
+    // dispatch(clearPersistedState());
     dispatch(getCitiesLookup());
     dispatch(getAllUsers());
   }, []);
-  function consent(e) {
-    for (let index = 0; index < allUsers.length; index += 1) {
-      if (allUsers[index].username === userName) {
-        setID(allUsers.id);
-      }
-    }
+  function consentWithDisconnection(e) {
+    setAnchorEl(null);
+    const ticketString = ticketid.toString();
+    dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
+    window.location.reload(true);
+  }
+  function consentWithOutDisconnection(e) {
+    setAnchorEl(null);
+    const ticketString = ticketid.toString();
+    dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
+    window.location.reload(true);
+  }
+  function reject(e) {
+    setAnchorEl(null);
     const ticketString = ticketid.toString();
     dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
     window.location.reload(true);
@@ -271,65 +292,71 @@ export default function PageNine() {
   }
   function phoneNumberChecked(phoneNumber) {
     if (phoneNumber === null || phoneNumber === undefined || phoneNumber === '') {
-      return <StyledTableCell align="center">لا يوجد</StyledTableCell>;
+      return ' لا يوجد';
     }
-    return <StyledTableCell align="center">{phoneNumber} </StyledTableCell>;
+    return phoneNumber;
   }
-  console.log(allAbandoned);
   const exportToCSV = (apiData, fileName) => {
-    // console.log(apiData);
     const customHeadings = apiData.reduce((acc, curr) => {
       const _users = acc;
       return [
         ..._users,
         {
-          'رقم الفرقة': curr.teaM_NO,
-          ' رقم العداد	 ': curr.meter_NO,
-          ' اسم المشترك	 ': curr.cusT_Name,
-          ' الإجراء الحالي': curr.maintenanceAndVigilanceType,
-          ' عدد الفواتير	 ': curr.nO_DOC,
-          '  الذمم	 ': curr.customeR_BALANCE,
-          '  رقم الهاتف	 ': phoneNumberChecked(curr.teL_NUMBER),
-          '  الموقع	 ': concate(curr.districtName, curr.zoneName, curr.streetName),
+          teaM_NO: curr.teaM_NO,
+          meter_NO: curr.meter_NO,
+          cusT_Name: curr.cusT_Name,
+          nO_DOC: curr.nO_DOC,
+          customeR_BALANCE: curr.customeR_BALANCE,
+          teL_NUMBER: phoneNumberChecked(curr.teL_NUMBER),
+          location: concate(curr.districtName, curr.zoneName, curr.streetName),
         },
       ];
     }, []);
-    const RowInfo = [
-      {
-        width: 10,
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Sheet 1', {
+      pageSetup: {
+        orientation: 'landscape',
+        fitToPage: true,
+        fitToHeight: 5,
+        fitToWidth: 7,
+        paperSize: 9,
       },
-      {
-        width: 20,
-      },
-      {
-        width: 20,
-      },
-      {
-        width: 20,
-      },
-      {
-        width: 10,
-      },
-      {
-        width: 15,
-      },
-      {
-        width: 20,
-      },
-      {
-        width: 40,
-      },
-    ];
-    const head = [' تفاصيل الكشف حسب المكتب '];
-    const merge = [{ s: { c: 0, r: 0 }, e: { c: 7, r: 0 } }];
-    const ws = XLSX.utils.json_to_sheet(customHeadings, { origin: 'A2' });
-    ws['!cols'] = RowInfo;
-    ws['!merges'] = merge;
-    const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
-    XLSX.utils.sheet_add_aoa(ws, [head], { origin: 'A1' });
-    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    const data = new Blob([excelBuffer], { type: fileType });
-    FileSaver.saveAs(data, fileName + fileExtension);
+    });
+    worksheet.addRow([fileName]);
+    worksheet.addRow([
+      ' رقم الفرقة',
+      'رقم العداد',
+      ' اسم المشترك',
+      ' عدد الفواتير	',
+      ' الذمم',
+      'رقم الهاتف',
+      ' الموقع ',
+    ]);
+    customHeadings.map((e) =>
+      worksheet.addRow([e.teaM_NO, e.meter_NO, e.cusT_Name, e.nO_DOC, e.customeR_BALANCE, e.teL_NUMBER, e.location])
+    );
+    worksheet.columns[0].width = 10;
+    worksheet.columns[1].width = 20;
+    worksheet.columns[2].width = 30;
+    worksheet.columns[3].width = 10;
+    worksheet.columns[4].width = 10;
+    worksheet.columns[5].width = 25;
+    worksheet.columns[6].width = 50;
+
+    worksheet.mergeCells('A1:H1');
+    worksheet.eachRow((row) => {
+      row.eachCell((cell) => {
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      });
+    });
+    workbook.xlsx.writeBuffer().then((buffer) => {
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${fileName}.xlsx`;
+      a.click();
+    });
   };
   return (
     <>
@@ -453,7 +480,7 @@ export default function PageNine() {
                   endIcon={<FileDownloadIcon />}
                   variant="outlined"
                   onClick={() => {
-                    exportToCSV(allAbandoned, 'تقرير عبث وصيانة');
+                    exportToCSV(allAbandoned, ' تقرير مهجور ');
                   }}
                   fullwidth
                 >
@@ -490,7 +517,7 @@ export default function PageNine() {
                           <StyledTableCell align="center">{rows.cusT_Name}</StyledTableCell>
                           <StyledTableCell align="center">{rows.nO_DOC}</StyledTableCell>
                           <StyledTableCell align="center">{rows.customeR_BALANCE}</StyledTableCell>
-                          {phoneNumberChecked(rows.teL_NUMBER)}
+                          <StyledTableCell align="center">{phoneNumberChecked(rows.teL_NUMBER)}</StyledTableCell>
                           <StyledTableCell align="center" sx={{ minWidth: '20vh' }}>
                             {concate(rows.districtName, rows.zoneName, rows.streetName)}
                           </StyledTableCell>
@@ -558,26 +585,26 @@ export default function PageNine() {
                                 <MenuItem
                                   disableRipple
                                   onClick={() => {
-                                    consent(2);
+                                    consentWithDisconnection(2);
                                   }}
                                 >
-                                  <ThumbUpAltIcon />
+                                  <VerifiedIcon />
                                   موافقة مع فصل
                                 </MenuItem>
                                 <MenuItem
                                   disableRipple
                                   onClick={() => {
-                                    consent(3);
+                                    consentWithOutDisconnection(3);
                                   }}
                                 >
-                                  <ThumbUpAltIcon />
+                                  <UnpublishedIcon />
                                   موافقة بدون فصل
                                 </MenuItem>
                                 <Divider sx={{ my: 0.5 }} />
                                 <MenuItem
                                   disableRipple
                                   onClick={() => {
-                                    consent(4);
+                                    reject(4);
                                   }}
                                 >
                                   <ClearIcon />

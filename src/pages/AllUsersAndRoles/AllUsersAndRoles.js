@@ -92,6 +92,7 @@ export default function AllUsersAndRoles() {
   const [name, setName] = useState('');
   const [userName, setUserName] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
+  const isLogged = localStorage.getItem('isLogged');
   const navigate = useNavigate();
   const open = Boolean(anchorEl);
   const handleClick = (event, id, fullName, username) => {
@@ -109,6 +110,12 @@ export default function AllUsersAndRoles() {
     setAnchorEl(null);
   };
   useEffect(() => {
+    if (!(isLogged === 'true')) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('isAdmin');
+      navigate('/login');
+    }
     dispatch(getAllUsers());
   }, []);
   return (

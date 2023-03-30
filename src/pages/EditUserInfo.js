@@ -44,6 +44,7 @@ export default function EditUserInfo() {
   const [administrator, setAdministrator] = useState(true);
   const [exportFiles, setExportFiles] = useState(true);
   const navigate = useNavigate();
+  const isLogged = localStorage.getItem('isLogged');
   const [inputValues, setinputValues] = useState({
     id: '',
     fullName: '',
@@ -61,6 +62,12 @@ export default function EditUserInfo() {
     setinputValues({ id: idLocation, userName: userNameLocation, fullName: nameLocation, passowrd: pass });
   }
   useEffect(() => {
+    if (!(isLogged === 'true')) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('isAdmin');
+      navigate('/login');
+    }
     getPasswordUsers();
   }, [ref]);
 

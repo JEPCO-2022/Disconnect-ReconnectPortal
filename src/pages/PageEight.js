@@ -40,9 +40,16 @@ export default function PageEight() {
   const userBracnch = useSelector((state) => state.Customer.UserBracnch);
   const allUserBranch = useSelector((state) => state.Customer.alluserBranch);
   const location = useLocation();
+  const isLogged = localStorage.getItem('isLogged');
   const userName = location.state.username;
   const dispatch = useDispatch();
   useEffect(() => {
+    if (!(isLogged === 'true')) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('isAdmin');
+      navigate('/login');
+    }
     refresh();
     dispatch(getUserBranches(userName));
     dispatch(ClearAllUserBranch());

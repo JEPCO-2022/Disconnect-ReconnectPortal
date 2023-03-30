@@ -16,6 +16,7 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
+import { useNavigate } from 'react-router';
 // hooks
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { useDispatch, useSelector } from 'react-redux';
@@ -36,6 +37,8 @@ export default function CreateNewUser() {
   const [flagFullName, setflagFullName] = useState(false);
   const [flagUserName, setflagUserName] = useState(false);
   const [flagPass, setflagPass] = useState(false);
+  const navigate = useNavigate();
+  const isLogged = localStorage.getItem('isLogged');
   const [inputValues, setinputValues] = useState({
     fullName: '',
     userName: '',
@@ -92,6 +95,12 @@ export default function CreateNewUser() {
     }
   };
   useEffect(() => {
+    if (!(isLogged === 'true')) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('isAdmin');
+      navigate('/login');
+    }
     dispatch(getAllUsers());
   }, []);
   return (
