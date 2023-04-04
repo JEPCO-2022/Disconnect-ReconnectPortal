@@ -83,12 +83,12 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 export default function PageFour() {
   const { themeStretch } = useSettings();
-  const canExport = useSelector((state) => state.Login.canExport);
-  const isAdmin = useSelector((state) => state.Login.isAdmin);
-  const userName = useSelector((state) => state.Login.userName);
-  // const isAdmin = localStorage.getItem('isAdmin');
-  // const canExport = localStorage.getItem('canExport');
-  // const userName = localStorage.getItem('userName');
+  // const canExport = useSelector((state) => state.Login.canExport);
+  // const isAdmin = useSelector((state) => state.Login.isAdmin);
+  // const userName = useSelector((state) => state.Login.userName);
+  const isAdmin = localStorage.getItem('isAdmin');
+  const canExport = localStorage.getItem('canExport');
+  const userName = localStorage.getItem('userName');
   const CitiesList = useSelector((state) => state.Customer.CitiesList);
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
   const TeamsList = useSelector((state) => state.Customer.TeamList);
@@ -129,7 +129,7 @@ export default function PageFour() {
   function callBranchLookup(cityID) {
     setinputValues({ ...inputValues, City: cityID, Branch: '', Team: '' });
     const isAdminBoolean = isAdmin === 'true';
-    dispatch(getBranchesLookup(cityID, userName, isAdmin));
+    dispatch(getBranchesLookup(cityID, userName, isAdminBoolean));
     setErrorMessageCity('');
     setflagCity(false);
   }
@@ -354,7 +354,7 @@ export default function PageFour() {
                   />
                 </LocalizationProvider>
               </Grid>
-              <Grid item xs={12} md={12} lg={12}>
+              <Grid item xs={12} sm={12} md={12} lg={12}>
                 <FormLabel id="demo-row-radio-buttons-group-label" sx={{ display: 'inline-block' }}>
                   نوع الكشف:
                 </FormLabel>
@@ -397,7 +397,7 @@ export default function PageFour() {
                 </Grid>
                 <Grid textAlign="end" item xs={12} md={12} lg={12}>
                   <Button
-                    className={canExport ? 'visible' : 'invisible'}
+                    className={canExport === 'true' ? 'visible' : 'invisible'}
                     endIcon={<FileDownloadIcon />}
                     variant="outlined"
                     onClick={() => {

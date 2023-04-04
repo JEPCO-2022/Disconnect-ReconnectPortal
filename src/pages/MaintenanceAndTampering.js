@@ -113,7 +113,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 const MaintenanceAndTampering = () => {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
-  const location = useLocation();
   const CitiesList = useSelector((state) => state.Customer.CitiesList);
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
   const TeamsList = useSelector((state) => state.Customer.TeamList);
@@ -127,13 +126,13 @@ const MaintenanceAndTampering = () => {
   });
   const fileExtension = '.xlsx';
   const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-  const isAdmin = useSelector((state) => state.Login.isAdmin);
-  const userName = useSelector((state) => state.Login.userName);
-  const canExport = useSelector((state) => state.Login.canExport);
+  // const isAdmin = useSelector((state) => state.Login.isAdmin);
+  // const userName = useSelector((state) => state.Login.userName);
+  // const canExport = useSelector((state) => state.Login.canExport);
   const navigate = useNavigate();
-  // const isAdmin = localStorage.getItem('isAdmin');
-  // const canExport = localStorage.getItem('canExport');
-  // const userName = localStorage.getItem('userName');
+  const isAdmin = localStorage.getItem('isAdmin');
+  const canExport = localStorage.getItem('canExport');
+  const userName = localStorage.getItem('userName');
   const [errorMessageCity, setErrorMessageCity] = useState('');
   const [errorMessageBranch, setErrorMessageBranch] = useState('');
   const [errorMessageTeam, setErrorMessageTeam] = useState('');
@@ -163,8 +162,8 @@ const MaintenanceAndTampering = () => {
   }
   function callBranchLookup(cityID) {
     setinputValues({ ...inputValues, City: cityID, Branch: '', Team: '' });
-    // const isAdminBoolean = isAdmin === 'true';
-    dispatch(getBranchesLookup(cityID, userName, isAdmin));
+    const isAdminBoolean = isAdmin === 'true';
+    dispatch(getBranchesLookup(cityID, userName, isAdminBoolean));
     setErrorMessageCity('');
     setflagCity(false);
   }
@@ -203,7 +202,7 @@ const MaintenanceAndTampering = () => {
       localStorage.removeItem('isAdmin');
       navigate('/login');
     }
-    dispatch(clearPersistedState());
+    // dispatch(clearPersistedState());
     setShowTable(false);
     dispatch(getCitiesLookup());
   }, []);
@@ -417,9 +416,9 @@ const MaintenanceAndTampering = () => {
                   <h4 className="errorMessage">{errorMessageTeam}</h4>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={6} lg={6}>
+              <Grid item xs={12} sm={12} md={6} lg={6}>
                 <FormControl>
-                  <FormLabel id="demo-radio-buttons-group-label">مشرف؟</FormLabel>
+                  <FormLabel id="demo-radio-buttons-group-label">نوع الكشف؟</FormLabel>
                   <RadioGroup
                     row
                     aria-labelledby="demo-radio-buttons-group-label"
@@ -446,7 +445,7 @@ const MaintenanceAndTampering = () => {
             <>
               <Grid textAlign="end" item xs={12} md={12} lg={12}>
                 <Button
-                  className={canExport ? 'visible' : 'invisible'}
+                  className={canExport === 'true' ? 'visible' : 'invisible'}
                   endIcon={<FileDownloadIcon />}
                   variant="outlined"
                   onClick={() => {

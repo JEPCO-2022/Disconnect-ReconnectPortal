@@ -71,14 +71,13 @@ export default function PageFour() {
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
   const TeamList = useSelector((state) => state.Customer.TeamInfo);
   const clearAll = useSelector((state) => state.Customer.clearAll);
-  const userName = useSelector((state) => state.Login.userName);
-  const isAdmin = useSelector((state) => state.Login.isAdmin);
-  const canExport = useSelector((state) => state.Login.canExport);
+  // const userName = useSelector((state) => state.Login.userName);
+  // const isAdmin = useSelector((state) => state.Login.isAdmin);
+  // const canExport = useSelector((state) => state.Login.canExport);
   const isLogged = localStorage.getItem('isLogged');
-  console.log(userName);
-  // const isAdmin= localStorage.getItem('isAdmin');
-  // const canExport = localStorage.getItem('canExport');
-  const userNameLocalStorage = localStorage.getItem('userName');
+  const isAdmin = localStorage.getItem('isAdmin');
+  const canExport = localStorage.getItem('canExport');
+  const userName = localStorage.getItem('userName');
   const dispatch = useDispatch();
   const tableRef = useRef(null);
   const separator = '';
@@ -99,14 +98,16 @@ export default function PageFour() {
   });
   const [valueRDG, setValueRBG] = useState('1');
   function callBranchLookup(cityID) {
-    // const isAdminBoolean = isAdmin === 'true';
-    dispatch(getBranchesLookup(cityID, userName, isAdmin));
+    const isAdminBoolean = isAdmin === 'true';
+    dispatch(getBranchesLookup(cityID, userName, isAdminBoolean));
   }
   const handleChangeRadioGroup = (event) => {
     setValueRBG(event.target.value);
   };
 
   useEffect(() => {
+    console.log(userName);
+    console.log(isLogged);
     if (!(isLogged === 'true')) {
       localStorage.removeItem('user');
       localStorage.removeItem('userName');
@@ -119,8 +120,8 @@ export default function PageFour() {
     //   console.log('Page was refreshed');
     // }
     // refresh();
+    // dispatch(clearPersistedState());
     dispatch(getCitiesLookup());
-    dispatch(clearPersistedState());
   }, []);
   // function refresh() {
   //   if (window.localStorage) {
@@ -285,7 +286,7 @@ export default function PageFour() {
                 />
               </LocalizationProvider>
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
+            <Grid item xs={12} sm={12} md={6} lg={6}>
               <FormLabel id="demo-row-radio-buttons-group-label" sx={{ display: 'inline-block' }}>
                 نوع الكشف:
               </FormLabel>
@@ -312,7 +313,7 @@ export default function PageFour() {
           <>
             <Grid textAlign="end" item xs={12} md={6} lg={6}>
               <Button
-                className={canExport ? 'visible' : 'invisible'}
+                className={canExport === 'true' ? 'visible' : 'invisible'}
                 endIcon={<FileDownloadIcon />}
                 variant="outlined"
                 onClick={() => {

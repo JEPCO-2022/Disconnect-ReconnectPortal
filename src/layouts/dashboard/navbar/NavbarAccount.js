@@ -23,8 +23,8 @@ NavbarAccount.propTypes = {
 };
 
 export default function NavbarAccount({ isCollapse }) {
-  const userName = useSelector((state) => state.Login.userName);
-  // const userName = localStorage.getItem('userName');
+  // const userName = useSelector((state) => state.Login.userName);
+  const userName = localStorage.getItem('userName');
   return (
     <Link underline="none" color="inherit">
       <img src="/assets/logo.png" alt="" />

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Link, Stack, IconButton, InputAdornment, TextField, Checkbox, Button, Box } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLoginErr, userLogin } from '../../Redux/Login/LoginAction';
-
+import { clearPersistedState } from '../../Redux/Customer/CustomerAction';
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
@@ -27,7 +27,7 @@ export default function LoginForm() {
   const isLogged = localStorage.getItem('isLogged');
 
   React.useEffect(() => {
-    console.log(isLogged);
+    dispatch(clearPersistedState());
     if (isLogged === 'true') {
       navigate('/dashboard/user/meterdonebybranche');
     }

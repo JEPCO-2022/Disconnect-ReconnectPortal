@@ -14,8 +14,8 @@ export default function NavbarDocs() {
     const userName = await cookie.load('userName');
     if (userToken && userName) {
       window.open('/login', '_self');
-      // cookie.remove('user');
-      // cookie.remove('userName');
+      cookie.remove('user');
+      cookie.remove('userName');
       localStorage.removeItem('user');
       localStorage.removeItem('userName');
       localStorage.removeItem('isAdmin');

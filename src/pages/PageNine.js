@@ -135,8 +135,7 @@ export default function PageNine() {
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
   const TeamsList = useSelector((state) => state.Customer.TeamList);
   const allAbandoned = useSelector((state) => state.Customer.AllAbandoned);
-  const allUsers = useSelector((state) => state.Customer.AllUsers);
-  const data = useSelector((state) => state.Customer.engineerAbandonedDecision);
+  let allAbandonedCopy = [];
   const [inputValues, setinputValues] = useState({
     City: '',
     Branch: '',
@@ -145,14 +144,17 @@ export default function PageNine() {
     endDate: moment().format('YYYY-MM-DD'),
   });
 
-  // const [ID, setID] = useState(0);
-  // const canExport = localStorage.getItem('canExport');
-  // const isAdmin = localStorage.getItem('isAdmin');
-  // const userName = localStorage.getItem('userName');
-  const canExport = useSelector((state) => state.Login.canExport);
-  const isAdmin = useSelector((state) => state.Login.isAdmin);
-  const userName = useSelector((state) => state.Login.userName);
-  const ID = useSelector((state) => state.Login.id);
+  const canExport = localStorage.getItem('canExport');
+  const isAdmin = localStorage.getItem('isAdmin');
+  const userName = localStorage.getItem('userName');
+  const IDLocalStorage = localStorage.getItem('id');
+  const ID = parseInt(IDLocalStorage, 36);
+  // console.log(ID);
+  // const canExport = useSelector((state) => state.Login.canExport);
+  // const isAdmin = useSelector((state) => state.Login.isAdmin);
+  // const userName = useSelector((state) => state.Login.userName);
+  // const ID = useSelector((state) => state.Login.id);
+
   const [errorMessageCity, setErrorMessageCity] = useState('');
   const [errorMessageBranch, setErrorMessageBranch] = useState('');
   const [errorMessageTeam, setErrorMessageTeam] = useState('');
@@ -209,7 +211,7 @@ export default function PageNine() {
   function callBranchLookup(cityID) {
     setinputValues({ ...inputValues, City: cityID, Branch: '', Team: '' });
     const isAdminBoolean = isAdmin === 'true';
-    dispatch(getBranchesLookup(cityID, userName, isAdmin));
+    dispatch(getBranchesLookup(cityID, userName, isAdminBoolean));
     setErrorMessageCity('');
     setflagCity(false);
   }
@@ -231,7 +233,7 @@ export default function PageNine() {
       setflagBranch(true);
       return false;
     }
-    // dispatch(getEngineerAbandonedDecision(startdate, enddate, branchnumber, inputValues.Team));
+    dispatch(getEngineerAbandonedDecision(startdate, enddate, branchnumber, inputValues.Team));
   }
   useEffect(() => {
     if (!(isLogged === 'true')) {
@@ -240,28 +242,35 @@ export default function PageNine() {
       localStorage.removeItem('isAdmin');
       navigate('/login');
     }
-    // dispatch(clearPersistedState());
     dispatch(getCitiesLookup());
     dispatch(getAllUsers());
   }, []);
+  allAbandonedCopy = allAbandoned;
+  console.log(allAbandonedCopy);
   function consentWithDisconnection(e) {
-    setAnchorEl(null);
-    const ticketString = ticketid.toString();
-    dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
-    window.location.reload(true);
+    //   setAnchorEl(null);
+    //   const ticketString = ticketid.toString();
+    //   const updatedTableData = allAbandoned.filter((row) => row.abandonedTicketID !== ticketid);
+    //   dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
+    //   handleTab();
   }
   function consentWithOutDisconnection(e) {
-    setAnchorEl(null);
-    const ticketString = ticketid.toString();
-    dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
-    window.location.reload(true);
+    // setAnchorEl(null);
+    // const ticketString = ticketid.toString();
+    // const updatedTableData = allAbandoned.filter((row) => row.abandonedTicketID !== ticketid);
+    // dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
+    // handleTab();
   }
   function reject(e) {
     setAnchorEl(null);
     const ticketString = ticketid.toString();
-    dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
-    window.location.reload(true);
-  }
+    const updatedTableData = [];
+    const newArray = [...allAbandoned.filter((item) => item.abandonedTicketID !== ticketid)];
+    allAbandonedCopy = newArray;
+    console.log(allAbandonedCopy);
+    // dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
+    // handleTab();
+  } 
   function concate(districtName, zoneName, streetName) {
     if (districtName === undefined) districtName = '';
     if (zoneName === undefined) zoneName = '';
@@ -358,6 +367,7 @@ export default function PageNine() {
       a.click();
     });
   };
+  console.log(allAbandoned);
   return (
     <>
       <Page title="تقرير المهجور">
@@ -476,7 +486,7 @@ export default function PageNine() {
             <>
               <Grid textAlign="end" item xs={12} md={12} lg={12}>
                 <Button
-                  className={canExport ? 'visible' : 'invisible'}
+                  className={canExport === 'true' ? 'visible' : 'invisible'}
                   endIcon={<FileDownloadIcon />}
                   variant="outlined"
                   onClick={() => {
