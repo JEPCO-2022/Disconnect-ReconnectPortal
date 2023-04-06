@@ -120,7 +120,7 @@ export default function PageFour() {
     //   console.log('Page was refreshed');
     // }
     // refresh();
-    // dispatch(clearPersistedState());
+    dispatch(clearPersistedState());
     dispatch(getCitiesLookup());
   }, []);
   // function refresh() {
@@ -345,7 +345,7 @@ export default function PageFour() {
                       <StyledTableCell align="center">{TeamList.teamTotalTicketsNum}</StyledTableCell>
                       <StyledTableCell align="center">{TeamList.closeDisConnectionTicketsNum}</StyledTableCell>
                       <StyledTableCell align="center">{TeamList.previousDayTicketsNumClosed}</StyledTableCell>
-                      <StyledTableCell align="center">{TeamList.previousDayTicketsNumClosed}</StyledTableCell>
+                      <StyledTableCell align="center">{TeamList.outSideTicketsNum}</StyledTableCell>
                     </StyledTableRow>
                   ))}
                 </TableBody>

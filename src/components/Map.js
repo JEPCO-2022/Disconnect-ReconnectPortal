@@ -1,3 +1,4 @@
+import { Typography } from '@mui/material';
 import GoogleMapReact from 'google-map-react';
 
 const AnyReactComponent = ({ text }) => <div>{text}</div>;
@@ -5,7 +6,14 @@ const Mapsss = (props) => {
   const longitude = Number(props.lang);
   const latitude = Number(props.latt);
   if (props.lang === undefined || props.latt === undefined) {
-    return 0;
+    return (
+      <>
+        <Typography variant="h3" component="h1" paragraph align="center">
+          لا يوجد خريطة
+        </Typography>
+        ;
+      </>
+    );
   }
   const renderMarkers = (map, maps, lang, latt) => {
     const marker = new maps.Marker({

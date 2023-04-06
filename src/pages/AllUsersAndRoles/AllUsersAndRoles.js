@@ -19,7 +19,7 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useNavigate } from 'react-router-dom';
-import { getAllUsers, deleteUser } from '../../Redux/Customer/CustomerAction';
+import { getAllUsers, deleteUser, clearPersistedState } from '../../Redux/Customer/CustomerAction';
 
 // hooks
 import useSettings from '../../hooks/useSettings';
@@ -116,6 +116,7 @@ export default function AllUsersAndRoles() {
       localStorage.removeItem('isAdmin');
       navigate('/login');
     }
+    dispatch(clearPersistedState());
     dispatch(getAllUsers());
   }, []);
   return (

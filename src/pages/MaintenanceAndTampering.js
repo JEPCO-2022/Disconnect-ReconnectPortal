@@ -202,7 +202,7 @@ const MaintenanceAndTampering = () => {
       localStorage.removeItem('isAdmin');
       navigate('/login');
     }
-    // dispatch(clearPersistedState());
+    dispatch(clearPersistedState());
     setShowTable(false);
     dispatch(getCitiesLookup());
   }, []);

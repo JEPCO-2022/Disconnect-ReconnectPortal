@@ -135,7 +135,6 @@ export default function PageNine() {
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
   const TeamsList = useSelector((state) => state.Customer.TeamList);
   const allAbandoned = useSelector((state) => state.Customer.AllAbandoned);
-  let allAbandonedCopy = [];
   const [inputValues, setinputValues] = useState({
     City: '',
     Branch: '',
@@ -154,7 +153,7 @@ export default function PageNine() {
   // const isAdmin = useSelector((state) => state.Login.isAdmin);
   // const userName = useSelector((state) => state.Login.userName);
   // const ID = useSelector((state) => state.Login.id);
-
+  const [allAbandonedData, setAllAbandonedData] = useState([]);
   const [errorMessageCity, setErrorMessageCity] = useState('');
   const [errorMessageBranch, setErrorMessageBranch] = useState('');
   const [errorMessageTeam, setErrorMessageTeam] = useState('');
@@ -236,6 +235,7 @@ export default function PageNine() {
     dispatch(getEngineerAbandonedDecision(startdate, enddate, branchnumber, inputValues.Team));
   }
   useEffect(() => {
+    dispatch(clearPersistedState());
     if (!(isLogged === 'true')) {
       localStorage.removeItem('user');
       localStorage.removeItem('userName');
@@ -245,32 +245,32 @@ export default function PageNine() {
     dispatch(getCitiesLookup());
     dispatch(getAllUsers());
   }, []);
-  allAbandonedCopy = allAbandoned;
-  console.log(allAbandonedCopy);
+  useEffect(() => {
+    setAllAbandonedData(allAbandoned);
+  }, [allAbandoned]);
   function consentWithDisconnection(e) {
-    //   setAnchorEl(null);
-    //   const ticketString = ticketid.toString();
-    //   const updatedTableData = allAbandoned.filter((row) => row.abandonedTicketID !== ticketid);
-    //   dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
-    //   handleTab();
+    setAnchorEl(null);
+    const ticketString = ticketid.toString();
+    const newArray = [...allAbandonedData.filter((item) => item.abandonedTicketID !== ticketid)];
+    setAllAbandonedData(newArray);
+    dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
   }
   function consentWithOutDisconnection(e) {
-    // setAnchorEl(null);
-    // const ticketString = ticketid.toString();
-    // const updatedTableData = allAbandoned.filter((row) => row.abandonedTicketID !== ticketid);
-    // dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
-    // handleTab();
+    setAnchorEl(null);
+    const ticketString = ticketid.toString();
+    const newArray = [...allAbandonedData.filter((item) => item.abandonedTicketID !== ticketid)];
+    setAllAbandonedData(newArray);
+    setAllAbandonedData();
+    dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
   }
   function reject(e) {
     setAnchorEl(null);
     const ticketString = ticketid.toString();
-    const updatedTableData = [];
-    const newArray = [...allAbandoned.filter((item) => item.abandonedTicketID !== ticketid)];
-    allAbandonedCopy = newArray;
-    console.log(allAbandonedCopy);
-    // dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
-    // handleTab();
-  } 
+    const newArray = [...allAbandonedData.filter((item) => item.abandonedTicketID !== ticketid)];
+    setAllAbandonedData(newArray);
+
+    dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
+  }
   function concate(districtName, zoneName, streetName) {
     if (districtName === undefined) districtName = '';
     if (zoneName === undefined) zoneName = '';
@@ -367,7 +367,6 @@ export default function PageNine() {
       a.click();
     });
   };
-  console.log(allAbandoned);
   return (
     <>
       <Page title="تقرير المهجور">
@@ -482,7 +481,7 @@ export default function PageNine() {
           </Card>
           <br />
           <br />
-          {allAbandoned?.length > 0 ? (
+          {allAbandonedData?.length > 0 ? (
             <>
               <Grid textAlign="end" item xs={12} md={12} lg={12}>
                 <Button
@@ -490,7 +489,7 @@ export default function PageNine() {
                   endIcon={<FileDownloadIcon />}
                   variant="outlined"
                   onClick={() => {
-                    exportToCSV(allAbandoned, ' تقرير مهجور ');
+                    exportToCSV(allAbandonedData, ' تقرير مهجور ');
                   }}
                   fullwidth
                 >
@@ -517,7 +516,7 @@ export default function PageNine() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {allAbandoned.map((rows) => {
+                    {allAbandonedData.map((rows) => {
                       return (
                         <StyledTableRow key={rows.abandonedTicketID}>
                           <StyledTableCell component="th" scope="row">
@@ -656,7 +655,7 @@ export default function PageNine() {
               />
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleClose}>Close</Button>
+              <Button onClick={handleClose}>إغلاق</Button>
             </DialogActions>
           </Dialog>
           <Dialog fullWidth={fullWidth} maxWidth={maxWidth} open={openSapMap} onClose={handleCloseSap}>
@@ -675,7 +674,7 @@ export default function PageNine() {
               />
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleCloseSap}>Close</Button>
+              <Button onClick={handleCloseSap}>إغلاق</Button>
             </DialogActions>
           </Dialog>
           <Dialog fullWidth={fullWidth} maxWidth={maxWidth} open={openImage} onClose={handleCloseImage}>
@@ -694,7 +693,7 @@ export default function PageNine() {
               />
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleCloseImage}>Close</Button>
+              <Button onClick={handleCloseImage}>إغلاق</Button>
             </DialogActions>
           </Dialog>
         </Container>
