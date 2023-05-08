@@ -23,7 +23,6 @@ export default function LoginForm() {
   const [flag, setflag] = React.useState(false);
 
   const userToken = useSelector((state) => state.Login.userToken);
-  // const isLogged = useSelector((state) => state.Login.isLogged);
   const isLogged = localStorage.getItem('isLogged');
 
   React.useEffect(() => {
@@ -43,7 +42,6 @@ export default function LoginForm() {
     //
     if (dispatch(userLogin(user)) !== inputvalues.username || dispatch(userLogin(pass)) !== inputvalues.password) {
       console.log(dispatch(userLogin(user, pass)));
-      // navigate('/dashboard/user/meterdonebybranche');
       setflag(true);
     } else {
       const isAdmin = localStorage.getItem('isAdmin');

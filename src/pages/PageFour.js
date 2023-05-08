@@ -1,15 +1,13 @@
-import { useState, useEffect, useRef, useReducer, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 // @mui
 import {
   Box,
   Button,
   Card,
-  Checkbox,
   Container,
   Divider,
   FormControl,
   FormControlLabel,
-  FormGroup,
   FormLabel,
   Grid,
   InputLabel,
@@ -20,8 +18,6 @@ import {
   Typography,
 } from '@mui/material';
 import ExcelJS from 'exceljs';
-import * as FileSaver from 'file-saver';
-import * as XLSX from 'xlsx';
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
@@ -71,9 +67,6 @@ export default function PageFour() {
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
   const TeamList = useSelector((state) => state.Customer.TeamInfo);
   const clearAll = useSelector((state) => state.Customer.clearAll);
-  // const userName = useSelector((state) => state.Login.userName);
-  // const isAdmin = useSelector((state) => state.Login.isAdmin);
-  // const canExport = useSelector((state) => state.Login.canExport);
   const isLogged = localStorage.getItem('isLogged');
   const isAdmin = localStorage.getItem('isAdmin');
   const canExport = localStorage.getItem('canExport');
@@ -89,8 +82,6 @@ export default function PageFour() {
   const [errorMessageCity, setErrorMessageCity] = useState('');
   const [errorMessageBranch, setErrorMessageBranch] = useState('');
   const navigate = useNavigate();
-  const fileExtension = '.xlsx';
-  const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
   const [inputValues, setinputValues] = useState({
     City: '',
     Branch: '',
@@ -103,37 +94,19 @@ export default function PageFour() {
   }
   const handleChangeRadioGroup = (event) => {
     setValueRBG(event.target.value);
+    TeamList.length = 0;
   };
-
   useEffect(() => {
-    console.log(userName);
-    console.log(isLogged);
     if (!(isLogged === 'true')) {
       localStorage.removeItem('user');
       localStorage.removeItem('userName');
       localStorage.removeItem('isAdmin');
       navigate('/login');
     }
-    // console.log(TeamList);
-    // const navigation = window.performance.getEntriesByType('navigation')[0];
-    // if (navigation.type === 'reload') {
-    //   console.log('Page was refreshed');
-    // }
-    // refresh();
     dispatch(clearPersistedState());
     dispatch(getCitiesLookup());
   }, []);
-  // function refresh() {
-  //   if (window.localStorage) {
-  //     if (!localStorage.getItem('reload')) {
-  //       localStorage.reload = true;
-  //       window.location.reload();
-  //     } else {
-  //       localStorage.removeItem('reload');
-  //     }
-  //   }
-  // }
-  const handleTab = (e) => {
+  const handleTab = () => {
     if (inputValues.City === '') {
       setErrorMessageCity('مطلوب');
       setflagFullName(true);
@@ -152,16 +125,18 @@ export default function PageFour() {
     };
     dispatch(getTeamInfo(data));
   };
-  const exportToCSV = (apiData, fileName) => {
+  const exportToCSVWithoutOutSide = (apiData, fileName) => {
     const customHeadings = apiData.reduce((acc, curr) => {
       const _users = acc;
       return [
         ..._users,
         {
+          teamNum: curr.teaM_NO,
           teamTotalTicketsNum: curr.teamTotalTicketsNum,
           closeDisConnectionTicketsNum: curr.closeDisConnectionTicketsNum,
           previousDayTicketsNumClosed: curr.previousDayTicketsNumClosed,
-          previousDayTicketsNumClosede: curr.previousDayTicketsNumClosed,
+          closeDConnectionTicketsNumPreviously: curr.teamTotalTicketsNum - curr.closeDisConnectionTicketsNum,
+          allDisconnectedTickets: curr.previousDayTicketsNumClosed + curr.closeDisConnectionTicketsNum,
         },
       ];
     }, []);
@@ -178,17 +153,21 @@ export default function PageFour() {
     worksheet.addRow([fileName]);
     worksheet.addRow([
       ' رقم الفرقة',
-      ' إجمالي العدادات في الكشف	 ',
-      ' العدادات المنجزه في الكشف اليومي ',
-      ' العدادات المنجزه في الأيام السابقة',
-      ' العدادات المنجزه خارج الكشف ',
+      ' إجمالي العدادات في الكشف اليومي	 ',
+      ' العدادات التي تم وصلها (اليوم)	',
+      ' العدادات التي تم وصلها (ايام سابقة)',
+      'العدادات التي لم يتم وصلها	',
+      'مجموع العدادات التي تم وصلها',
     ]);
+
     customHeadings.map((e) =>
       worksheet.addRow([
+        e.teamNum,
         e.teamTotalTicketsNum,
         e.closeDisConnectionTicketsNum,
         e.previousDayTicketsNumClosed,
-        e.previousDayTicketsNumClosed,
+        e.closeDConnectionTicketsNumPreviously,
+        e.allDisconnectedTickets,
       ])
     );
     worksheet.columns[0].width = 10;
@@ -196,7 +175,74 @@ export default function PageFour() {
     worksheet.columns[2].width = 30;
     worksheet.columns[3].width = 30;
     worksheet.columns[4].width = 30;
-    worksheet.mergeCells('A1:H1');
+    worksheet.columns[5].width = 30;
+    worksheet.mergeCells('A1:F1');
+    worksheet.eachRow((row) => {
+      row.eachCell((cell) => {
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      });
+    });
+    workbook.xlsx.writeBuffer().then((buffer) => {
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${fileName}.xlsx`;
+      a.click();
+    });
+  };
+  const exportToCSV = (apiData, fileName) => {
+    const customHeadings = apiData.reduce((acc, curr) => {
+      const _users = acc;
+      return [
+        ..._users,
+        {
+          teamNum: curr.teaM_NO,
+          teamTotalTicketsNum: curr.teamTotalTicketsNum,
+          closeDisConnectionTicketsNum: curr.closeDisConnectionTicketsNum,
+          previousDayTicketsNumClosed: curr.previousDayTicketsNumClosed,
+          outSideTicketsNum: curr.outSideTicketsNum,
+          allTicketsDisconection:
+            curr.previousDayTicketsNumClosed + curr.closeDisConnectionTicketsNum + curr.outSideTicketsNum,
+        },
+      ];
+    }, []);
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Sheet 1', {
+      pageSetup: {
+        orientation: 'landscape',
+        fitToPage: true,
+        fitToHeight: 5,
+        fitToWidth: 7,
+        paperSize: 9,
+      },
+    });
+    worksheet.addRow([fileName]);
+    worksheet.addRow([
+      ' رقم الفرقة',
+      ' إجمالي العدادات في الكشف اليومي	 ',
+      ' العدادات التي تم قطعها (اليوم)	',
+      ' العدادات التي تم قطعها (ايام سابقة)',
+      ' العدادات المنجزه خارج الكشف	',
+      'مجموع العدادات التي تم قطعها',
+    ]);
+    customHeadings.map((e) =>
+      worksheet.addRow([
+        e.teamNum,
+        e.teamTotalTicketsNum,
+        e.closeDisConnectionTicketsNum,
+        e.previousDayTicketsNumClosed,
+        e.outSideTicketsNum,
+        e.allTicketsDisconection,
+      ])
+    );
+    worksheet.columns[0].width = 10;
+    worksheet.columns[1].width = 30;
+    worksheet.columns[2].width = 30;
+    worksheet.columns[3].width = 30;
+    worksheet.columns[4].width = 30;
+    worksheet.columns[5].width = 30;
+    worksheet.mergeCells('A1:F1');
     worksheet.eachRow((row) => {
       row.eachCell((cell) => {
         cell.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -216,7 +262,6 @@ export default function PageFour() {
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
           <Grid container spacing={2}>
-            {/* <Grid item xs={12} md={12} lg={12} /> */}
             <Grid item xs={8} md={12} lg={12}>
               <Typography variant="h4" component="h1" paragraph>
                 العدادات المنجزه حسب المكتب
@@ -311,46 +356,105 @@ export default function PageFour() {
         <br />
         {TeamList?.length > 0 ? (
           <>
-            <Grid textAlign="end" item xs={12} md={6} lg={6}>
-              <Button
-                className={canExport === 'true' ? 'visible' : 'invisible'}
-                endIcon={<FileDownloadIcon />}
-                variant="outlined"
-                onClick={() => {
-                  exportToCSV(TeamList, 'العدادات المنجزه حسب المكتب');
-                }}
-                fullwidth
-              >
-                تنزيل
-              </Button>
-            </Grid>
-            <br />
-            <TableContainer component={Paper} id="here">
-              <Table sx={{ minWidth: 700 }} aria-label="customized table" ref={tableRef}>
-                <TableHead>
-                  <TableRow>
-                    <StyledTableCell>الفرقة</StyledTableCell>
-                    <StyledTableCell align="center"> إجمالي العدادات في الكشف</StyledTableCell>
-                    <StyledTableCell align="center">العدادات المنجزه في الكشف اليومي </StyledTableCell>
-                    <StyledTableCell align="center"> العدادات المنجزه في الأيام السابقة </StyledTableCell>
-                    <StyledTableCell align="center"> العدادات المنجزه خارج الكشف </StyledTableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {TeamList.map((TeamList) => (
-                    <StyledTableRow key={TeamList.teaM_NO}>
-                      <StyledTableCell component="th" scope="row">
-                        {TeamList.teaM_NO}
-                      </StyledTableCell>
-                      <StyledTableCell align="center">{TeamList.teamTotalTicketsNum}</StyledTableCell>
-                      <StyledTableCell align="center">{TeamList.closeDisConnectionTicketsNum}</StyledTableCell>
-                      <StyledTableCell align="center">{TeamList.previousDayTicketsNumClosed}</StyledTableCell>
-                      <StyledTableCell align="center">{TeamList.outSideTicketsNum}</StyledTableCell>
-                    </StyledTableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            {valueRDG === '1' ? (
+              <>
+                <Grid textAlign="end" item xs={12} md={6} lg={6}>
+                  <Button
+                    className={canExport === 'true' ? 'visible' : 'invisible'}
+                    endIcon={<FileDownloadIcon />}
+                    variant="outlined"
+                    onClick={() => {
+                      exportToCSVWithoutOutSide(TeamList, 'العدادات المنجزه حسب المكتب');
+                    }}
+                    fullwidth
+                  >
+                    تنزيل
+                  </Button>
+                </Grid>
+              </>
+            ) : (
+              <>
+                <Grid textAlign="end" item xs={12} md={6} lg={6}>
+                  <Button
+                    className={canExport === 'true' ? 'visible' : 'invisible'}
+                    endIcon={<FileDownloadIcon />}
+                    variant="outlined"
+                    onClick={() => {
+                      exportToCSV(TeamList, 'العدادات المنجزه حسب المكتب');
+                    }}
+                    fullwidth
+                  >
+                    تنزيل
+                  </Button>
+                </Grid>
+              </>
+            )}
+            <>
+              <br />
+              <TableContainer component={Paper} id="here">
+                <Table sx={{ minWidth: 700 }} aria-label="customized table" ref={tableRef}>
+                  <TableHead>
+                    <TableRow>
+                      <StyledTableCell>الفرقة</StyledTableCell>
+                      <StyledTableCell align="center"> إجمالي العدادات في الكشف اليومي</StyledTableCell>
+                      {valueRDG === '2' ? (
+                        <>
+                          <StyledTableCell align="center">العدادات التي تم قطعها (اليوم) </StyledTableCell>
+                          <StyledTableCell align="center"> العدادات التي تم قطعها (ايام سابقة)</StyledTableCell>
+                          <StyledTableCell align="center"> العدادات المنجزه خارج الكشف </StyledTableCell>
+                          <StyledTableCell align="center"> مجموع العدادات التي تم قطعها</StyledTableCell>
+                        </>
+                      ) : (
+                        <>
+                          <StyledTableCell align="center"> العدادات التي تم وصلها (اليوم)</StyledTableCell>
+                          <StyledTableCell align="center"> العدادات التي تم وصلها (ايام سابقة) </StyledTableCell>
+                          <StyledTableCell align="center"> العدادات التي لم يتم وصلها</StyledTableCell>
+                          <StyledTableCell align="center"> مجموع العدادات التي تم وصلها</StyledTableCell>
+                        </>
+                      )}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {TeamList.map((TeamList) => (
+                      <StyledTableRow key={TeamList.teaM_NO}>
+                        <StyledTableCell component="th" scope="row">
+                          {TeamList.teaM_NO}
+                        </StyledTableCell>
+                        <StyledTableCell align="center">{TeamList.teamTotalTicketsNum}</StyledTableCell>
+                        <StyledTableCell align="center">{TeamList.closeDisConnectionTicketsNum}</StyledTableCell>
+                        {valueRDG === '1' ? (
+                          <StyledTableCell align="center">
+                            {Math.abs(TeamList.teamTotalTicketsNum - TeamList.closeDisConnectionTicketsNum)}
+                          </StyledTableCell>
+                        ) : (
+                          <></>
+                        )}
+
+                        <StyledTableCell align="center">{TeamList.previousDayTicketsNumClosed}</StyledTableCell>
+                        {valueRDG === '2' ? (
+                          <>
+                            <StyledTableCell align="center">{TeamList.outSideTicketsNum}</StyledTableCell>
+                            <StyledTableCell align="center">
+                              {Math.abs(
+                                TeamList.previousDayTicketsNumClosed +
+                                  TeamList.closeDisConnectionTicketsNum +
+                                  TeamList.outSideTicketsNum
+                              )}
+                            </StyledTableCell>
+                          </>
+                        ) : (
+                          <>
+                            <StyledTableCell align="center">
+                              {Math.abs(TeamList.previousDayTicketsNumClosed + TeamList.closeDisConnectionTicketsNum)}
+                            </StyledTableCell>
+                          </>
+                        )}
+                      </StyledTableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </>
           </>
         ) : (
           <>

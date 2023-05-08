@@ -8,7 +8,6 @@ import {
   Grid,
   InputLabel,
   MenuItem,
-  RadioGroup,
   Select,
   TextField,
   Typography,
@@ -16,13 +15,10 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogContentText,
   Box,
   DialogActions,
 } from '@mui/material';
 import ExcelJS from 'exceljs';
-import * as XLSX from 'xlsx';
-import FileSaver from 'file-saver';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -31,7 +27,6 @@ import Paper from '@mui/material/Paper';
 import { styled, alpha } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
-import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
@@ -40,10 +35,9 @@ import TableRow from '@mui/material/TableRow';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers-pro';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import moment from 'moment/moment';
-import { useLocation, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import Page from '../components/Page';
-import { userLogin } from '../Redux/Login/LoginAction';
 import Map from '../components/Map';
 import {
   getBranchesLookup,
@@ -98,13 +92,6 @@ const StyledMenu = styled((props) => (
   },
 }));
 
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Gingerbread', 356, 16.0, 49, 3.9),
-];
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: '#2065D1',
@@ -125,11 +112,8 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 export default function PageNine() {
-  const fileExtension = '.xlsx';
-  const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
-  const location = useLocation();
 
   const CitiesList = useSelector((state) => state.Customer.CitiesList);
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
@@ -148,11 +132,6 @@ export default function PageNine() {
   const userName = localStorage.getItem('userName');
   const IDLocalStorage = localStorage.getItem('id');
   const ID = parseInt(IDLocalStorage, 36);
-  // console.log(ID);
-  // const canExport = useSelector((state) => state.Login.canExport);
-  // const isAdmin = useSelector((state) => state.Login.isAdmin);
-  // const userName = useSelector((state) => state.Login.userName);
-  // const ID = useSelector((state) => state.Login.id);
   const [allAbandonedData, setAllAbandonedData] = useState([]);
   const [errorMessageCity, setErrorMessageCity] = useState('');
   const [errorMessageBranch, setErrorMessageBranch] = useState('');
@@ -260,7 +239,6 @@ export default function PageNine() {
     const ticketString = ticketid.toString();
     const newArray = [...allAbandonedData.filter((item) => item.abandonedTicketID !== ticketid)];
     setAllAbandonedData(newArray);
-    setAllAbandonedData();
     dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
   }
   function reject(e) {
@@ -268,7 +246,6 @@ export default function PageNine() {
     const ticketString = ticketid.toString();
     const newArray = [...allAbandonedData.filter((item) => item.abandonedTicketID !== ticketid)];
     setAllAbandonedData(newArray);
-
     dispatch(SaveEngineerAbandonedDecision(ticketString, e, userName, ID));
   }
   function concate(districtName, zoneName, streetName) {
@@ -548,7 +525,6 @@ export default function PageNine() {
                               variant="contained"
                               disableElevatio
                               onClick={() => {
-                                // handleClickOpenMap(rows.x_POSITION, rows.y_POSITION);
                                 handleClickOpenSapMap(rows.saP_X_POSITION, rows.saP_Y_POSITION);
                               }}
                             >
@@ -561,7 +537,6 @@ export default function PageNine() {
                               variant="contained"
                               disableElevatio
                               onClick={() => {
-                                // handleClickOpenSapMap(rows.saP_X_POSITION, rows.saP_Y_POSITION);
                                 handleClickOpenMap(rows.x_POSITION, rows.y_POSITION);
                               }}
                             >

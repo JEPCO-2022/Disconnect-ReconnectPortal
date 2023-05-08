@@ -83,9 +83,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 export default function PageFour() {
   const { themeStretch } = useSettings();
-  // const canExport = useSelector((state) => state.Login.canExport);
-  // const isAdmin = useSelector((state) => state.Login.isAdmin);
-  // const userName = useSelector((state) => state.Login.userName);
   const isAdmin = localStorage.getItem('isAdmin');
   const canExport = localStorage.getItem('canExport');
   const userName = localStorage.getItem('userName');
@@ -143,7 +140,6 @@ export default function PageFour() {
       localStorage.removeItem('isAdmin');
       navigate('/login');
     }
-    // dispatch(clearPersistedState());
     dispatch(getCitiesLookup());
     dispatch(ClearAllUserBranch());
   }, []);

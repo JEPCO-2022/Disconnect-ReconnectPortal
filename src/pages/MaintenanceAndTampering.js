@@ -126,9 +126,6 @@ const MaintenanceAndTampering = () => {
   });
   const fileExtension = '.xlsx';
   const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-  // const isAdmin = useSelector((state) => state.Login.isAdmin);
-  // const userName = useSelector((state) => state.Login.userName);
-  // const canExport = useSelector((state) => state.Login.canExport);
   const navigate = useNavigate();
   const isAdmin = localStorage.getItem('isAdmin');
   const canExport = localStorage.getItem('canExport');
@@ -311,7 +308,6 @@ const MaintenanceAndTampering = () => {
     if (districtName === ' ' && zoneName === ' ' && streetName === ' ') return non;
     return name;
   }
-  console.log(DataReport);
   return (
     <>
       <Page title="تقرير عبث وصيانة">

@@ -166,7 +166,6 @@ export default function CreateNewUser() {
                   row
                   aria-labelledby="demo-radio-buttons-group-label"
                   defaultValue="1"
-                  // value={administrator}
                   name="radio-buttons-group"
                   onChange={handChangeAdminstration}
                 >
@@ -182,7 +181,6 @@ export default function CreateNewUser() {
                   row
                   aria-labelledby="demo-radio-buttons-group-label"
                   defaultValue="1"
-                  // value={exportFiles}
                   name="radio-buttons-group"
                   onChange={handChangeExportFiles}
                 >
