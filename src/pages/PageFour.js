@@ -39,6 +39,7 @@ import { getBranchesLookup, getCitiesLookup, getTeamInfo, clearPersistedState } 
 import useSettings from '../hooks/useSettings';
 // components
 import Page from '../components/Page';
+import LoadingSpinner from './LoadingSpinner/LoadingSpinner';
 
 // ----------------------------------------------------------------------
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -79,6 +80,7 @@ export default function PageFour() {
   const month = newDate.getMonth() + 1;
   const year = newDate.getFullYear();
   const [flagFullName, setflagFullName] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [errorMessageCity, setErrorMessageCity] = useState('');
   const [errorMessageBranch, setErrorMessageBranch] = useState('');
   const navigate = useNavigate();
@@ -124,19 +126,25 @@ export default function PageFour() {
       TRANSACTION_TYPE: valueRDG,
     };
     dispatch(getTeamInfo(data));
+    setLoading(true);
   };
   const exportToCSVWithoutOutSide = (apiData, fileName) => {
     const customHeadings = apiData.reduce((acc, curr) => {
       const _users = acc;
+      // ' رقم الفرقة',
+      // 'إجمالي مذكرات الوصل',
+      // 'مذكرات الوصل التي تم وصلها ',
+      // 'المذكرات التي لم يتم وصلها',
+
       return [
         ..._users,
         {
           teamNum: curr.teaM_NO,
           teamTotalTicketsNum: curr.teamTotalTicketsNum,
           closeDisConnectionTicketsNum: curr.closeDisConnectionTicketsNum,
-          previousDayTicketsNumClosed: curr.previousDayTicketsNumClosed,
+          // previousDayTicketsNumClosed: curr.previousDayTicketsNumClosed,
           closeDConnectionTicketsNumPreviously: curr.teamTotalTicketsNum - curr.closeDisConnectionTicketsNum,
-          allDisconnectedTickets: curr.previousDayTicketsNumClosed + curr.closeDisConnectionTicketsNum,
+          // allDisconnectedTickets: curr.previousDayTicketsNumClosed + curr.closeDisConnectionTicketsNum,
         },
       ];
     }, []);
@@ -153,11 +161,9 @@ export default function PageFour() {
     worksheet.addRow([fileName]);
     worksheet.addRow([
       ' رقم الفرقة',
-      ' إجمالي العدادات في الكشف اليومي	 ',
-      ' العدادات التي تم وصلها (اليوم)	',
-      ' العدادات التي تم وصلها (ايام سابقة)',
-      'العدادات التي لم يتم وصلها	',
-      'مجموع العدادات التي تم وصلها',
+      'إجمالي مذكرات الوصل',
+      'مذكرات الوصل التي تم وصلها ',
+      'المذكرات التي لم يتم وصلها',
     ]);
 
     customHeadings.map((e) =>
@@ -165,18 +171,18 @@ export default function PageFour() {
         e.teamNum,
         e.teamTotalTicketsNum,
         e.closeDisConnectionTicketsNum,
-        e.previousDayTicketsNumClosed,
+        // e.previousDayTicketsNumClosed,
         e.closeDConnectionTicketsNumPreviously,
-        e.allDisconnectedTickets,
+        // e.allDisconnectedTickets,
       ])
     );
     worksheet.columns[0].width = 10;
     worksheet.columns[1].width = 30;
     worksheet.columns[2].width = 30;
     worksheet.columns[3].width = 30;
-    worksheet.columns[4].width = 30;
-    worksheet.columns[5].width = 30;
-    worksheet.mergeCells('A1:F1');
+    // worksheet.columns[4].width = 30;
+    // worksheet.columns[5].width = 30;
+    worksheet.mergeCells('A1:D1');
     worksheet.eachRow((row) => {
       row.eachCell((cell) => {
         cell.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -257,219 +263,234 @@ export default function PageFour() {
       a.click();
     });
   };
+  function setLoadinSpinner() {
+    setLoading(false);
+  }
   return (
     <Page title="العدادات المنجزه حسب المكتب">
-      <Container maxWidth={themeStretch ? false : 'xl'}>
-        <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
-          <Grid container spacing={2}>
-            <Grid item xs={8} md={12} lg={12}>
-              <Typography variant="h4" component="h1" paragraph>
-                العدادات المنجزه حسب المكتب
-              </Typography>
-              <Divider light />
-            </Grid>
-            <Grid item xs={12} md={6} lg={6}>
-              <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label"> المحافظة</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  label="المحافظة"
-                  value={inputValues.City}
-                  onChange={(e) => {
-                    setinputValues({ ...inputValues, City: e.target.value, Branch: '' });
-                    callBranchLookup(e.target.value);
-                    setErrorMessageCity('');
-                    setflagFullName(false);
-                  }}
-                  helperText={flagFullName ? ' مطلوب' : ''}
-                  error={flagFullName}
-                >
-                  {CitiesList.map((t) => (
-                    <MenuItem value={t.id}>{t.cityName}</MenuItem>
-                  ))}
-                </Select>
-                <h4 className="errorMessage">{errorMessageCity}</h4>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} md={6} lg={6}>
-              <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label"> المكتب</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  label="المكتب"
-                  defaultValue={clearAll}
-                  value={inputValues.Branch}
-                  helperText={flagFullName ? ' مطلوب' : ''}
-                  error={flagFullName}
-                  onChange={(e) => {
-                    setinputValues({ ...inputValues, Branch: e.target.value });
-                    setErrorMessageBranch('');
-                    setflagFullName(false);
-                  }}
-                >
-                  {BranchesList.map((t) => (
-                    <MenuItem sx={{ width: '180px', height: '100%' }} value={t.branchID}>
-                      {t.branchName}
-                    </MenuItem>
-                  ))}
-                </Select>
-                <h4 className="errorMessage">{errorMessageBranch}</h4>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} md={6} lg={6}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DesktopDatePicker
-                  label="تاريخ التقرير"
-                  inputFormat="DD/MM/YYYY"
-                  value={inputValues.DateReport}
-                  onChange={(e) => {
-                    setinputValues({ ...inputValues, DateReport: e });
-                  }}
-                  renderInput={(params) => <TextField sx={{ width: '100%' }} {...params} />}
-                />
-              </LocalizationProvider>
-            </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={6}>
-              <FormLabel id="demo-row-radio-buttons-group-label" sx={{ display: 'inline-block' }}>
-                نوع الكشف:
-              </FormLabel>
-              <RadioGroup
-                fullWidth
-                sx={{ display: 'inline', marginLeft: 2, marginRight: 2 }}
-                row
-                value={valueRDG}
-                onChange={handleChangeRadioGroup}
-              >
-                <FormControlLabel control={<Radio value={1} />} label="كشف وصل" />
-                <FormControlLabel control={<Radio value={2} />} label="كشف قطع" />
-              </RadioGroup>
-            </Grid>
-            <Grid item xs={12} md={6} lg={6}>
-              <Button className="nxt-btn-12-grid" variant="contained" fullwidth onClick={() => handleTab(1)}>
-                بحث
-              </Button>
-            </Grid>
-          </Grid>
-        </Card>
-        <br />
-        {TeamList?.length > 0 ? (
-          <>
-            {valueRDG === '1' ? (
-              <>
-                <Grid textAlign="end" item xs={12} md={6} lg={6}>
-                  <Button
-                    className={canExport === 'true' ? 'visible' : 'invisible'}
-                    endIcon={<FileDownloadIcon />}
-                    variant="outlined"
-                    onClick={() => {
-                      exportToCSVWithoutOutSide(TeamList, 'العدادات المنجزه حسب المكتب');
+      {!loading ? (
+        <Container maxWidth={themeStretch ? false : 'xl'}>
+          <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
+            <Grid container spacing={2}>
+              <Grid item xs={8} md={12} lg={12}>
+                <Typography variant="h4" component="h1" paragraph>
+                  العدادات المنجزه حسب المكتب
+                </Typography>
+                <Divider light />
+              </Grid>
+              <Grid item xs={12} md={6} lg={6}>
+                <FormControl fullWidth>
+                  <InputLabel id="demo-simple-select-label"> المحافظة</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    label="المحافظة"
+                    value={inputValues.City}
+                    onChange={(e) => {
+                      setinputValues({ ...inputValues, City: e.target.value, Branch: '' });
+                      callBranchLookup(e.target.value);
+                      setErrorMessageCity('');
+                      setflagFullName(false);
                     }}
-                    fullwidth
+                    helperText={flagFullName ? ' مطلوب' : ''}
+                    error={flagFullName}
                   >
-                    تنزيل
-                  </Button>
-                </Grid>
-              </>
-            ) : (
-              <>
-                <Grid textAlign="end" item xs={12} md={6} lg={6}>
-                  <Button
-                    className={canExport === 'true' ? 'visible' : 'invisible'}
-                    endIcon={<FileDownloadIcon />}
-                    variant="outlined"
-                    onClick={() => {
-                      exportToCSV(TeamList, 'العدادات المنجزه حسب المكتب');
+                    {CitiesList.map((t) => (
+                      <MenuItem value={t.id}>{t.cityName}</MenuItem>
+                    ))}
+                  </Select>
+                  <h4 className="errorMessage">{errorMessageCity}</h4>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={6} lg={6}>
+                <FormControl fullWidth>
+                  <InputLabel id="demo-simple-select-label"> المكتب</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    label="المكتب"
+                    defaultValue={clearAll}
+                    value={inputValues.Branch}
+                    helperText={flagFullName ? ' مطلوب' : ''}
+                    error={flagFullName}
+                    onChange={(e) => {
+                      setinputValues({ ...inputValues, Branch: e.target.value });
+                      setErrorMessageBranch('');
+                      setflagFullName(false);
                     }}
-                    fullwidth
                   >
-                    تنزيل
-                  </Button>
-                </Grid>
-              </>
-            )}
+                    {BranchesList.map((t) => (
+                      <MenuItem sx={{ width: '180px', height: '100%' }} value={t.branchID}>
+                        {t.branchName}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <h4 className="errorMessage">{errorMessageBranch}</h4>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={6} lg={6}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DesktopDatePicker
+                    label="تاريخ التقرير"
+                    inputFormat="DD/MM/YYYY"
+                    value={inputValues.DateReport}
+                    onChange={(e) => {
+                      setinputValues({ ...inputValues, DateReport: e });
+                    }}
+                    renderInput={(params) => <TextField sx={{ width: '100%' }} {...params} />}
+                  />
+                </LocalizationProvider>
+              </Grid>
+              <Grid item xs={12} sm={12} md={6} lg={6}>
+                <FormLabel id="demo-row-radio-buttons-group-label" sx={{ display: 'inline-block' }}>
+                  نوع الكشف:
+                </FormLabel>
+                <RadioGroup
+                  fullWidth
+                  sx={{ display: 'inline', marginLeft: 2, marginRight: 2 }}
+                  row
+                  value={valueRDG}
+                  onChange={handleChangeRadioGroup}
+                >
+                  <FormControlLabel control={<Radio value={1} />} label="كشف وصل" />
+                  <FormControlLabel control={<Radio value={2} />} label="كشف قطع" />
+                </RadioGroup>
+              </Grid>
+              <Grid item xs={12} md={6} lg={6}>
+                <Button
+                  loading={loading}
+                  className="nxt-btn-12-grid"
+                  variant="contained"
+                  fullwidth
+                  onClick={() => handleTab(1)}
+                >
+                  بحث
+                </Button>
+              </Grid>
+            </Grid>
+          </Card>
+          <br />
+          {TeamList?.length > 0 ? (
             <>
-              <br />
-              <TableContainer component={Paper} id="here">
-                <Table sx={{ minWidth: 700 }} aria-label="customized table" ref={tableRef}>
-                  <TableHead>
-                    <TableRow>
-                      <StyledTableCell>الفرقة</StyledTableCell>
-                      <StyledTableCell align="center"> إجمالي العدادات في الكشف اليومي</StyledTableCell>
-                      {valueRDG === '2' ? (
-                        <>
-                          <StyledTableCell align="center">العدادات التي تم قطعها (اليوم) </StyledTableCell>
-                          <StyledTableCell align="center"> العدادات التي تم قطعها (ايام سابقة)</StyledTableCell>
-                          <StyledTableCell align="center"> العدادات المنجزه خارج الكشف </StyledTableCell>
-                          <StyledTableCell align="center"> مجموع العدادات التي تم قطعها</StyledTableCell>
-                        </>
-                      ) : (
-                        <>
-                          <StyledTableCell align="center"> العدادات التي تم وصلها (اليوم)</StyledTableCell>
-                          <StyledTableCell align="center"> العدادات التي تم وصلها (ايام سابقة) </StyledTableCell>
-                          <StyledTableCell align="center"> العدادات التي لم يتم وصلها</StyledTableCell>
-                          <StyledTableCell align="center"> مجموع العدادات التي تم وصلها</StyledTableCell>
-                        </>
-                      )}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {TeamList.map((TeamList) => (
-                      <StyledTableRow key={TeamList.teaM_NO}>
-                        <StyledTableCell component="th" scope="row">
-                          {TeamList.teaM_NO}
-                        </StyledTableCell>
-                        <StyledTableCell align="center">{TeamList.teamTotalTicketsNum}</StyledTableCell>
-                        <StyledTableCell align="center">{TeamList.closeDisConnectionTicketsNum}</StyledTableCell>
-                        {valueRDG === '1' ? (
-                          <StyledTableCell align="center">
-                            {Math.abs(TeamList.teamTotalTicketsNum - TeamList.closeDisConnectionTicketsNum)}
-                          </StyledTableCell>
-                        ) : (
-                          <></>
-                        )}
-
-                        <StyledTableCell align="center">{TeamList.previousDayTicketsNumClosed}</StyledTableCell>
+              {setLoadinSpinner}
+              {valueRDG === '1' ? (
+                <>
+                  <Grid textAlign="end" item xs={12} md={6} lg={6}>
+                    <Button
+                      className={canExport === 'true' ? 'visible' : 'invisible'}
+                      endIcon={<FileDownloadIcon />}
+                      variant="outlined"
+                      onClick={() => {
+                        exportToCSVWithoutOutSide(TeamList, 'العدادات المنجزه حسب المكتب');
+                      }}
+                      fullwidth
+                    >
+                      تنزيل
+                    </Button>
+                  </Grid>
+                </>
+              ) : (
+                <>
+                  <Grid textAlign="end" item xs={12} md={6} lg={6}>
+                    <Button
+                      className={canExport === 'true' ? 'visible' : 'invisible'}
+                      endIcon={<FileDownloadIcon />}
+                      variant="outlined"
+                      onClick={() => {
+                        exportToCSV(TeamList, 'العدادات المنجزه حسب المكتب');
+                      }}
+                      fullwidth
+                    >
+                      تنزيل
+                    </Button>
+                  </Grid>
+                </>
+              )}
+              <>
+                <br />
+                <TableContainer component={Paper} id="here">
+                  <Table sx={{ minWidth: 700 }} aria-label="customized table" ref={tableRef}>
+                    <TableHead>
+                      <TableRow>
+                        <StyledTableCell>الفرقة</StyledTableCell>
                         {valueRDG === '2' ? (
                           <>
-                            <StyledTableCell align="center">{TeamList.outSideTicketsNum}</StyledTableCell>
-                            <StyledTableCell align="center">
-                              {Math.abs(
-                                TeamList.previousDayTicketsNumClosed +
-                                  TeamList.closeDisConnectionTicketsNum +
-                                  TeamList.outSideTicketsNum
-                              )}
-                            </StyledTableCell>
+                            <StyledTableCell align="center"> إجمالي العدادات في الكشف اليومي</StyledTableCell>
+                            <StyledTableCell align="center">العدادات التي تم قطعها (اليوم) </StyledTableCell>
+                            <StyledTableCell align="center"> العدادات التي تم قطعها (ايام سابقة)</StyledTableCell>
+                            <StyledTableCell align="center"> العدادات المنجزه خارج الكشف </StyledTableCell>
+                            <StyledTableCell align="center"> مجموع العدادات التي تم قطعها</StyledTableCell>
                           </>
                         ) : (
                           <>
-                            <StyledTableCell align="center">
-                              {Math.abs(TeamList.previousDayTicketsNumClosed + TeamList.closeDisConnectionTicketsNum)}
-                            </StyledTableCell>
+                            <StyledTableCell align="center">إجمالي مذكرات الوصل</StyledTableCell>
+                            <StyledTableCell align="center">مذكرات الوصل التي تم وصلها</StyledTableCell>
+                            <StyledTableCell align="center">المذكرات التي لم يتم وصلها</StyledTableCell>
                           </>
                         )}
-                      </StyledTableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {TeamList.map((TeamList) => (
+                        <StyledTableRow key={TeamList.teaM_NO}>
+                          {valueRDG === '1' ? (
+                            <>
+                              <StyledTableCell component="th" scope="row">
+                                {TeamList.teaM_NO}
+                              </StyledTableCell>
+                              <StyledTableCell align="center">{TeamList.teamTotalTicketsNum}</StyledTableCell>
+                              <StyledTableCell align="center">{TeamList.closeDisConnectionTicketsNum}</StyledTableCell>
+                              <StyledTableCell align="center">
+                                {Math.abs(TeamList.teamTotalTicketsNum - TeamList.closeDisConnectionTicketsNum)}
+                              </StyledTableCell>
+                            </>
+                          ) : (
+                            <></>
+                          )}
+                          {valueRDG === '2' ? (
+                            <>
+                              <StyledTableCell component="th" scope="row">
+                                {TeamList.teaM_NO}
+                              </StyledTableCell>
+                              <StyledTableCell align="center">{TeamList.teamTotalTicketsNum}</StyledTableCell>
+                              <StyledTableCell align="center">{TeamList.closeDisConnectionTicketsNum}</StyledTableCell>
+                              <StyledTableCell align="center">{TeamList.previousDayTicketsNumClosed}</StyledTableCell>
+                              <StyledTableCell align="center">{TeamList.outSideTicketsNum}</StyledTableCell>
+                              <StyledTableCell align="center">
+                                {Math.abs(
+                                  TeamList.previousDayTicketsNumClosed +
+                                    TeamList.closeDisConnectionTicketsNum +
+                                    TeamList.outSideTicketsNum
+                                )}
+                              </StyledTableCell>
+                            </>
+                          ) : (
+                            <></>
+                          )}
+                        </StyledTableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </>
             </>
-          </>
-        ) : (
-          <>
-            <Grid textAlign="end" item xs={12} md={6} lg={6}>
-              <Box sx={{ display: 'flex', justifyContent: 'center', margin: 'auto', marginTop: '5vh' }}>
-                <Grid item xs={12} md={12} lg={12}>
-                  <Typography variant="h5" component="h1" paragraph>
-                    لا يوجد
-                  </Typography>
-                </Grid>
-              </Box>
-            </Grid>
-          </>
-        )}
-      </Container>
+          ) : (
+            <>
+              <Grid textAlign="end" item xs={12} md={6} lg={6}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', margin: 'auto', marginTop: '5vh' }}>
+                  <Grid item xs={12} md={12} lg={12}>
+                    <Typography variant="h5" component="h1" paragraph>
+                      لا يوجد
+                    </Typography>
+                  </Grid>
+                </Box>
+              </Grid>
+            </>
+          )}
+        </Container>
+      ) : (
+        <LoadingSpinner />
+      )}
     </Page>
   );
 }

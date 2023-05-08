@@ -563,7 +563,7 @@ export const getTeamInfo = (EngineersData) => async (dispatch) => {
 
     const config = {
       method: 'post',
-      url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/GeneralTechnicianInf',
+      url: 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/GeneralTechnicianInf',
       headers: {
         Authorization: `Bearer ${userToken}`,
         'Content-Type': 'application/json',
