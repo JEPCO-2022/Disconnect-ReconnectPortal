@@ -22,6 +22,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllUsers, userRegister } from '../Redux/Customer/CustomerAction';
 import useSettings from '../hooks/useSettings';
+import SessionTimeout from './SessionTimeout';
 // components
 import Page from '../components/Page';
 
@@ -213,6 +214,7 @@ export default function CreateNewUser() {
           </Grid>
         </Card>
       </Container>
+      <SessionTimeout />
     </Page>
   );
 }

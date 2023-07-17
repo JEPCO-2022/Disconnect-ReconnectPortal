@@ -17,6 +17,7 @@ import {
 import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
+import SessionTimeout from './SessionTimeout';
 import { addUserBranches, getUserBranches, ClearAllUserBranch } from '../Redux/Customer/CustomerAction';
 import useSettings from '../hooks/useSettings';
 
@@ -222,6 +223,7 @@ export default function PageEight() {
           تمت الإرسال بنجاح
         </Alert>
       </Snackbar>
+      <SessionTimeout />
     </>
   );
 }

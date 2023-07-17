@@ -31,7 +31,6 @@ export default function LoginForm() {
       navigate('/dashboard/user/meterdonebybranche');
     }
   }, [isLogged]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setinputvalues({ username: e.target.username.value, password: e.target.password.value });

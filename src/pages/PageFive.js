@@ -8,6 +8,7 @@ import {
   Button,
   Card,
   Checkbox,
+  CircularProgress,
   Container,
   Divider,
   FormControl,
@@ -39,6 +40,8 @@ import { read, utils, writeFile } from 'xlsx';
 import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment/moment';
 import { Link, useNavigate } from 'react-router-dom';
+
+import SessionTimeout from './SessionTimeout';
 import {
   ClearAllUserBranch,
   clearPersistedState,
@@ -93,6 +96,7 @@ export default function PageFour() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isIdle, setIsIdle] = useState();
+  const [loading, setLoading] = useState(false);
   const separator = '';
   const newDate = new Date();
   const date = newDate.getDate();
@@ -101,18 +105,39 @@ export default function PageFour() {
   const [errorMessageCity, setErrorMessageCity] = useState('');
   const [errorMessageBranch, setErrorMessageBranch] = useState('');
   const [errorMessageTeam, setErrorMessageTeam] = useState('');
+  const [errorMessageStatus, setErrorMessageStatus] = useState('');
   const [flagCity, setflagCity] = useState(false);
+  const [flagStatus, setflagStatus] = useState(false);
   const [flagBranch, setflagBranch] = useState(false);
   const [flagTeam, setflagTeam] = useState(false);
   const [search, setSearch] = useState('');
   const isLogged = localStorage.getItem('isLogged');
   const [t, setT] = useState('');
+  const status = [
+    { name: 'جديدة' },
+    { name: 'تم الفصل' },
+    { name: 'مفصول مسبقا' },
+    { name: 'مهجور' },
+    { name: ' فصل العداد ' },
+    { name: 'مغلق' },
+  ];
   const [inputValues, setinputValues] = useState({
     City: '',
     Branch: '',
     Team: '',
-    DateReport: `${year}${separator}-${month < 10 ? `0${month}` : `${month}`}-${separator}${date}`,
+    Status: '',
+    startDate: `${year}${separator}-${month < 10 ? `0${month}` : `${month}`}-${separator}${date}`,
+    endDate: `${year}${separator}-${month < 10 ? `0${month}` : `${month}`}-${separator}${date}`,
   });
+
+  // const [inputValues, setinputValues] = useState({
+  //   City: Number.isNaN(Number(localStorage.getItem('cityID'))) ? '' : Number(localStorage.getItem('cityID')),
+  //   Branch: Number.isNaN(Number(localStorage.getItem('branchId'))) ? '' : Number(localStorage.getItem('branchId')),
+  //   Team: Number.isNaN(Number(localStorage.getItem('Team'))) ? '' : Number(localStorage.getItem('Team')),
+  //   Status: localStorage.getItem('status') === '' ? '' : localStorage.getItem('status'),
+  //   startDate: `${year}${separator}-${month < 10 ? `0${month}` : `${month}`}-${separator}${date}`,
+  //   endDate: `${year}${separator}-${month < 10 ? `0${month}` : `${month}`}-${separator}${date}`,
+  // });
 
   const [valueRDG, setValueRBG] = useState('1');
   const fileExtension = '.xlsx';
@@ -120,19 +145,19 @@ export default function PageFour() {
   function callTeamLookup(branchId) {
     setinputValues({ ...inputValues, Branch: branchId, Team: '' });
     dispatch(getTeamsLookup(branchId));
+    localStorage.setItem('branchId', branchId);
     setErrorMessageBranch('');
     setflagBranch(false);
+    setflagStatus(false);
   }
   function callBranchLookup(cityID) {
     setinputValues({ ...inputValues, City: cityID, Branch: '', Team: '' });
     const isAdminBoolean = isAdmin === 'true';
+    localStorage.setItem('cityID', cityID);
     dispatch(getBranchesLookup(cityID, userName, isAdminBoolean));
     setErrorMessageCity('');
     setflagCity(false);
   }
-  const handleChangeRadioGroup = (event) => {
-    setValueRBG(event.target.value);
-  };
   useEffect(() => {
     if (!(isLogged === 'true')) {
       localStorage.removeItem('user');
@@ -143,6 +168,9 @@ export default function PageFour() {
     dispatch(getCitiesLookup());
     dispatch(ClearAllUserBranch());
   }, []);
+  useEffect(() => {
+    setLoading(false);
+  }, [tableData]);
   const tableRef = useRef(null);
   const handleTab = (e) => {
     if (inputValues.City === '') {
@@ -152,28 +180,61 @@ export default function PageFour() {
     if (inputValues.Branch === '') {
       setErrorMessageBranch('مطلوب');
       setflagBranch(true);
-    }
-    if (inputValues.Team === '') {
-      setErrorMessageTeam(' مطلوب ');
-      setflagTeam(true);
       return false;
     }
+    console.log();
+    setLoading(true);
     const teamNumber = `${inputValues.Team}`;
+    const officeNumber = `${inputValues.Branch}`;
+    let statusNumber = '';
+    switch (inputValues.Status) {
+      case 'جديدة':
+        statusNumber = '1';
+        break;
+      case 'تم الفصل':
+        statusNumber = '2';
+        break;
+      case 'مفصول مسبقا':
+        statusNumber = '3';
+        break;
+      case 'مهجور':
+        statusNumber = '4';
+        break;
+      case 'رفض المشترك':
+        statusNumber = '5';
+        break;
+      case 'مغلق':
+        statusNumber = '6';
+        break;
+
+      default:
+        statusNumber = '';
+        break;
+    }
     const data = {
       LanguageId: 'AR',
-      TicketDate: moment(inputValues.DateReport.$d).format('YYYY-MM-DD'),
+      TicketDateFrom: moment(inputValues.startDate.$d).format('YYYY-MM-DD'),
+      TicketDateTo: moment(inputValues.endDate.$d).format('YYYY-MM-DD'),
       TEAM_NO: teamNumber,
       TRANSACTION_TYPE: valueRDG,
+      statusID: statusNumber,
+      Office_NO: officeNumber,
     };
     dispatch(getMeterReportByTeam(data));
   };
-
   function teamSetData(e) {
     setinputValues({ ...inputValues, Team: e });
     setErrorMessageTeam('');
+    localStorage.setItem('Team', e);
     setflagTeam(false);
   }
+  function statusSetData(e) {
+    setinputValues({ ...inputValues, Status: e.target.value });
 
+    localStorage.setItem('status', e.target.value);
+    setErrorMessageTeam('');
+    setflagTeam(false);
+  }
   function phoneNumberChecked(phoneNumber) {
     if (phoneNumber === null || phoneNumber === undefined || phoneNumber === '') {
       return 'لا يوجد';
@@ -262,6 +323,12 @@ export default function PageFour() {
     if (districtName === ' ' && zoneName === ' ' && streetName === ' ') return non;
     return name;
   }
+  const handleChangeRadioGroup = (event) => {
+    setValueRBG(event.target.value);
+    localStorage.setItem('valueRBG', event.target.value);
+    tableData.length = 0;
+  };
+  const num = 1;
   return (
     <>
       <Page title="تفاصيل الكشف حسب الفرقة">
@@ -275,12 +342,42 @@ export default function PageFour() {
                 <Divider light />
               </Grid>
               <Grid item xs={12} md={6} lg={6}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DesktopDatePicker
+                    label=" من تاريخ"
+                    inputFormat="DD/MM/YYYY"
+                    value={inputValues.startDate}
+                    maxDate={inputValues.endDate ? inputValues.endDate : new Date()}
+                    onChange={(e) => {
+                      setinputValues({ ...inputValues, startDate: e });
+                    }}
+                    renderInput={(params) => <TextField sx={{ width: '100%' }} {...params} />}
+                  />
+                </LocalizationProvider>
+              </Grid>
+              <Grid item xs={12} md={6} lg={6}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DesktopDatePicker
+                    label="الى تاريخ"
+                    inputFormat="DD/MM/YYYY"
+                    value={inputValues.endDate}
+                    minDate={inputValues.startDate}
+                    maxDate={new Date()}
+                    onChange={(e) => {
+                      setinputValues({ ...inputValues, endDate: e });
+                    }}
+                    renderInput={(params) => <TextField sx={{ width: '100%' }} {...params} />}
+                  />
+                </LocalizationProvider>
+              </Grid>
+              <Grid item xs={12} md={6} lg={6}>
                 <FormControl fullWidth>
                   <InputLabel id="demo-simple-select-label"> المحافظة</InputLabel>
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
                     label="المحافظة"
+                    // defaultValue={inputValues.City}
                     value={inputValues.City}
                     onChange={(e) => {
                       callBranchLookup(e.target.value);
@@ -302,6 +399,7 @@ export default function PageFour() {
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
                     label="المكتب"
+                    // defaultValue={11}
                     value={inputValues.Branch}
                     onChange={(e) => {
                       callTeamLookup(e.target.value);
@@ -334,22 +432,36 @@ export default function PageFour() {
                       <MenuItem value={t.teaM_NO}>{t.teaM_NO}</MenuItem>
                     ))}
                   </Select>
-                  <h4 className="errorMessage">{errorMessageTeam}</h4>
+                  {/* <h4 className="errorMessage">{errorMessageTeam}</h4> */}
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={6} lg={6}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DesktopDatePicker
-                    label="تاريخ التقرير"
-                    inputFormat="DD/MM/YYYY"
-                    value={inputValues.DateReport}
-                    onChange={(e) => {
-                      setinputValues({ ...inputValues, DateReport: e });
-                    }}
-                    renderInput={(params) => <TextField sx={{ width: '100%' }} {...params} />}
-                  />
-                </LocalizationProvider>
-              </Grid>
+              {valueRDG === '1' ? (
+                <></>
+              ) : (
+                <>
+                  <Grid item xs={12} md={6} lg={6}>
+                    <FormControl fullWidth>
+                      <InputLabel id="demo-simple-select-label"> الحالة</InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        label="الحالة"
+                        value={inputValues.Status}
+                        onChange={(e) => {
+                          statusSetData(e);
+                        }}
+                        helperText={flagStatus ? ' مطلوب' : ''}
+                        error={flagStatus}
+                      >
+                        {status.map((t) => (
+                          <MenuItem value={t.name}>{t.name}</MenuItem>
+                        ))}
+                      </Select>
+                      {/* <h4 className="errorMessage">{errorMessageStatus}</h4> */}
+                    </FormControl>
+                  </Grid>
+                </>
+              )}
               <Grid item xs={12} sm={12} md={12} lg={12}>
                 <FormLabel id="demo-row-radio-buttons-group-label" sx={{ display: 'inline-block' }}>
                   نوع الكشف:
@@ -366,7 +478,13 @@ export default function PageFour() {
                 </RadioGroup>
               </Grid>
               <Grid item xs={12} md={12} lg={12}>
-                <Button className="nxt-btn-12-grid" variant="contained" fullwidth onClick={() => handleTab(1)}>
+                <Button
+                  className="nxt-btn-12-grid"
+                  variant="contained"
+                  fullwidth
+                  onClick={() => handleTab(1)}
+                  endIcon={loading && <CircularProgress size={20} color="inherit" />}
+                >
                   بحث
                 </Button>
               </Grid>
@@ -456,6 +574,11 @@ export default function PageFour() {
                                     customName: data.cusT_Name,
                                     fileNumber: data.file_NO,
                                     meterNumber: data.meter_NO,
+                                    typeTransaction: valueRDG,
+                                    // filterCity:
+                                    // filterBranch:
+                                    // filterTeam:
+                                    // filterStatus:
                                   },
                                 });
                               }}
@@ -484,6 +607,7 @@ export default function PageFour() {
           <br />
         </Container>
       </Page>
+      <SessionTimeout />
     </>
   );
 }

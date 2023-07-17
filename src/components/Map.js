@@ -3,8 +3,8 @@ import GoogleMapReact from 'google-map-react';
 
 const AnyReactComponent = ({ text }) => <div>{text}</div>;
 const Mapsss = (props) => {
-  const longitude = Number(props.lang);
   const latitude = Number(props.latt);
+  const longitude = Number(props.lang);
   if (props.lang === undefined || props.latt === undefined) {
     return (
       <>
@@ -27,8 +27,8 @@ const Mapsss = (props) => {
   };
   const defaultProps = {
     center: {
-      lat: longitude,
-      lng: latitude,
+      lng: longitude,
+      lat: latitude,
     },
     zoom: 16,
   };
@@ -36,7 +36,7 @@ const Mapsss = (props) => {
     <>
       <div style={{ height: '60vh', width: '100%' }}>
         <GoogleMapReact
-          bootstrapURLKeys={{ key: 'AIzaSyDoBo7XEMLVpE4lj-CZVfqKkwxVIEv9p98' }}
+          bootstrapURLKeys={{ key: 'AIzaSyALn3iml90eOf9YWtr5GBG8vnMJDijLnoc' }}
           defaultCenter={defaultProps.center}
           defaultZoom={defaultProps.zoom}
           shouldUnregisterMapOnUnmount

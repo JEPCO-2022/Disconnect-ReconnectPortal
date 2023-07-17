@@ -17,6 +17,7 @@ import {
   DialogContent,
   Box,
   DialogActions,
+  CircularProgress,
 } from '@mui/material';
 import ExcelJS from 'exceljs';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
@@ -37,6 +38,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import moment from 'moment/moment';
 import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
+import SessionTimeout from './SessionTimeout';
 import Page from '../components/Page';
 import Map from '../components/Map';
 import {
@@ -140,6 +142,7 @@ export default function PageNine() {
   const [flagBranch, setflagBranch] = useState(false);
   const [flagTeam, setflagTeam] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [openSapMap, setOpenSapMap] = useState(false);
   const [openImage, setOpenImage] = useState(false);
@@ -211,6 +214,7 @@ export default function PageNine() {
       setflagBranch(true);
       return false;
     }
+    setLoading(true);
     dispatch(getEngineerAbandonedDecision(startdate, enddate, branchnumber, inputValues.Team));
   }
   useEffect(() => {
@@ -226,6 +230,9 @@ export default function PageNine() {
   }, []);
   useEffect(() => {
     setAllAbandonedData(allAbandoned);
+  }, [allAbandoned]);
+  useEffect(() => {
+    setLoading(false);
   }, [allAbandoned]);
   function consentWithDisconnection(e) {
     setAnchorEl(null);
@@ -441,6 +448,9 @@ export default function PageNine() {
                     helperText={flagTeam ? ' مطلوب' : ''}
                     error={flagTeam}
                   >
+                    <MenuItem value="">
+                      <em> جميع الفرق </em>
+                    </MenuItem>
                     {TeamsList.map((t) => (
                       <MenuItem value={t.teaM_NO}>{t.teaM_NO}</MenuItem>
                     ))}
@@ -450,7 +460,13 @@ export default function PageNine() {
               </Grid>
 
               <Grid item xs={12} md={12} lg={12}>
-                <Button className="nxt-btn-12-grid" variant="contained" fullwidth onClick={() => handleTab(1)}>
+                <Button
+                  className="nxt-btn-12-grid"
+                  variant="contained"
+                  fullwidth
+                  onClick={() => handleTab(1)}
+                  endIcon={loading && <CircularProgress size={20} color="inherit" />}
+                >
                   إحضار
                 </Button>
               </Grid>
@@ -673,6 +689,7 @@ export default function PageNine() {
           </Dialog>
         </Container>
       </Page>
+      <SessionTimeout />
     </>
   );
 }

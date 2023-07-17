@@ -1,6 +1,7 @@
 import { useState, Suspense, lazy } from 'react';
 import { Navigate, useRoutes, useLocation } from 'react-router-dom';
 // layouts
+import CountersClips from '../pages/CountersClips';
 import PageNine from '../pages/PageNine';
 import PageEight from '../pages/PageEight';
 import LoginPage from '../pages/Login/LoginPage';
@@ -50,6 +51,7 @@ export default function Router() {
             { path: 'detailsdetiction/:id', element: <PageSeven /> },
             { path: 'abandoned', element: <PageNine /> },
             { path: 'maintenanceandtampering', element: <MaintenanceAndTampering /> },
+            { path: 'countersclips', element: <CountersClips /> },
           ],
         },
       ],

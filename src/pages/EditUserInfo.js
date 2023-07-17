@@ -22,6 +22,7 @@ import { useState, useEffect, useContext } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
+import SessionTimeout from './SessionTimeout';
 import { userUpdateInfo, getAllUsers } from '../Redux/Customer/CustomerAction';
 import useSettings from '../hooks/useSettings';
 // components
@@ -244,6 +245,7 @@ export default function EditUserInfo() {
           </Grid>
         </Card>
       </Container>
+      <SessionTimeout />
     </Page>
   );
 }

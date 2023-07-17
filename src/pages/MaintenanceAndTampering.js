@@ -22,6 +22,7 @@ import {
   FormLabel,
   FormControlLabel,
   Radio,
+  CircularProgress,
 } from '@mui/material';
 import ExcelJS from 'exceljs';
 import * as XLSX from 'xlsx';
@@ -54,6 +55,7 @@ import {
 } from '../Redux/Customer/CustomerAction';
 import '../index.css';
 import useSettings from '../hooks/useSettings';
+import SessionTimeout from './SessionTimeout';
 
 const StyledMenu = styled((props) => (
   <Menu
@@ -134,6 +136,7 @@ const MaintenanceAndTampering = () => {
   const [errorMessageBranch, setErrorMessageBranch] = useState('');
   const [errorMessageTeam, setErrorMessageTeam] = useState('');
   const [flagCity, setflagCity] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [flagBranch, setflagBranch] = useState(false);
   const [flagTeam, setflagTeam] = useState(false);
   const [open, setOpen] = useState(false);
@@ -182,6 +185,7 @@ const MaintenanceAndTampering = () => {
     const startdate = moment(inputValues.startDate.$d).format('YYYY-MM-DD');
     const enddate = moment(inputValues.endDate.$d).format('YYYY-MM-DD');
     const branchnumber = inputValues.Branch.toString();
+    setLoading(true);
     dispatch(getMaintenanceAndVigilanceReport(startdate, enddate, branchnumber, inputValues.Team, typeReport));
     if (DataReport?.length > 0) {
       setShowTable(true);
@@ -203,6 +207,9 @@ const MaintenanceAndTampering = () => {
     setShowTable(false);
     dispatch(getCitiesLookup());
   }, []);
+  useEffect(() => {
+    setLoading(false);
+  }, [DataReport]);
   function showImage() {
     if (!(sourceImage === undefined || sourceImage === '' || sourceImage === '22')) {
       return (
@@ -405,6 +412,9 @@ const MaintenanceAndTampering = () => {
                     helperText={flagTeam ? ' مطلوب' : ''}
                     error={flagTeam}
                   >
+                    <MenuItem value="">
+                      <em> جميع الفرق </em>
+                    </MenuItem>
                     {TeamsList.map((t) => (
                       <MenuItem value={t.teaM_NO}>{t.teaM_NO}</MenuItem>
                     ))}
@@ -429,7 +439,13 @@ const MaintenanceAndTampering = () => {
                 </FormControl>
               </Grid>
               <Grid item xs={12} md={12} lg={12}>
-                <Button className="nxt-btn-12-grid" variant="contained" fullwidth onClick={() => handleTab(1)}>
+                <Button
+                  className="nxt-btn-12-grid"
+                  variant="contained"
+                  fullwidth
+                  onClick={() => handleTab(1)}
+                  endIcon={loading && <CircularProgress size={20} color="inherit" />}
+                >
                   إحضار
                 </Button>
               </Grid>
@@ -535,6 +551,7 @@ const MaintenanceAndTampering = () => {
           </Dialog>
           ;
         </Container>
+        <SessionTimeout />
       </Page>
     </>
   );

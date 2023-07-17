@@ -26,6 +26,7 @@ import useSettings from '../../hooks/useSettings';
 
 // components
 import Page from '../../components/Page';
+import SessionTimeout from '../SessionTimeout';
 // ----------------------------------------------------------------------
 const StyledMenu = styled((props) => (
   <Menu
@@ -245,6 +246,7 @@ export default function AllUsersAndRoles() {
           </Table>
         </TableContainer>
       </Container>
+      <SessionTimeout />
     </Page>
   );
 }
