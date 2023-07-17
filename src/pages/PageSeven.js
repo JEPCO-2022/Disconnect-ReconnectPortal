@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { getTicketsDetails } from '../Redux/Customer/CustomerAction';
 import Map from '../components/Map';
 import '../index.css';
+import SessionTimeout from './SessionTimeout';
 
 export default function PageSeven() {
   const navigate = useNavigate();
@@ -17,17 +18,26 @@ export default function PageSeven() {
   const customName = location.state.customName;
   const fileNumber = location.state.fileNumber;
   const meterNumber = location.state.meterNumber;
+  const typeTransaction = location.state.typeTransaction;
+
   const date = String(data.closeDate).split('T');
   const days = String(date[0]);
   const timeSecond = String(date[1]);
   const timeMinutes = String(timeSecond).split(':');
   const time = `  ${timeMinutes[1]}: ${timeMinutes[0]}`;
+  const isLogged = localStorage.getItem('isLogged');
   useEffect(() => {
+    if (!(isLogged === 'true')) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('isAdmin');
+      navigate('/login');
+    }
     dispatch(getTicketsDetails(id));
   }, []);
   function showImage(srcImage) {
     const sourceImage = srcImage;
-    if (!(srcImage === undefined || srcImage === '')) {
+    if (!(srcImage === undefined || srcImage === '' || srcImage === '22')) {
       return (
         <>
           <InputLabel sx={{ display: 'inline' }}> صوره : </InputLabel>
@@ -228,7 +238,6 @@ export default function PageSeven() {
       </>
     );
   }
-
   function disconnectionMethodChecked(disconnectionMethod) {
     if (disconnectionMethod === undefined || disconnectionMethod === '')
       return (
@@ -263,6 +272,24 @@ export default function PageSeven() {
       </>
     );
   }
+  function technicalFullNameChcked(technicalFullName) {
+    if (technicalFullName === undefined || technicalFullName === '')
+      return (
+        <>
+          <Typography sx={{ display: 'inline' }} paragraph>
+            لا يوجد
+          </Typography>
+        </>
+      );
+    return (
+      <>
+        <Typography sx={{ display: 'inline' }} paragraph>
+          {technicalFullName}
+        </Typography>
+      </>
+    );
+  }
+
   return (
     <>
       <Container>
@@ -273,9 +300,7 @@ export default function PageSeven() {
           <Grid container spacing={2}>
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> اسم الفني : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                {data.technicalFullName}
-              </Typography>
+              {technicalFullNameChcked(data.technicalFullName)}
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
               <InputLabel sx={{ display: 'inline' }}> اسم المشترك : </InputLabel>
@@ -363,30 +388,39 @@ export default function PageSeven() {
           </Grid>
           <br />
           <br />
-          <Typography variant="h4" component="h1" paragraph>
-            تفاصيل الفصل
-          </Typography>
+          {typeTransaction === '2' ? (
+            <>
+              <Typography variant="h4" component="h1" paragraph>
+                تفاصيل الفصل
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6} lg={6}>
+                  <InputLabel sx={{ display: 'inline' }}> طريقة الفصل : </InputLabel>
+                  <Typography sx={{ display: 'inline' }} paragraph>
+                    {disconnectionMethodChecked(data.disconnectionMethod)}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={6} lg={6}>
+                  <InputLabel sx={{ display: 'inline' }}> تاريخ الفصل : </InputLabel>
+                  {daysChecked(days)}
+                </Grid>
+                <Grid item xs={12} md={6} lg={6}>
+                  <InputLabel sx={{ display: 'inline' }}> وقت الفصل : </InputLabel>
+                  {timeChecked(time)}
+                </Grid>
+                <Grid item xs={12} md={6} lg={6}>
+                  <InputLabel sx={{ display: 'inline' }}> ملاحظه : </InputLabel>
+                  <Typography sx={{ display: 'inline' }} paragraph>
+                    {noteChecked(data.note)}
+                  </Typography>
+                </Grid>
+              </Grid>
+            </>
+          ) : (
+            <></>
+          )}
+
           <Grid container spacing={2}>
-            <Grid item xs={12} md={6} lg={6}>
-              <InputLabel sx={{ display: 'inline' }}> طريقة الفصل : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                {disconnectionMethodChecked(data.disconnectionMethod)}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6} lg={6}>
-              <InputLabel sx={{ display: 'inline' }}> تاريخ الفصل : </InputLabel>
-              {daysChecked(days)}
-            </Grid>
-            <Grid item xs={12} md={6} lg={6}>
-              <InputLabel sx={{ display: 'inline' }}> وقت الفصل : </InputLabel>
-              {timeChecked(time)}
-            </Grid>
-            <Grid item xs={12} md={6} lg={6}>
-              <InputLabel sx={{ display: 'inline' }}> ملاحظه : </InputLabel>
-              <Typography sx={{ display: 'inline' }} paragraph>
-                {noteChecked(data.note)}
-              </Typography>
-            </Grid>
             <Grid item xs={12} md={12} lg={12}>
               <Divider light />
             </Grid>
@@ -406,6 +440,7 @@ export default function PageSeven() {
           </Grid>
         </Card>
       </Container>
+      <SessionTimeout />
     </>
   );
 }

@@ -19,13 +19,14 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useNavigate } from 'react-router-dom';
-import { getAllUsers, deleteUser } from '../../Redux/Customer/CustomerAction';
+import { getAllUsers, deleteUser, clearPersistedState } from '../../Redux/Customer/CustomerAction';
 
 // hooks
 import useSettings from '../../hooks/useSettings';
 
 // components
 import Page from '../../components/Page';
+import SessionTimeout from '../SessionTimeout';
 // ----------------------------------------------------------------------
 const StyledMenu = styled((props) => (
   <Menu
@@ -92,6 +93,7 @@ export default function AllUsersAndRoles() {
   const [name, setName] = useState('');
   const [userName, setUserName] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
+  const isLogged = localStorage.getItem('isLogged');
   const navigate = useNavigate();
   const open = Boolean(anchorEl);
   const handleClick = (event, id, fullName, username) => {
@@ -109,6 +111,13 @@ export default function AllUsersAndRoles() {
     setAnchorEl(null);
   };
   useEffect(() => {
+    if (!(isLogged === 'true')) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('isAdmin');
+      navigate('/login');
+    }
+    dispatch(clearPersistedState());
     dispatch(getAllUsers());
   }, []);
   return (
@@ -237,6 +246,7 @@ export default function AllUsersAndRoles() {
           </Table>
         </TableContainer>
       </Container>
+      <SessionTimeout />
     </Page>
   );
 }

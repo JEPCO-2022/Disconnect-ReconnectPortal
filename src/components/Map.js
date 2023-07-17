@@ -1,11 +1,19 @@
+import { Typography } from '@mui/material';
 import GoogleMapReact from 'google-map-react';
 
 const AnyReactComponent = ({ text }) => <div>{text}</div>;
 const Mapsss = (props) => {
-  const longitude = Number(props.lang);
   const latitude = Number(props.latt);
+  const longitude = Number(props.lang);
   if (props.lang === undefined || props.latt === undefined) {
-    return 0;
+    return (
+      <>
+        <Typography variant="h3" component="h1" paragraph align="center">
+          لا يوجد خريطة
+        </Typography>
+        ;
+      </>
+    );
   }
   const renderMarkers = (map, maps, lang, latt) => {
     const marker = new maps.Marker({
@@ -19,8 +27,8 @@ const Mapsss = (props) => {
   };
   const defaultProps = {
     center: {
-      lat: longitude,
-      lng: latitude,
+      lng: longitude,
+      lat: latitude,
     },
     zoom: 16,
   };
@@ -28,7 +36,7 @@ const Mapsss = (props) => {
     <>
       <div style={{ height: '60vh', width: '100%' }}>
         <GoogleMapReact
-          bootstrapURLKeys={{ key: 'AIzaSyA7f_t2Ccx3tdV_Mz2pT0zdVioGU6SiKS4' }}
+          bootstrapURLKeys={{ key: 'AIzaSyALn3iml90eOf9YWtr5GBG8vnMJDijLnoc' }}
           defaultCenter={defaultProps.center}
           defaultZoom={defaultProps.zoom}
           shouldUnregisterMapOnUnmount

@@ -33,23 +33,23 @@ export const setLoginInformation = () => {
     type: SET_LOGIN_INFORMATION,
   };
 };
-export const setLoginSuccess = (username, userToken, canExport, isAdmin) => {
-  console.log({ username, userToken });
+export const setLoginSuccess = (username, userToken, canExport, isAdmin, ID) => {
+  // console.log({ username, userToken });
   return {
     type: SET_LOGIN_SUCCESS,
-    payload: { username, userToken, canExport, isAdmin },
+    payload: { username, userToken, canExport, isAdmin, ID },
   };
 };
 export const userLogin = (username, password) => async (dispatch) => {
   dispatch(setLoginReq());
 
-  const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
+  const baseURL = 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/ApisLoginController/Login';
   const response = await axios.post(`${baseURL}`, {
     username: 'ConnectionAndDisconnectionAppIntegrationUser',
     password: 'ConnectionAndDisconnectionApp@jepco@123',
   });
   const infoBaseURL =
-    'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/UserLogin';
+    'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/UserLogin';
   try {
     const genertedToken = response.data.body.token;
     const config = {
@@ -70,34 +70,32 @@ export const userLogin = (username, password) => async (dispatch) => {
     cookie.save('userName', username, { maxAge: 260000000 });
     localStorage.setItem('user', genertedToken);
     localStorage.setItem('userName', username);
-
     const infoTokenResponse = await axios(config);
-
     console.log(infoTokenResponse.data.body);
     localStorage.setItem('isAdmin', infoTokenResponse.data.body.isAdmin);
     localStorage.setItem('canExport', infoTokenResponse.data.body.canExport);
+    localStorage.setItem('id', infoTokenResponse.data.body.id);
+    localStorage.setItem('isLogged', true);
     const filedata = infoTokenResponse.data.body;
     if (infoTokenResponse.data.statusCode) {
-      // console.log('no Cookie');
-      dispatch(setLoginSuccess(username, genertedToken, filedata.canExport, filedata.isAdmin));
-
+      console.log('no Cookie');
+      dispatch(setLoginSuccess(username, genertedToken, filedata.canExport, filedata.isAdmin, filedata.id));
       dispatch(setLoginInformation(filedata));
     } else {
-      // console.log('login errorXO');
+      console.log('login errorXO');
       dispatch(setLoginErr());
     }
   } catch (error) {
     dispatch(setLoginErr());
-
     if (error.response) {
       // Request made and server responded
-      console.log(error.response.data);
+      // console.log(error.response.data);
     } else if (error.request) {
       // The request was made but no response was received
-      console.log(error.request);
+      // console.log(error.request);
     } else {
       // Something happened in setting up the request that triggered an Error
-      console.log('Error', error.message);
+      // console.log('Error', error.message);
     }
   }
 };

@@ -22,6 +22,7 @@ import { useState, useEffect, useContext } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
+import SessionTimeout from './SessionTimeout';
 import { userUpdateInfo, getAllUsers } from '../Redux/Customer/CustomerAction';
 import useSettings from '../hooks/useSettings';
 // components
@@ -44,6 +45,7 @@ export default function EditUserInfo() {
   const [administrator, setAdministrator] = useState(true);
   const [exportFiles, setExportFiles] = useState(true);
   const navigate = useNavigate();
+  const isLogged = localStorage.getItem('isLogged');
   const [inputValues, setinputValues] = useState({
     id: '',
     fullName: '',
@@ -61,6 +63,12 @@ export default function EditUserInfo() {
     setinputValues({ id: idLocation, userName: userNameLocation, fullName: nameLocation, passowrd: pass });
   }
   useEffect(() => {
+    if (!(isLogged === 'true')) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('isAdmin');
+      navigate('/login');
+    }
     getPasswordUsers();
   }, [ref]);
 
@@ -237,6 +245,7 @@ export default function EditUserInfo() {
           </Grid>
         </Card>
       </Container>
+      <SessionTimeout />
     </Page>
   );
 }

@@ -1,15 +1,14 @@
-import { useState, useEffect, useRef, useReducer, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 // @mui
 import {
   Box,
   Button,
   Card,
-  Checkbox,
+  CircularProgress,
   Container,
   Divider,
   FormControl,
   FormControlLabel,
-  FormGroup,
   FormLabel,
   Grid,
   InputLabel,
@@ -19,8 +18,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import * as FileSaver from 'file-saver';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
@@ -36,11 +34,19 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import '../index.css';
 // hooks
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import moment from 'moment/moment';
-import { getBranchesLookup, getCitiesLookup, getTeamInfo, ClearAllUserBranch } from '../Redux/Customer/CustomerAction';
+import {
+  getCitiesLookupAllCities,
+  getBranchesLookupAllBranches,
+  getTeamInfo,
+  clearPersistedState,
+} from '../Redux/Customer/CustomerAction';
 import useSettings from '../hooks/useSettings';
+import SessionTimeout from './SessionTimeout';
 // components
 import Page from '../components/Page';
+import LoadingSpinner from './LoadingSpinner/LoadingSpinner';
 
 // ----------------------------------------------------------------------
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -62,19 +68,16 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     border: 0,
   },
 }));
-
 export default function PageFour() {
   const { themeStretch } = useSettings();
   const CitiesList = useSelector((state) => state.Customer.CitiesList);
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
   const TeamList = useSelector((state) => state.Customer.TeamInfo);
   const clearAll = useSelector((state) => state.Customer.clearAll);
-  // const userName = useSelector((state) => state.Login.userName);
-  // const isAdmin = useSelector((state) => state.Login.isAdmin);
-  // const canExport = useSelector((state) => state.Login.canExport);
+  const isLogged = localStorage.getItem('isLogged');
   const isAdmin = localStorage.getItem('isAdmin');
-  const canExport = localStorage.getItem('canExport');
   const userName = localStorage.getItem('userName');
+  const canExport = localStorage.getItem('canExport');
   const dispatch = useDispatch();
   const tableRef = useRef(null);
   const separator = '';
@@ -83,40 +86,68 @@ export default function PageFour() {
   const month = newDate.getMonth() + 1;
   const year = newDate.getFullYear();
   const [flagFullName, setflagFullName] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [errorMessageCity, setErrorMessageCity] = useState('');
   const [errorMessageBranch, setErrorMessageBranch] = useState('');
-  const fileExtension = '.xlsx';
-  const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+  const [disabledBranch, setDisabledBranch] = useState(false);
+  const navigate = useNavigate();
   const [inputValues, setinputValues] = useState({
     City: '',
     Branch: '',
-    DateReport: `${year}${separator}-${month < 10 ? `0${month}` : `${month}`}-${separator}${date}`,
+    startDate: `${year}${separator}-${month < 10 ? `0${month}` : `${month}`}-${separator}${date}`,
+    endDate: `${year}${separator}-${month < 10 ? `0${month}` : `${month}`}-${separator}${date}`,
   });
   const [valueRDG, setValueRBG] = useState('1');
   function callBranchLookup(cityID) {
+    setDisabledBranch(false);
+    if (cityID === 99) {
+      setDisabledBranch(true);
+      return false;
+    }
     const isAdminBoolean = isAdmin === 'true';
-    dispatch(getBranchesLookup(cityID, userName, isAdminBoolean));
+    dispatch(getBranchesLookupAllBranches(cityID, userName, isAdminBoolean));
   }
   const handleChangeRadioGroup = (event) => {
     setValueRBG(event.target.value);
+    TeamList.length = 0;
   };
-
   useEffect(() => {
-    refresh();
-    dispatch(getCitiesLookup());
-    dispatch(ClearAllUserBranch());
-  }, []);
-  function refresh() {
-    if (window.localStorage) {
-      if (!localStorage.getItem('reload')) {
-        localStorage.reload = true;
-        window.location.reload();
-      } else {
-        localStorage.removeItem('reload');
-      }
+    if (!(isLogged === 'true')) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('isAdmin');
+      navigate('/login');
     }
-  }
-  const handleTab = (e) => {
+    dispatch(clearPersistedState());
+    dispatch(getCitiesLookupAllCities());
+    // localStorage.removeItem('cityID');
+    // localStorage.removeItem('branchId');
+    // localStorage.removeItem('Team');
+    // localStorage.removeItem('status');
+  }, []);
+  useEffect(() => {
+    setLoading(false);
+  }, [TeamList]);
+
+  const handleTab = () => {
+    const isAdminBoolean = isAdmin === 'true';
+    const officeNumber = `${inputValues.Branch}`;
+    const cityNumber = `${inputValues.City}`;
+    if (inputValues.City === 99) {
+      setLoading(true);
+      const data = {
+        LanguageId: 'AR',
+        TicketDateFrom: moment(inputValues.startDate.$d).format('YYYY-MM-DD'),
+        TicketDateTO: moment(inputValues.endDate.$d).format('YYYY-MM-DD'),
+        Cities_NO: 'ALL',
+        OFFICE_NO: 'ALL',
+        IsAdmin: isAdminBoolean,
+        TRANSACTION_TYPE: valueRDG,
+      };
+      setErrorMessageBranch('');
+      dispatch(getTeamInfo(data));
+      return false;
+    }
     if (inputValues.City === '') {
       setErrorMessageCity('مطلوب');
       setflagFullName(true);
@@ -126,14 +157,94 @@ export default function PageFour() {
       setflagFullName(true);
       return false;
     }
-    const officeNumber = `${inputValues.Branch}`;
+    if (inputValues.Branch === 0) {
+      setLoading(true);
+      const data = {
+        LanguageId: 'AR',
+        TicketDateFrom: moment(inputValues.startDate.$d).format('YYYY-MM-DD'),
+        TicketDateTO: moment(inputValues.endDate.$d).format('YYYY-MM-DD'),
+        Cities_NO: cityNumber,
+        OFFICE_NO: 'ALL',
+        IsAdmin: isAdminBoolean,
+        TRANSACTION_TYPE: valueRDG,
+      };
+      setErrorMessageBranch('');
+      dispatch(getTeamInfo(data));
+      return false;
+    }
+    setLoading(true);
     const data = {
       LanguageId: 'AR',
-      TicketDate: moment(inputValues.DateReport.$d).format('YYYY-MM-DD'),
+      TicketDateFrom: moment(inputValues.startDate.$d).format('YYYY-MM-DD'),
+      TicketDateTO: moment(inputValues.endDate.$d).format('YYYY-MM-DD'),
+      Cities_NO: cityNumber,
       OFFICE_NO: officeNumber,
+      IsAdmin: isAdminBoolean,
       TRANSACTION_TYPE: valueRDG,
     };
+    console.log(data);
     dispatch(getTeamInfo(data));
+  };
+  const exportToCSVWithoutOutSide = (apiData, fileName) => {
+    const customHeadings = apiData.reduce((acc, curr) => {
+      const _users = acc;
+      return [
+        ..._users,
+        {
+          teamNum: curr.teamNember,
+          officeName: curr.officeName,
+          closeDisConnectionTicketsNum: curr.totalNumberInSideList,
+          numberOfConnection: curr.numberOfConnection,
+          closeDConnectionTicketsNum: curr.totalNumberInSideList - curr.numberOfConnection,
+        },
+      ];
+    }, []);
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Sheet 1', {
+      pageSetup: {
+        orientation: 'landscape',
+        fitToPage: true,
+        fitToHeight: 5,
+        fitToWidth: 7,
+        paperSize: 9,
+      },
+    });
+    worksheet.addRow([fileName]);
+    worksheet.addRow([
+      ' رقم الفرقة',
+      ' اسم المكتب ',
+      'إجمالي مذكرات الوصل',
+      'مذكرات الوصل التي تم وصلها ',
+      'المذكرات التي لم يتم وصلها',
+    ]);
+    customHeadings.map((e) =>
+      worksheet.addRow([
+        e.teamNum,
+        e.officeName,
+        e.closeDisConnectionTicketsNum,
+        e.numberOfConnection,
+        e.closeDConnectionTicketsNum,
+      ])
+    );
+    worksheet.columns[0].width = 10;
+    worksheet.columns[1].width = 30;
+    worksheet.columns[2].width = 30;
+    worksheet.columns[3].width = 30;
+    worksheet.columns[4].width = 30;
+    worksheet.mergeCells('A1:E1');
+    worksheet.eachRow((row) => {
+      row.eachCell((cell) => {
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      });
+    });
+    workbook.xlsx.writeBuffer().then((buffer) => {
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${fileName}.xlsx`;
+      a.click();
+    });
   };
   const exportToCSV = (apiData, fileName) => {
     const customHeadings = apiData.reduce((acc, curr) => {
@@ -141,52 +252,109 @@ export default function PageFour() {
       return [
         ..._users,
         {
-          'رقم الفرقة': curr.teaM_NO,
-          '  العدادات المنجزه في الأيام السابقة': curr.previousDayTicketsNumClosed,
-          ' العدادات المنجزه في الكشف اليوم ': curr.closeDisConnectionTicketsNum,
-          '  إجمالي العدادات في الكشف': curr.teamTotalTicketsNum,
+          teamNum: curr.teamNember,
+          officeName: curr.officeName,
+          totalNumberInSideList: curr.totalNumberInSideList,
+          numberOfDisConnection: curr.numberOfDisConnection,
+          numberOfOutSideList: curr.numberOfOutSideList,
+          allTicketsDisconection: curr.numberOfDisConnection + curr.numberOfOutSideList,
         },
       ];
     }, []);
-    const RowInfo = [
-      {
-        width: 10,
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Sheet 1', {
+      pageSetup: {
+        orientation: 'landscape',
+        fitToPage: true,
+        fitToHeight: 5,
+        fitToWidth: 7,
+        paperSize: 9,
       },
-      {
-        width: 30,
-      },
-      {
-        width: 30,
-      },
-      {
-        width: 30,
-      },
-    ];
-    const head = ['العدادات المنجزه حسب المكتب '];
-    const merge = [{ s: { c: 0, r: 0 }, e: { c: 3, r: 0 } }];
-    const ws = XLSX.utils.json_to_sheet(customHeadings, { origin: 'A2' });
-    ws['!cols'] = RowInfo;
-    ws['!merges'] = merge;
-    const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
-    XLSX.utils.sheet_add_aoa(ws, [head], { origin: 'A1' });
-    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    const data = new Blob([excelBuffer], { type: fileType });
-    FileSaver.saveAs(data, fileName + fileExtension);
+    });
+    worksheet.addRow([fileName]);
+    worksheet.addRow([
+      ' رقم الفرقة',
+      ' اسم المكتب ',
+      ' إجمالي العدادات في الكشف',
+      ' العدادات التي تم قطعها ',
+      ' العدادات المنجزه خارج الكشف	',
+      'مجموع العدادات التي تم قطعها',
+    ]);
+    customHeadings.map((e) =>
+      worksheet.addRow([
+        e.teamNum,
+        e.officeName,
+        e.totalNumberInSideList,
+        e.numberOfDisConnection,
+        e.numberOfOutSideList,
+        e.allTicketsDisconection,
+      ])
+    );
+    worksheet.columns[0].width = 10;
+    worksheet.columns[1].width = 30;
+    worksheet.columns[2].width = 30;
+    worksheet.columns[3].width = 30;
+    worksheet.columns[4].width = 30;
+    worksheet.columns[5].width = 30;
+    worksheet.mergeCells('A1:F1');
+    worksheet.eachRow((row) => {
+      row.eachCell((cell) => {
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      });
+    });
+    workbook.xlsx.writeBuffer().then((buffer) => {
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${fileName}.xlsx`;
+      a.click();
+    });
   };
-
+  function setLoadinSpinner() {
+    setLoading(false);
+  }
   return (
     <Page title="العدادات المنجزه حسب المكتب">
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
           <Grid container spacing={2}>
-            {/* <Grid item xs={12} md={12} lg={12} /> */}
             <Grid item xs={8} md={12} lg={12}>
               <Typography variant="h4" component="h1" paragraph>
                 العدادات المنجزه حسب المكتب
               </Typography>
               <Divider light />
             </Grid>
-            <Grid item xs={8} md={6} lg={6}>
+            <Grid item xs={12} md={6} lg={6}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DesktopDatePicker
+                  label=" من تاريخ"
+                  inputFormat="DD/MM/YYYY"
+                  value={inputValues.startDate}
+                  maxDate={inputValues.endDate ? inputValues.endDate : new Date()}
+                  onChange={(e) => {
+                    setinputValues({ ...inputValues, startDate: e });
+                  }}
+                  renderInput={(params) => <TextField sx={{ width: '100%' }} {...params} />}
+                />
+              </LocalizationProvider>
+            </Grid>
+            <Grid item xs={12} md={6} lg={6}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DesktopDatePicker
+                  label="الى تاريخ"
+                  inputFormat="DD/MM/YYYY"
+                  value={inputValues.endDate}
+                  minDate={inputValues.startDate}
+                  maxDate={new Date()}
+                  onChange={(e) => {
+                    setinputValues({ ...inputValues, endDate: e });
+                  }}
+                  renderInput={(params) => <TextField sx={{ width: '100%' }} {...params} />}
+                />
+              </LocalizationProvider>
+            </Grid>
+            <Grid item xs={12} md={6} lg={6}>
               <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label"> المحافظة</InputLabel>
                 <Select
@@ -210,17 +378,17 @@ export default function PageFour() {
                 <h4 className="errorMessage">{errorMessageCity}</h4>
               </FormControl>
             </Grid>
-            <Grid item xs={8} md={6} lg={6}>
+            <Grid item xs={12} md={6} lg={6}>
               <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label"> المكتب</InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   label="المكتب"
-                  defaultValue={clearAll}
                   value={inputValues.Branch}
                   helperText={flagFullName ? ' مطلوب' : ''}
                   error={flagFullName}
+                  inputProps={{ readOnly: disabledBranch }}
                   onChange={(e) => {
                     setinputValues({ ...inputValues, Branch: e.target.value });
                     setErrorMessageBranch('');
@@ -236,20 +404,7 @@ export default function PageFour() {
                 <h4 className="errorMessage">{errorMessageBranch}</h4>
               </FormControl>
             </Grid>
-            <Grid item xs={8} md={6} lg={6}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DesktopDatePicker
-                  label="تاريخ التقرير"
-                  inputFormat="DD/MM/YYYY"
-                  value={inputValues.DateReport}
-                  onChange={(e) => {
-                    setinputValues({ ...inputValues, DateReport: e });
-                  }}
-                  renderInput={(params) => <TextField sx={{ width: '100%' }} {...params} />}
-                />
-              </LocalizationProvider>
-            </Grid>
-            <Grid item xs={8} md={6} lg={6}>
+            <Grid item xs={12} sm={12} md={6} lg={6}>
               <FormLabel id="demo-row-radio-buttons-group-label" sx={{ display: 'inline-block' }}>
                 نوع الكشف:
               </FormLabel>
@@ -264,8 +419,15 @@ export default function PageFour() {
                 <FormControlLabel control={<Radio value={2} />} label="كشف قطع" />
               </RadioGroup>
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
-              <Button className="nxt-btn-12-grid" variant="contained" fullwidth onClick={() => handleTab(1)}>
+            <Grid item xs={12} md={12} lg={12}>
+              <Button
+                disabled={loading}
+                className="nxt-btn-12-grid"
+                variant="contained"
+                fullwidth
+                onClick={() => handleTab(1)}
+                endIcon={loading && <CircularProgress size={20} color="inherit" />}
+              >
                 بحث
               </Button>
             </Grid>
@@ -274,44 +436,104 @@ export default function PageFour() {
         <br />
         {TeamList?.length > 0 ? (
           <>
-            <Grid textAlign="end" item xs={12} md={6} lg={6}>
-              <Button
-                className={canExport === 'true' ? 'visible' : 'invisible'}
-                endIcon={<FileDownloadIcon />}
-                variant="outlined"
-                onClick={() => {
-                  exportToCSV(TeamList, 'العدادات المنجزه حسب المكتب');
-                }}
-                fullwidth
-              >
-                تنزيل
-              </Button>
-            </Grid>
-            <br />
-            <TableContainer component={Paper} id="here">
-              <Table sx={{ minWidth: 700 }} aria-label="customized table" ref={tableRef}>
-                <TableHead>
-                  <TableRow>
-                    <StyledTableCell>الفرقة</StyledTableCell>
-                    <StyledTableCell align="center"> إجمالي العدادات في الكشف</StyledTableCell>
-                    <StyledTableCell align="center">العدادات المنجزه في الكشف اليومي </StyledTableCell>
-                    <StyledTableCell align="center"> العدادات المنجزه في الأيام السابقة </StyledTableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {TeamList.map((TeamList) => (
-                    <StyledTableRow key={TeamList.teaM_NO}>
-                      <StyledTableCell component="th" scope="row">
-                        {TeamList.teaM_NO}
-                      </StyledTableCell>
-                      <StyledTableCell align="center">{TeamList.teamTotalTicketsNum}</StyledTableCell>
-                      <StyledTableCell align="center">{TeamList.closeDisConnectionTicketsNum}</StyledTableCell>
-                      <StyledTableCell align="center">{TeamList.previousDayTicketsNumClosed}</StyledTableCell>
-                    </StyledTableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            {valueRDG === '1' ? (
+              <>
+                {/* {setLoadinSpinner()} */}
+                <Grid textAlign="end" item xs={12} md={6} lg={6}>
+                  <Button
+                    className={canExport === 'true' ? 'visible' : 'invisible'}
+                    endIcon={<FileDownloadIcon />}
+                    variant="outlined"
+                    onClick={() => {
+                      exportToCSVWithoutOutSide(TeamList, 'العدادات المنجزه حسب المكتب');
+                    }}
+                    fullwidth
+                  >
+                    تنزيل
+                  </Button>
+                </Grid>
+              </>
+            ) : (
+              <>
+                <Grid textAlign="end" item xs={12} md={6} lg={6}>
+                  <Button
+                    className={canExport === 'true' ? 'visible' : 'invisible'}
+                    endIcon={<FileDownloadIcon />}
+                    variant="outlined"
+                    onClick={() => {
+                      exportToCSV(TeamList, 'العدادات المنجزه حسب المكتب');
+                    }}
+                    fullwidth
+                  >
+                    تنزيل
+                  </Button>
+                </Grid>
+              </>
+            )}
+            <>
+              <br />
+              <TableContainer component={Paper} id="here">
+                <Table sx={{ minWidth: 700 }} aria-label="customized table" ref={tableRef}>
+                  <TableHead>
+                    <TableRow>
+                      <StyledTableCell>الفرقة</StyledTableCell>
+                      <StyledTableCell align="center"> اسم المكتب </StyledTableCell>
+                      {valueRDG === '2' ? (
+                        <>
+                          <StyledTableCell align="center"> طلبات الفصل المرسلة</StyledTableCell>
+                          <StyledTableCell align="center"> طلبات الفصل المقطوعة </StyledTableCell>
+                          <StyledTableCell align="center"> المقطوع من خارج الكشف </StyledTableCell>
+                          <StyledTableCell align="center"> إجمالي المقطوع </StyledTableCell>
+                        </>
+                      ) : (
+                        <>
+                          <StyledTableCell align="center">إجمالي مذكرات الوصل</StyledTableCell>
+                          <StyledTableCell align="center">مذكرات الوصل التي تم وصلها</StyledTableCell>
+                          <StyledTableCell align="center">المذكرات التي لم يتم وصلها</StyledTableCell>
+                        </>
+                      )}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {TeamList.map((TeamList) => (
+                      <StyledTableRow key={TeamList.teamNember}>
+                        {valueRDG === '1' ? (
+                          <>
+                            <StyledTableCell component="th" scope="row">
+                              {TeamList.teamNember}
+                            </StyledTableCell>
+                            <StyledTableCell align="center">{TeamList.officeName}</StyledTableCell>
+                            <StyledTableCell align="center">{TeamList.totalNumberInSideList}</StyledTableCell>
+                            <StyledTableCell align="center">{TeamList.numberOfConnection}</StyledTableCell>
+                            <StyledTableCell align="center">
+                              {Math.abs(TeamList.totalNumberInSideList - TeamList.numberOfConnection)}
+                            </StyledTableCell>
+                          </>
+                        ) : (
+                          <></>
+                        )}
+                        {valueRDG === '2' ? (
+                          <>
+                            <StyledTableCell component="th" scope="row">
+                              {TeamList.teamNember}
+                            </StyledTableCell>
+                            <StyledTableCell align="center">{TeamList.officeName}</StyledTableCell>
+                            <StyledTableCell align="center">{TeamList.totalNumberInSideList}</StyledTableCell>
+                            <StyledTableCell align="center">{TeamList.numberOfDisConnection}</StyledTableCell>
+                            <StyledTableCell align="center">{TeamList.numberOfOutSideList}</StyledTableCell>
+                            <StyledTableCell align="center">
+                              {Math.abs(TeamList.numberOfDisConnection + TeamList.numberOfDisConnection)}
+                            </StyledTableCell>
+                          </>
+                        ) : (
+                          <></>
+                        )}
+                      </StyledTableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </>
           </>
         ) : (
           <>
@@ -327,6 +549,7 @@ export default function PageFour() {
           </>
         )}
       </Container>
+      <SessionTimeout />
     </Page>
   );
 }

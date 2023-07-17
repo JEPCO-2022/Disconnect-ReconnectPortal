@@ -19,6 +19,7 @@ export default function loginReducer(
     FullName: '',
     canExport: false,
     isAdmin: false,
+    id: '',
   },
   action = {}
 ) {
@@ -27,6 +28,7 @@ export default function loginReducer(
       return {
         ...state,
         userName: '',
+        ID: '',
         userToken: '',
         isError: true,
         isLogged: false,
@@ -36,15 +38,17 @@ export default function loginReducer(
         ...state,
         userName: '',
         userToken: '',
+        id: '',
         isError: false,
         isLogged: false,
         FullName: '',
       };
     case SET_LOGIN_SUCCESS:
-      console.log(action.payload);
+      console.log(action.payload.ID);
       return {
         ...state,
         userName: action.payload.username,
+        id: action.payload.ID,
         userToken: action.payload.userToken,
         isError: false,
         isLogged: true,
