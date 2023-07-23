@@ -202,21 +202,21 @@ export default function PageEight() {
                       />
                     </FormGroup>
                   ))}
-                  <Divider />
                 </FormControl>
               </Grid>
             ))}
+            <Grid textAlign="end" item xs={12} sm={12} lg={12} md={12}>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  handleSend();
+                }}
+              >
+                حفظ
+              </Button>
+            </Grid>
           </Grid>
         </Card>
-
-        <Button
-          variant="contained"
-          onClick={() => {
-            handleSend();
-          }}
-        >
-          إرسال
-        </Button>
       </Container>
       <Snackbar open={open} autoHideDuration={4000} severity="success" onClose={handleClose}>
         <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>

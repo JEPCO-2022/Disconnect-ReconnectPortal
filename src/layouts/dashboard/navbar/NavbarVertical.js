@@ -73,6 +73,7 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
               path: '/dashboard/user',
               icon: <SummarizeIcon />,
               children: [
+                // { title: 'لوحة تحكم الوصل', path: '/dashboard/statistics' },
                 { title: 'العدادات المنجزه حسب المكتب', path: '/dashboard/user/meterdonebybranche' },
                 { title: 'تفاصيل الكشف حسب الفرقة', path: '/dashboard/user/detailsbyteam' },
                 { title: 'تقرير المهجور ', path: '/dashboard/user/abandoned' },
@@ -109,6 +110,7 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
             path: '/dashboard/user',
             icon: <SummarizeIcon />,
             children: [
+              // { title: 'لوحة تحكم الوصل', path: '/dashboard/statistics' },
               { title: 'العدادات المنجزه حسب المكتب', path: '/dashboard/user/meterdonebybranche' },
               { title: 'تفاصيل الكشف حسب الفرقة', path: '/dashboard/user/detailsbyteam' },
               { title: 'تقرير المهجور ', path: '/dashboard/user/abandoned' },

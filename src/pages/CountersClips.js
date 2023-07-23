@@ -48,6 +48,7 @@ import {
 } from '../Redux/Customer/CustomerAction';
 import SessionTimeout from './SessionTimeout';
 import useSettings from '../hooks/useSettings';
+import '../index.css';
 // components
 import Page from '../components/Page';
 
@@ -107,6 +108,7 @@ const CountersClips = () => {
   const [loading, setLoading] = useState(false);
   const [disabledBranch, setDisabledBranch] = useState(false);
   const [disabledTeam, setDisabledTeam] = useState(false);
+  const [hiddenBranch, setHiddenBranch] = useState(true);
   const isLogged = localStorage.getItem('isLogged');
 
   useEffect(() => {
@@ -127,8 +129,10 @@ const CountersClips = () => {
   function callBranchLookup(cityID) {
     setinputValues({ ...inputValues, City: cityID, Branch: '', Team: '' });
     setDisabledBranch(false);
+    setHiddenBranch(true);
     if (cityID === 99) {
       setDisabledBranch(true);
+      setHiddenBranch(false);
       return false;
     }
     const isAdminBoolean = isAdmin === 'true';
@@ -347,7 +351,7 @@ const CountersClips = () => {
                   <h4 className="errorMessage">{errorMessageCity}</h4>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={6} lg={6}>
+              <Grid item xs={12} md={6} lg={6} className={hiddenBranch ? 'visible' : 'hidden-div'}>
                 <FormControl fullWidth>
                   <InputLabel id="demo-simple-select-label"> المكتب</InputLabel>
                   <Select
@@ -380,9 +384,6 @@ const CountersClips = () => {
                     onChange={(e) => {
                       statusSetData(e.target.value);
                     }}
-                    inputProps={{ readOnly: disabledBranch }}
-                    helperText={setflagStatus ? ' مطلوب' : ''}
-                    error={flagStatus}
                   >
                     <MenuItem value="">
                       <em> الجميع </em>
@@ -391,7 +392,7 @@ const CountersClips = () => {
                       <MenuItem value={t.name}>{t.name}</MenuItem>
                     ))}
                   </Select>
-                  <h4 className="errorMessage">{errorMessageStatus}</h4>
+                  {/* <h4 className="errorMessage">{errorMessageStatus}</h4> */}
                 </FormControl>
               </Grid>
               <Grid item xs={12} md={12} lg={12}>

@@ -12,6 +12,7 @@ import LoadingScreen from '../components/LoadingScreen';
 import CreateNewUser from '../pages/CreateNewUser';
 import AllUsersAndRoles from '../pages/AllUsersAndRoles/AllUsersAndRoles';
 import MaintenanceAndTampering from '../pages/MaintenanceAndTampering';
+import Statistics from '../pages/Statistics';
 // ----------------------------------------------------------------------
 
 const Loadable = (Component) => (props) => {
@@ -41,6 +42,7 @@ export default function Router() {
         { path: 'AllUsersAndRoles', element: <AllUsersAndRoles /> },
         { path: 'EditUserInfo/:id', element: <EditUserInfo /> },
         { path: 'permission/:id', element: <PageEight /> },
+        // { path: 'statistics', element: <Statistics /> },
         {
           path: 'user',
           children: [
