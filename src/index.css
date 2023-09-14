@@ -16,7 +16,9 @@
   .errorMessage{
     color: red;
   }
-
+  .hidden-div {
+    display: none;
+  }
   .srcImage{
     margin: 10px auto;
     max-width : 70vh;
@@ -122,3 +124,4 @@
       transform: rotate(360deg);
     }
   }
+  

@@ -43,10 +43,11 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import SessionTimeout from './SessionTimeout';
 import {
+  getCitiesLookupAllCities,
+  getBranchesLookupAllBranches,
   ClearAllUserBranch,
   clearPersistedState,
   getBranchesLookup,
-  getCitiesLookup,
   getMeterReportByTeam,
   getTeamsLookup,
 } from '../Redux/Customer/CustomerAction';
@@ -129,21 +130,22 @@ export default function PageFour() {
     startDate: `${year}${separator}-${month < 10 ? `0${month}` : `${month}`}-${separator}${date}`,
     endDate: `${year}${separator}-${month < 10 ? `0${month}` : `${month}`}-${separator}${date}`,
   });
-
-  // const [inputValues, setinputValues] = useState({
-  //   City: Number.isNaN(Number(localStorage.getItem('cityID'))) ? '' : Number(localStorage.getItem('cityID')),
-  //   Branch: Number.isNaN(Number(localStorage.getItem('branchId'))) ? '' : Number(localStorage.getItem('branchId')),
-  //   Team: Number.isNaN(Number(localStorage.getItem('Team'))) ? '' : Number(localStorage.getItem('Team')),
-  //   Status: localStorage.getItem('status') === '' ? '' : localStorage.getItem('status'),
-  //   startDate: `${year}${separator}-${month < 10 ? `0${month}` : `${month}`}-${separator}${date}`,
-  //   endDate: `${year}${separator}-${month < 10 ? `0${month}` : `${month}`}-${separator}${date}`,
-  // });
-
+  const [hiddenBranch, setHiddenBranch] = useState(true);
+  const [disabledBranch, setDisabledBranch] = useState(false);
+  const [hiddenTeam, setHiddenTeam] = useState(true);
+  const [disabledTeam, setDisabledTeam] = useState(false);
   const [valueRDG, setValueRBG] = useState('1');
   const fileExtension = '.xlsx';
   const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
   function callTeamLookup(branchId) {
     setinputValues({ ...inputValues, Branch: branchId, Team: '' });
+    setDisabledTeam(false);
+    setHiddenTeam(true);
+    if (branchId === 0) {
+      setDisabledTeam(true);
+      setHiddenTeam(false);
+      return false;
+    }
     dispatch(getTeamsLookup(branchId));
     localStorage.setItem('branchId', branchId);
     setErrorMessageBranch('');
@@ -152,9 +154,17 @@ export default function PageFour() {
   }
   function callBranchLookup(cityID) {
     setinputValues({ ...inputValues, City: cityID, Branch: '', Team: '' });
+    setDisabledBranch(false);
+    setHiddenBranch(true);
+    if (cityID === 99) {
+      setDisabledTeam(true);
+      setHiddenTeam(false);
+      setHiddenBranch(false);
+      setDisabledBranch(true);
+      return false;
+    }
     const isAdminBoolean = isAdmin === 'true';
-    localStorage.setItem('cityID', cityID);
-    dispatch(getBranchesLookup(cityID, userName, isAdminBoolean));
+    dispatch(getBranchesLookupAllBranches(cityID, userName, isAdminBoolean));
     setErrorMessageCity('');
     setflagCity(false);
   }
@@ -165,7 +175,7 @@ export default function PageFour() {
       localStorage.removeItem('isAdmin');
       navigate('/login');
     }
-    dispatch(getCitiesLookup());
+    dispatch(getCitiesLookupAllCities());
     dispatch(ClearAllUserBranch());
   }, []);
   useEffect(() => {
@@ -173,19 +183,9 @@ export default function PageFour() {
   }, [tableData]);
   const tableRef = useRef(null);
   const handleTab = (e) => {
-    if (inputValues.City === '') {
-      setErrorMessageCity('مطلوب');
-      setflagCity(true);
-    }
-    if (inputValues.Branch === '') {
-      setErrorMessageBranch('مطلوب');
-      setflagBranch(true);
-      return false;
-    }
-    console.log();
-    setLoading(true);
     const teamNumber = `${inputValues.Team}`;
     const officeNumber = `${inputValues.Branch}`;
+    const cityNumber = `${inputValues.City}`;
     let statusNumber = '';
     switch (inputValues.Status) {
       case 'جديدة':
@@ -211,14 +211,59 @@ export default function PageFour() {
         statusNumber = '';
         break;
     }
+
+    if (inputValues.City === 99) {
+      setLoading(true);
+      const data = {
+        LanguageId: 'AR',
+        TicketDateFrom: moment(inputValues.startDate.$d).format('YYYY-MM-DD'),
+        TicketDateTo: moment(inputValues.endDate.$d).format('YYYY-MM-DD'),
+        Cities_NO: 'ALL',
+        TEAM_NO: '',
+        Office_NO: '',
+        TRANSACTION_TYPE: valueRDG,
+        statusID: statusNumber,
+      };
+      dispatch(getMeterReportByTeam(data));
+      return false;
+    }
+    if (inputValues.Branch === 0) {
+      setLoading(true);
+      const data = {
+        LanguageId: 'AR',
+        TicketDateFrom: moment(inputValues.startDate.$d).format('YYYY-MM-DD'),
+        TicketDateTo: moment(inputValues.endDate.$d).format('YYYY-MM-DD'),
+        Cities_NO: cityNumber,
+        TEAM_NO: '',
+        Office_NO: 'ALL',
+        TRANSACTION_TYPE: valueRDG,
+        statusID: statusNumber,
+      };
+
+      dispatch(getMeterReportByTeam(data));
+      return false;
+    }
+
+    if (inputValues.City === '') {
+      setErrorMessageCity('مطلوب');
+      setflagCity(true);
+    }
+    if (inputValues.Branch === '') {
+      setErrorMessageBranch('مطلوب');
+      setflagBranch(true);
+      return false;
+    }
+    setLoading(true);
+
     const data = {
       LanguageId: 'AR',
       TicketDateFrom: moment(inputValues.startDate.$d).format('YYYY-MM-DD'),
       TicketDateTo: moment(inputValues.endDate.$d).format('YYYY-MM-DD'),
+      Cities_NO: cityNumber,
       TEAM_NO: teamNumber,
+      Office_NO: officeNumber,
       TRANSACTION_TYPE: valueRDG,
       statusID: statusNumber,
-      Office_NO: officeNumber,
     };
     dispatch(getMeterReportByTeam(data));
   };
@@ -249,6 +294,7 @@ export default function PageFour() {
         {
           teaM_NO: curr.teaM_NO,
           meter_NO: curr.meter_NO,
+          officE_Name: curr.officE_Name,
           cusT_Name: curr.cusT_Name,
           ticketStatusNameAR: curr.ticketStatusNameAR,
           nO_DOC: curr.nO_DOC,
@@ -271,6 +317,7 @@ export default function PageFour() {
     worksheet.addRow([fileName]);
     worksheet.addRow([
       ' رقم الفرقة',
+      ' اسم المكتب ',
       'رقم العداد',
       ' اسم المشترك',
       '  الإجراء الحالي',
@@ -282,6 +329,7 @@ export default function PageFour() {
     customHeadings.map((e) =>
       worksheet.addRow([
         e.teaM_NO,
+        e.officE_Name,
         e.meter_NO,
         e.cusT_Name,
         e.ticketStatusNameAR,
@@ -293,12 +341,13 @@ export default function PageFour() {
     );
     worksheet.columns[0].width = 10;
     worksheet.columns[1].width = 20;
-    worksheet.columns[2].width = 30;
-    worksheet.columns[3].width = 20;
-    worksheet.columns[4].width = 10;
+    worksheet.columns[2].width = 20;
+    worksheet.columns[3].width = 30;
+    worksheet.columns[4].width = 20;
     worksheet.columns[5].width = 10;
-    worksheet.columns[6].width = 20;
-    worksheet.columns[7].width = 60;
+    worksheet.columns[6].width = 10;
+    worksheet.columns[7].width = 20;
+    worksheet.columns[8].width = 60;
     worksheet.mergeCells('A1:H1');
     worksheet.eachRow((row) => {
       row.eachCell((cell) => {
@@ -328,7 +377,6 @@ export default function PageFour() {
     localStorage.setItem('valueRBG', event.target.value);
     tableData.length = 0;
   };
-  const num = 1;
   return (
     <>
       <Page title="تفاصيل الكشف حسب الفرقة">
@@ -377,7 +425,6 @@ export default function PageFour() {
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
                     label="المحافظة"
-                    // defaultValue={inputValues.City}
                     value={inputValues.City}
                     onChange={(e) => {
                       callBranchLookup(e.target.value);
@@ -392,18 +439,18 @@ export default function PageFour() {
                   <h4 className="errorMessage">{errorMessageCity}</h4>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={6} lg={6}>
+              <Grid item xs={12} md={6} lg={6} className={hiddenBranch ? 'visible' : 'hidden-div'}>
                 <FormControl fullWidth>
                   <InputLabel id="demo-simple-select-label"> المكتب</InputLabel>
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
                     label="المكتب"
-                    // defaultValue={11}
                     value={inputValues.Branch}
                     onChange={(e) => {
                       callTeamLookup(e.target.value);
                     }}
+                    inputProps={{ readOnly: disabledBranch }}
                     helperText={flagBranch ? ' مطلوب' : ''}
                     error={flagBranch}
                   >
@@ -414,7 +461,7 @@ export default function PageFour() {
                   <h4 className="errorMessage">{errorMessageBranch}</h4>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={6} lg={6}>
+              <Grid item xs={12} md={6} lg={6} className={hiddenTeam ? 'visible' : 'hidden-div'}>
                 <FormControl fullWidth>
                   <InputLabel id="demo-simple-select-label"> الفرقه</InputLabel>
                   <Select
@@ -425,9 +472,13 @@ export default function PageFour() {
                     onChange={(e) => {
                       teamSetData(e.target.value);
                     }}
+                    inputProps={{ readOnly: disabledTeam }}
                     helperText={flagTeam ? ' مطلوب' : ''}
                     error={flagTeam}
                   >
+                    <MenuItem value="">
+                      <em> جميع الفرق </em>
+                    </MenuItem>
                     {TeamsList.map((t) => (
                       <MenuItem value={t.teaM_NO}>{t.teaM_NO}</MenuItem>
                     ))}
@@ -453,6 +504,9 @@ export default function PageFour() {
                         helperText={flagStatus ? ' مطلوب' : ''}
                         error={flagStatus}
                       >
+                        <MenuItem value="">
+                          <em> جميع الحالات </em>
+                        </MenuItem>
                         {status.map((t) => (
                           <MenuItem value={t.name}>{t.name}</MenuItem>
                         ))}
@@ -529,6 +583,7 @@ export default function PageFour() {
                   <TableHead>
                     <TableRow>
                       <StyledTableCell>الفرقة</StyledTableCell>
+                      <StyledTableCell> اسم المكتب </StyledTableCell>
                       <StyledTableCell align="center">رقم العداد </StyledTableCell>
                       <StyledTableCell align="center">اسم المشترك </StyledTableCell>
                       <StyledTableCell align="center">الإجراء الحالي</StyledTableCell>
@@ -554,6 +609,7 @@ export default function PageFour() {
                           <StyledTableCell component="th" scope="row">
                             {data.teaM_NO}
                           </StyledTableCell>
+                          <StyledTableCell align="center">{data.officE_Name}</StyledTableCell>
                           <StyledTableCell align="center">{data.meter_NO}</StyledTableCell>
                           <StyledTableCell align="center">{data.cusT_Name}</StyledTableCell>
                           <StyledTableCell align="center">{data.ticketStatusNameAR}</StyledTableCell>
@@ -575,10 +631,6 @@ export default function PageFour() {
                                     fileNumber: data.file_NO,
                                     meterNumber: data.meter_NO,
                                     typeTransaction: valueRDG,
-                                    // filterCity:
-                                    // filterBranch:
-                                    // filterTeam:
-                                    // filterStatus:
                                   },
                                 });
                               }}

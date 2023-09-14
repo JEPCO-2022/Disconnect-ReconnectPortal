@@ -90,6 +90,7 @@ export default function PageFour() {
   const [errorMessageCity, setErrorMessageCity] = useState('');
   const [errorMessageBranch, setErrorMessageBranch] = useState('');
   const [disabledBranch, setDisabledBranch] = useState(false);
+  const [hiddenBranch, setHiddenBranch] = useState(true);
   const navigate = useNavigate();
   const [inputValues, setinputValues] = useState({
     City: '',
@@ -100,7 +101,9 @@ export default function PageFour() {
   const [valueRDG, setValueRBG] = useState('1');
   function callBranchLookup(cityID) {
     setDisabledBranch(false);
+    setHiddenBranch(true);
     if (cityID === 99) {
+      setHiddenBranch(false);
       setDisabledBranch(true);
       return false;
     }
@@ -182,7 +185,6 @@ export default function PageFour() {
       IsAdmin: isAdminBoolean,
       TRANSACTION_TYPE: valueRDG,
     };
-    console.log(data);
     dispatch(getTeamInfo(data));
   };
   const exportToCSVWithoutOutSide = (apiData, fileName) => {
@@ -378,7 +380,8 @@ export default function PageFour() {
                 <h4 className="errorMessage">{errorMessageCity}</h4>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
+
+            <Grid item xs={12} md={6} lg={6} className={hiddenBranch ? 'visible' : 'invisible'}>
               <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label"> المكتب</InputLabel>
                 <Select
@@ -404,6 +407,7 @@ export default function PageFour() {
                 <h4 className="errorMessage">{errorMessageBranch}</h4>
               </FormControl>
             </Grid>
+
             <Grid item xs={12} sm={12} md={6} lg={6}>
               <FormLabel id="demo-row-radio-buttons-group-label" sx={{ display: 'inline-block' }}>
                 نوع الكشف:
@@ -522,7 +526,7 @@ export default function PageFour() {
                             <StyledTableCell align="center">{TeamList.numberOfDisConnection}</StyledTableCell>
                             <StyledTableCell align="center">{TeamList.numberOfOutSideList}</StyledTableCell>
                             <StyledTableCell align="center">
-                              {Math.abs(TeamList.numberOfDisConnection + TeamList.numberOfDisConnection)}
+                              {Math.abs(TeamList.numberOfDisConnection + TeamList.numberOfOutSideList)}
                             </StyledTableCell>
                           </>
                         ) : (
