@@ -42,6 +42,7 @@ export default function Router() {
         { path: 'AllUsersAndRoles', element: <AllUsersAndRoles /> },
         { path: 'EditUserInfo/:id', element: <EditUserInfo /> },
         { path: 'permission/:id', element: <PageEight /> },
+        // { path: 'statistics', element: <Statistics /> },
         {
           path: 'user',
           children: [

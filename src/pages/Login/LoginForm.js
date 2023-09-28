@@ -29,6 +29,7 @@ export default function LoginForm() {
     dispatch(clearPersistedState());
     if (isLogged === 'true') {
       navigate('/dashboard/user/meterdonebybranche');
+      // navigate('/dashboard/statistics');
     }
   }, [isLogged]);
   const handleSubmit = async (e) => {

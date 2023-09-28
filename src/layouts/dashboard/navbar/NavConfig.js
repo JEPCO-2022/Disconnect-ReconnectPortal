@@ -31,9 +31,6 @@ function navconfige() {
               { title: 'تقرير المهجور ', path: '/dashboard/user/abandoned' },
               { title: 'تقرير عبث او صيانة ', path: '/dashboard/user/maintenanceandtampering' },
               { title: '  تقارير العدادات المفصوله  ', path: '/dashboard/user/countersclips' },
-
-              // { title: 'Six', path: '/dashboard/user/six' },
-              // { title: 'Seven', path: '/dashboard/user/seven' },
             ],
           },
         ],
@@ -69,9 +66,6 @@ function navconfige() {
             { title: 'تقرير المهجور ', path: '/dashboard/user/abandoned' },
             { title: 'تقرير عبث او صيانة ', path: '/dashboard/user/maintenanceandtampering' },
             { title: '  تقارير العدادات المفصوله  ', path: '/dashboard/user/countersclips' },
-
-            // { title: 'Six', path: '/dashboard/user/six' },
-            // { title: 'Seven', path: '/dashboard/user/seven' },
           ],
         },
       ],
