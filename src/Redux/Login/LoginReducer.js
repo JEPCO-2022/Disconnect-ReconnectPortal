@@ -20,6 +20,7 @@ export default function loginReducer(
     canExport: false,
     isAdmin: false,
     id: '',
+    role: 1,
   },
   action = {}
 ) {
@@ -55,6 +56,7 @@ export default function loginReducer(
         FullName: action.payload.fullName,
         canExport: action.payload.canExport,
         isAdmin: action.payload.isAdmin,
+        role: action.payload.role,
       };
     case SET_LOGIN_INFORMATION:
       return {

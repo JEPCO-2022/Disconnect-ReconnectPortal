@@ -46,7 +46,6 @@ import useSettings from '../hooks/useSettings';
 import SessionTimeout from './SessionTimeout';
 // components
 import Page from '../components/Page';
-import LoadingSpinner from './LoadingSpinner/LoadingSpinner';
 
 // ----------------------------------------------------------------------
 const StyledTableCell = styled(TableCell)(({ theme }) => ({

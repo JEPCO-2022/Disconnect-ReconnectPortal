@@ -44,13 +44,10 @@ NavbarVertical.propTypes = {
 
 export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
   const isAdmin = useSelector((state) => state.Login.isAdmin);
-
+  const roleID = useSelector((state) => state.Login.role);
   const theme = useTheme();
-
   const { pathname } = useLocation();
-
   const isDesktop = useResponsive('up', 'lg');
-
   const { isCollapse, collapseClick, collapseHover, onToggleCollapse, onHoverEnter, onHoverLeave } =
     useCollapseDrawer();
 
@@ -63,6 +60,21 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
     dashboard: getIcon('ic_dashboard'),
   };
   function navconfige() {
+    if (roleID === 2) {
+      return [
+        {
+          // subheader: 'management',
+          items: [
+            {
+              title: 'التقارير',
+              path: '/dashboard/user',
+              icon: <SummarizeIcon />,
+              children: [{ title: '  تقارير العدادات المفصوله  ', path: '/dashboard/user/countersclips' }],
+            },
+          ],
+        },
+      ];
+    }
     if (isAdmin) {
       return [
         {

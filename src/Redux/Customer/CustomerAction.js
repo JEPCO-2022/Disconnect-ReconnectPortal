@@ -73,6 +73,10 @@ export const requestClearAll = 'requestClearAll';
 export const setclearAll = 'setclearAll';
 export const errorclearAll = 'errorclearAll';
 
+export const requestRolesLookUp = 'requestRolesLookUp';
+export const setRolesLookUp = 'setRolesLookUp';
+export const errorRolesLookUp = 'errorRolesLookUp';
+
 export const CLEAR_PERSISTED_STATE = 'CLEAR_PERSISTED_STATE';
 
 export const RequestCitiesLookup = () => {
@@ -379,6 +383,23 @@ export const errorStatusOfDisconnectionTicketsReport = () => {
     type: errorstatusOfDisconnectionTicketsReport,
   };
 };
+
+export const RequestRolesLookUp = () => {
+  return {
+    type: requestRolesLookUp,
+  };
+};
+export const setRoleLookUp = (data) => {
+  return {
+    type: setRolesLookUp,
+    payload: data,
+  };
+};
+export const errorRoleLookUp = () => {
+  return {
+    type: errorRolesLookUp,
+  };
+};
 export const getCitiesLookup = () => async (dispatch) => {
   dispatch(RequestCitiesLookup());
   // const userToken = await cookie.load('user');
@@ -601,7 +622,7 @@ export const getAllUsers = () => async (dispatch) => {
     console.log('no Cookie');
   }
 };
-export const userRegister = (userName, password, fullName, isAdmin, canExport) => async (dispatch) => {
+export const userRegister = (userName, password, fullName, isAdmin, canExport, role) => async (dispatch) => {
   dispatch(RequestuserRegister());
   // const userToken = await cookie.load('user');
   const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
@@ -618,6 +639,7 @@ export const userRegister = (userName, password, fullName, isAdmin, canExport) =
       Name: fullName,
       IsAdmin: isAdmin,
       CanExport: canExport,
+      Role: role,
     };
 
     const config = {
@@ -643,7 +665,7 @@ export const userRegister = (userName, password, fullName, isAdmin, canExport) =
     console.log('no Cookie');
   }
 };
-export const userUpdateInfo = (UserId, password, name, isAdmin, canExport) => async (dispatch) => {
+export const userUpdateInfo = (UserId, password, name, isAdmin, canExport, role) => async (dispatch) => {
   dispatch(RequestuserUpdateInfo());
   // const userToken = await cookie.load('user');
   const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
@@ -660,6 +682,7 @@ export const userUpdateInfo = (UserId, password, name, isAdmin, canExport) => as
       Name: name,
       IsAdmin: isAdmin,
       CanExport: canExport,
+      Role: role,
     };
     const config = {
       method: 'post',
@@ -1078,6 +1101,41 @@ export const getMaintenanceAndVigilanceReport =
       console.log('no Cookie');
     }
   };
+export const rolesLookUp = () => async (dispatch) => {
+  dispatch(RequestRolesLookUp());
+  const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
+  const response = await axios.post(`${baseURL}`, {
+    username: 'ConnectionAndDisconnectionAppIntegrationUser',
+    password: 'ConnectionAndDisconnectionApp@jepco@123',
+  });
+  const genertedToken = response.data.body.token;
+  if (genertedToken) {
+    const Data = {
+      LanguageId: 'AR',
+    };
+    const config = {
+      method: 'post',
+      url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/RolesLookup',
+      headers: {
+        Authorization: `Bearer ${genertedToken}`,
+        'Content-Type': 'application/json',
+      },
+      data: Data,
+    };
+
+    try {
+      const fileDataAPIResponce = await axios(config);
+      const fileData = fileDataAPIResponce.data.body;
+      console.log();
+      dispatch(setRoleLookUp(fileData));
+    } catch (error) {
+      console.log(error);
+      dispatch(errorRoleLookUp());
+    }
+  } else {
+    console.log('no Cookie');
+  }
+};
 
 export const clearPersistedState = () => ({ type: CLEAR_PERSISTED_STATE });
 // emergency portal can help you with this "if you need any help please get back to the same file in that application"

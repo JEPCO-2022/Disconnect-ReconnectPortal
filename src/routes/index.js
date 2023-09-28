@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy } from 'react';
+import { Suspense, lazy } from 'react';
 import { Navigate, useRoutes, useLocation } from 'react-router-dom';
 // layouts
 import CountersClips from '../pages/CountersClips';
@@ -42,7 +42,7 @@ export default function Router() {
         { path: 'AllUsersAndRoles', element: <AllUsersAndRoles /> },
         { path: 'EditUserInfo/:id', element: <EditUserInfo /> },
         { path: 'permission/:id', element: <PageEight /> },
-        // { path: 'statistics', element: <Statistics /> },
+        { path: 'statistics', element: <Statistics /> },
         {
           path: 'user',
           children: [
@@ -76,12 +76,11 @@ export default function Router() {
 }
 
 // Dashboard
-const PageOne = Loadable(lazy(() => import('../pages/AllUsersAndRoles/AllUsersAndRoles')));
+
 const PageTwo = Loadable(lazy(() => import('../pages/PageTwo')));
 const PageThree = Loadable(lazy(() => import('../pages/PageThree')));
 const PageFour = Loadable(lazy(() => import('../pages/PageFour')));
 const PageFive = Loadable(lazy(() => import('../pages/PageFive')));
-const PageSix = Loadable(lazy(() => import('../pages/CreateNewUser')));
 const PageSeven = Loadable(lazy(() => import('../pages/PageSeven')));
 const NotFound = Loadable(lazy(() => import('../pages/Page404')));
 const EditUserInfo = Loadable(lazy(() => import('../pages/EditUserInfo')));

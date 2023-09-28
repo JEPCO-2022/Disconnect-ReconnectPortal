@@ -25,7 +25,6 @@ import { getAllUsers, deleteUser, clearPersistedState } from '../../Redux/Custom
 import useSettings from '../../hooks/useSettings';
 
 // components
-import Page from '../../components/Page';
 import SessionTimeout from '../SessionTimeout';
 // ----------------------------------------------------------------------
 const StyledMenu = styled((props) => (
@@ -93,14 +92,16 @@ export default function AllUsersAndRoles() {
   const [name, setName] = useState('');
   const [userName, setUserName] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
+  const [typeUser, setTypeUser] = useState('');
   const isLogged = localStorage.getItem('isLogged');
   const navigate = useNavigate();
   const open = Boolean(anchorEl);
-  const handleClick = (event, id, fullName, username) => {
+  const handleClick = (event, id, fullName, username, roleID) => {
     setAnchorEl(event.currentTarget);
     setID(id);
     setName(fullName);
     setUserName(username);
+    setTypeUser(roleID);
   };
   const handleCloseDelete = () => {
     setAnchorEl(null);
@@ -121,7 +122,7 @@ export default function AllUsersAndRoles() {
     dispatch(getAllUsers());
   }, []);
   return (
-    <Page title="المستخدمون والصلاحيات">
+    <>
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
           <Grid container spacing={2}>
@@ -165,6 +166,7 @@ export default function AllUsersAndRoles() {
               <TableRow>
                 <StyledTableCell align="center">الاسم الكامل</StyledTableCell>
                 <StyledTableCell align="center">اسم المستخدم</StyledTableCell>
+                <StyledTableCell align="center"> النوع </StyledTableCell>
                 <StyledTableCell align="center" />
               </TableRow>
             </TableHead>
@@ -184,6 +186,7 @@ export default function AllUsersAndRoles() {
                         {row.name}
                       </TableCell>
                       <StyledTableCell align="center">{row.username}</StyledTableCell>
+                      <StyledTableCell align="center">{row.roleName}</StyledTableCell>
 
                       <StyledTableCell align="center">
                         <>
@@ -195,7 +198,7 @@ export default function AllUsersAndRoles() {
                             variant="contained"
                             disableElevation
                             onClick={(e) => {
-                              handleClick(e, row.id, row.name, row.username);
+                              handleClick(e, row.id, row.name, row.username, row.role);
                             }}
                             endIcon={<KeyboardArrowDownIcon />}
                           >
@@ -215,7 +218,7 @@ export default function AllUsersAndRoles() {
                               disableRipple
                               onClick={() => {
                                 navigate(`/dashboard/EditUserInfo/${id}`, {
-                                  state: { idNumber: id, fullName: name, username: userName },
+                                  state: { idNumber: id, fullName: name, username: userName, typeuser: typeUser },
                                 });
                               }}
                             >
@@ -247,6 +250,6 @@ export default function AllUsersAndRoles() {
         </TableContainer>
       </Container>
       <SessionTimeout />
-    </Page>
+    </>
   );
 }

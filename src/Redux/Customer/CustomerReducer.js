@@ -21,6 +21,7 @@ import {
   setmaintenanceAndVigilanceReport,
   CLEAR_PERSISTED_STATE,
   setstatusOfDisconnectionTicketsReport,
+  setRolesLookUp,
 } from './CustomerAction';
 
 const initialState = {
@@ -42,6 +43,7 @@ const initialState = {
   MaintenanceAndVigilanceReport: [],
   clearAll: [],
   StatusOfDisconnectionTickets: [],
+  roles: [],
 };
 
 const CustomerReducer = (state = initialState, action = {}) => {
@@ -57,6 +59,11 @@ const CustomerReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         AllAbandoned: action.payload,
+      };
+    case setRolesLookUp:
+      return {
+        ...state,
+        roles: action.payload,
       };
     case setstatusOfDisconnectionTicketsReport:
       return {
