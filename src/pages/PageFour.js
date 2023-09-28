@@ -522,7 +522,7 @@ export default function PageFour() {
                             <StyledTableCell align="center">{TeamList.numberOfDisConnection}</StyledTableCell>
                             <StyledTableCell align="center">{TeamList.numberOfOutSideList}</StyledTableCell>
                             <StyledTableCell align="center">
-                              {Math.abs(TeamList.numberOfDisConnection + TeamList.numberOfDisConnection)}
+                              {Math.abs(TeamList.numberOfDisConnection + TeamList.numberOfOutSideList)}
                             </StyledTableCell>
                           </>
                         ) : (

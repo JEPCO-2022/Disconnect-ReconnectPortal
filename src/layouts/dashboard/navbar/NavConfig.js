@@ -25,6 +25,7 @@ function navconfige() {
             path: '/dashboard/user',
             icon: <SummarizeIcon />,
             children: [
+              { title: 'الإحصائيات', path: '/dashboard/user/statistics' },
               { title: 'العدادات المنجزه حسب المكتب', path: '/dashboard/user/meterdonebybranche' },
               { title: 'تفاصيل الكشف حسب الفرقة', path: '/dashboard/user/detailsbyteam' },
               { title: 'تقرير المهجور ', path: '/dashboard/user/abandoned' },
@@ -62,6 +63,7 @@ function navconfige() {
           path: '/dashboard/user',
           icon: <SummarizeIcon />,
           children: [
+            { title: 'الإحصائيات', path: '/dashboard/user/statistics' },
             { title: 'العدادات المنجزه حسب المكتب', path: '/dashboard/user/meterdonebybranche' },
             { title: 'تفاصيل الكشف حسب الفرقة', path: '/dashboard/user/detailsbyteam' },
             { title: 'تقرير المهجور ', path: '/dashboard/user/abandoned' },

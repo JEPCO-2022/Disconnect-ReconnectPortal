@@ -532,6 +532,7 @@ export default function PageFour() {
                       <StyledTableCell align="center">رقم العداد </StyledTableCell>
                       <StyledTableCell align="center">اسم المشترك </StyledTableCell>
                       <StyledTableCell align="center">الإجراء الحالي</StyledTableCell>
+                      <StyledTableCell align="center"> تاريخ اخر حالة </StyledTableCell>
                       <StyledTableCell align="center">عدد الفواتير</StyledTableCell>
                       <StyledTableCell align="center">الذمم </StyledTableCell>
                       <StyledTableCell align="center">رقم الهاتف </StyledTableCell>
@@ -558,6 +559,7 @@ export default function PageFour() {
                           <StyledTableCell align="center">{data.cusT_Name}</StyledTableCell>
                           <StyledTableCell align="center">{data.ticketStatusNameAR}</StyledTableCell>
                           <StyledTableCell align="center">{data.nO_DOC}</StyledTableCell>
+                          <StyledTableCell align="center">1111</StyledTableCell>
                           <StyledTableCell align="center"> {data.customeR_BALANCE}</StyledTableCell>
                           <StyledTableCell align="center">{phoneNumberChecked(data.teL_NUMBER)}</StyledTableCell>
 

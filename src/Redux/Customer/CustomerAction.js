@@ -417,7 +417,7 @@ export const getCitiesLookup = () => async (dispatch) => {
 export const getBranchesLookup = (CityID, username, isadmin) => async (dispatch) => {
   dispatch(RequestBranchesLookup());
   // const userToken = await cookie.load('user');
-  const baseURL = 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/ApisLoginController/Login';
+  const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
   const response = await axios.post(`${baseURL}`, {
     username: 'ConnectionAndDisconnectionAppIntegrationUser',
     password: 'ConnectionAndDisconnectionApp@jepco@123',
@@ -433,7 +433,7 @@ export const getBranchesLookup = (CityID, username, isadmin) => async (dispatch)
 
     const config = {
       method: 'post',
-      url: 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/BranchesLookup',
+      url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/BranchesLookup',
       headers: {
         Authorization: `Bearer ${genertedToken} `,
         'Content-Type': 'application/json',
@@ -457,7 +457,7 @@ export const getBranchesLookup = (CityID, username, isadmin) => async (dispatch)
 export const getCitiesLookupAllCities = () => async (dispatch) => {
   dispatch(RequestCitiesLookup());
   // const userToken = await cookie.load('user');
-  const baseURL = 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/ApisLoginController/Login';
+  const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
   const response = await axios.post(`${baseURL}`, {
     username: 'ConnectionAndDisconnectionAppIntegrationUser',
     password: 'ConnectionAndDisconnectionApp@jepco@123',
@@ -470,7 +470,7 @@ export const getCitiesLookupAllCities = () => async (dispatch) => {
 
     const config = {
       method: 'post',
-      url: 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/CitiesLookup',
+      url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/CitiesLookup',
       headers: {
         Authorization: `Bearer ${genertedToken}`,
         'Content-Type': 'application/json',
@@ -493,7 +493,7 @@ export const getCitiesLookupAllCities = () => async (dispatch) => {
 export const getBranchesLookupAllBranches = (CityID, username, isadmin) => async (dispatch) => {
   dispatch(RequestBranchesLookup());
   // const userToken = await cookie.load('user');
-  const baseURL = 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/ApisLoginController/Login';
+  const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
   const response = await axios.post(`${baseURL}`, {
     username: 'ConnectionAndDisconnectionAppIntegrationUser',
     password: 'ConnectionAndDisconnectionApp@jepco@123',
@@ -509,7 +509,7 @@ export const getBranchesLookupAllBranches = (CityID, username, isadmin) => async
 
     const config = {
       method: 'post',
-      url: 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/BranchesLookup',
+      url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/BranchesLookup',
       headers: {
         Authorization: `Bearer ${genertedToken} `,
         'Content-Type': 'application/json',
@@ -534,7 +534,7 @@ export const getTeamsLookup = (BranchID) => async (dispatch) => {
   BranchID = BranchID.toString();
   dispatch(requestTeamsLookup());
   // const userToken = await cookie.load('user');
-  const baseURL = 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/ApisLoginController/Login';
+  const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
   const response = await axios.post(`${baseURL}`, {
     username: 'ConnectionAndDisconnectionAppIntegrationUser',
     password: 'ConnectionAndDisconnectionApp@jepco@123',
@@ -548,7 +548,7 @@ export const getTeamsLookup = (BranchID) => async (dispatch) => {
 
     const config = {
       method: 'post',
-      url: 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/GetTeamsByOffice',
+      url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/GetTeamsByOffice',
       headers: {
         Authorization: `Bearer ${genertedToken} `,
         'Content-Type': 'application/json',
@@ -570,7 +570,7 @@ export const getTeamsLookup = (BranchID) => async (dispatch) => {
 export const getAllUsers = () => async (dispatch) => {
   dispatch(RequestAllUsers());
   // const userToken = await cookie.load('user');
-  const baseURL = 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/ApisLoginController/Login';
+  const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
   const response = await axios.post(`${baseURL}`, {
     username: 'ConnectionAndDisconnectionAppIntegrationUser',
     password: 'ConnectionAndDisconnectionApp@jepco@123',
@@ -582,7 +582,7 @@ export const getAllUsers = () => async (dispatch) => {
     };
     const config = {
       method: 'post',
-      url: 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/UsersLookUp',
+      url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/UsersLookUp',
       headers: {
         Authorization: `Bearer ${genertedToken}`,
         'Content-Type': 'application/json',
@@ -604,7 +604,7 @@ export const getAllUsers = () => async (dispatch) => {
 export const userRegister = (userName, password, fullName, isAdmin, canExport) => async (dispatch) => {
   dispatch(RequestuserRegister());
   // const userToken = await cookie.load('user');
-  const baseURL = 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/ApisLoginController/Login';
+  const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
   const response = await axios.post(`${baseURL}`, {
     username: 'ConnectionAndDisconnectionAppIntegrationUser',
     password: 'ConnectionAndDisconnectionApp@jepco@123',
@@ -622,7 +622,7 @@ export const userRegister = (userName, password, fullName, isAdmin, canExport) =
 
     const config = {
       method: 'post',
-      url: 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/UserSiginUp',
+      url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/UserSiginUp',
       headers: {
         Authorization: `Bearer ${genertedToken}`,
         'Content-Type': 'application/json',
@@ -646,7 +646,7 @@ export const userRegister = (userName, password, fullName, isAdmin, canExport) =
 export const userUpdateInfo = (UserId, password, name, isAdmin, canExport) => async (dispatch) => {
   dispatch(RequestuserUpdateInfo());
   // const userToken = await cookie.load('user');
-  const baseURL = 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/ApisLoginController/Login';
+  const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
   const response = await axios.post(`${baseURL}`, {
     username: 'ConnectionAndDisconnectionAppIntegrationUser',
     password: 'ConnectionAndDisconnectionApp@jepco@123',
@@ -663,7 +663,7 @@ export const userUpdateInfo = (UserId, password, name, isAdmin, canExport) => as
     };
     const config = {
       method: 'post',
-      url: 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/UpdateUser',
+      url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/UpdateUser',
       headers: {
         Authorization: `Bearer ${genertedToken}`,
         'Content-Type': 'application/json',
@@ -686,7 +686,7 @@ export const userUpdateInfo = (UserId, password, name, isAdmin, canExport) => as
 export const getTeamInfo = (EngineersData) => async (dispatch) => {
   dispatch(RequestTeamInfo());
   // const userToken = await cookie.load('user');
-  const baseURL = 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/ApisLoginController/Login';
+  const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
   const response = await axios.post(`${baseURL}`, {
     username: 'ConnectionAndDisconnectionAppIntegrationUser',
     password: 'ConnectionAndDisconnectionApp@jepco@123',
@@ -706,7 +706,7 @@ export const getTeamInfo = (EngineersData) => async (dispatch) => {
 
     const config = {
       method: 'post',
-      url: 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/GeneralTechnicianInf',
+      url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/GeneralTechnicianInf',
       headers: {
         Authorization: `Bearer ${genertedToken}`,
         'Content-Type': 'application/json',
@@ -729,7 +729,7 @@ export const getTeamInfo = (EngineersData) => async (dispatch) => {
 export const getMeterReportByTeam = (EngineersData) => async (dispatch) => {
   dispatch(RequestMeterReportByTeam());
   // const userToken = await cookie.load('user');
-  const baseURL = 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/ApisLoginController/Login';
+  const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
   const response = await axios.post(`${baseURL}`, {
     username: 'ConnectionAndDisconnectionAppIntegrationUser',
     password: 'ConnectionAndDisconnectionApp@jepco@123',
@@ -738,7 +738,7 @@ export const getMeterReportByTeam = (EngineersData) => async (dispatch) => {
   if (genertedToken) {
     const config = {
       method: 'post',
-      url: 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/MeterReportByTeam',
+      url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/MeterReportByTeam',
       headers: {
         Authorization: `Bearer ${genertedToken}`,
         'Content-Type': 'application/json',
@@ -761,7 +761,7 @@ export const getMeterReportByTeam = (EngineersData) => async (dispatch) => {
 export const deleteUser = (UserId) => async (dispatch) => {
   dispatch(RequestDeleteUser());
   // const userToken = await cookie.load('user');
-  const baseURL = 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/ApisLoginController/Login';
+  const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
   const response = await axios.post(`${baseURL}`, {
     username: 'ConnectionAndDisconnectionAppIntegrationUser',
     password: 'ConnectionAndDisconnectionApp@jepco@123',
@@ -775,7 +775,7 @@ export const deleteUser = (UserId) => async (dispatch) => {
 
     const config = {
       method: 'post',
-      url: `https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/DeleteUser`,
+      url: `https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/DeleteUser`,
       headers: {
         Authorization: `Bearer ${genertedToken}`,
         'Content-Type': 'application/json',
@@ -798,7 +798,7 @@ export const deleteUser = (UserId) => async (dispatch) => {
 export const getUserBranches = (userName) => async (dispatch) => {
   dispatch(RequestUserBranches());
   // const userToken = await cookie.load('user');
-  const baseURL = 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/ApisLoginController/Login';
+  const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
   const response = await axios.post(`${baseURL}`, {
     username: 'ConnectionAndDisconnectionAppIntegrationUser',
     password: 'ConnectionAndDisconnectionApp@jepco@123',
@@ -812,7 +812,7 @@ export const getUserBranches = (userName) => async (dispatch) => {
 
     const config = {
       method: 'post',
-      url: 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/GetUserBranches',
+      url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/GetUserBranches',
       headers: {
         Authorization: `Bearer ${genertedToken} `,
         'Content-Type': 'application/json',
@@ -835,7 +835,7 @@ export const getUserBranches = (userName) => async (dispatch) => {
 export const getTicketsDetails = (ticketsID) => async (dispatch) => {
   dispatch(RequestTicketsDetails());
   // const userToken = await cookie.load('user');
-  const baseURL = 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/ApisLoginController/Login';
+  const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
   const response = await axios.post(`${baseURL}`, {
     username: 'ConnectionAndDisconnectionAppIntegrationUser',
     password: 'ConnectionAndDisconnectionApp@jepco@123',
@@ -849,7 +849,7 @@ export const getTicketsDetails = (ticketsID) => async (dispatch) => {
 
     const config = {
       method: 'post',
-      url: 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/TicketsDetails',
+      url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/TicketsDetails',
       headers: {
         Authorization: `Bearer ${genertedToken} `,
         'Content-Type': 'application/json',
@@ -876,7 +876,7 @@ export const ClearAllUserBranch = () => async (dispatch) => {
 export const addUserBranches = (userName, userBranchesList) => async (dispatch) => {
   dispatch(RequestAddUserBranch());
   // const userToken = await cookie.load('user');
-  const baseURL = 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/ApisLoginController/Login';
+  const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
   const response = await axios.post(`${baseURL}`, {
     username: 'ConnectionAndDisconnectionAppIntegrationUser',
     password: 'ConnectionAndDisconnectionApp@jepco@123',
@@ -890,7 +890,7 @@ export const addUserBranches = (userName, userBranchesList) => async (dispatch) 
     };
     const config = {
       method: 'post',
-      url: 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/AddUserBranches',
+      url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/AddUserBranches',
       headers: {
         Authorization: `Bearer ${genertedToken}`,
         'Content-Type': 'application/json',
@@ -913,7 +913,7 @@ export const addUserBranches = (userName, userBranchesList) => async (dispatch) 
 export const getEngineerAbandonedDecision = (Startdate, Enddate, officeNumber, teamNumber) => async (dispatch) => {
   dispatch(RequestEngineerAbandonedDecision());
   // const userToken = await cookie.load('user');
-  const baseURL = 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/ApisLoginController/Login';
+  const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
   const response = await axios.post(`${baseURL}`, {
     username: 'ConnectionAndDisconnectionAppIntegrationUser',
     password: 'ConnectionAndDisconnectionApp@jepco@123',
@@ -930,7 +930,7 @@ export const getEngineerAbandonedDecision = (Startdate, Enddate, officeNumber, t
 
     const config = {
       method: 'post',
-      url: 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/EngineerAbandonedDecision',
+      url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/EngineerAbandonedDecision',
       headers: {
         Authorization: `Bearer ${genertedToken}`,
         'Content-Type': 'application/json',
@@ -955,7 +955,7 @@ export const SaveEngineerAbandonedDecision =
   (abandonedTicketID, notArrivedStatuesID, engineerUserName, engineerID) => async (dispatch) => {
     dispatch(RequestSaveEngineerAbandonedDecision());
     // const userToken = await cookie.load('user');
-    const baseURL = 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/ApisLoginController/Login';
+    const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
     const response = await axios.post(`${baseURL}`, {
       username: 'ConnectionAndDisconnectionAppIntegrationUser',
       password: 'ConnectionAndDisconnectionApp@jepco@123',
@@ -972,7 +972,7 @@ export const SaveEngineerAbandonedDecision =
 
       const config = {
         method: 'post',
-        url: 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/SaveEngineerAbandonedDecision',
+        url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/SaveEngineerAbandonedDecision',
         headers: {
           Authorization: `Bearer ${genertedToken}`,
           'Content-Type': 'application/json',
@@ -997,7 +997,7 @@ export const StatusOfDisconnectionTicketsReport =
   (ticketDateFrom, ticketDateTO, cityNumber, officeNumber, userName, isAdmin, StatusId) => async (dispatch) => {
     dispatch(RequestStatusOfDisconnectionTicketsReport());
     // const userToken = await cookie.load('user');
-    const baseURL = 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/ApisLoginController/Login';
+    const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
     const response = await axios.post(`${baseURL}`, {
       username: 'ConnectionAndDisconnectionAppIntegrationUser',
       password: 'ConnectionAndDisconnectionApp@jepco@123',
@@ -1016,7 +1016,7 @@ export const StatusOfDisconnectionTicketsReport =
       };
       const config = {
         method: 'post',
-        url: 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/StatusOfDisconnectionTicketsReport',
+        url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/StatusOfDisconnectionTicketsReport',
         headers: {
           Authorization: `Bearer ${genertedToken}`,
           'Content-Type': 'application/json',
@@ -1040,7 +1040,7 @@ export const getMaintenanceAndVigilanceReport =
   (Startdate, Enddate, officeNumber, teamNumber, type) => async (dispatch) => {
     dispatch(RequestMaintenanceAndVigilanceReport());
     // const userToken = await cookie.load('user');
-    const baseURL = 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/ApisLoginController/Login';
+    const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
     const response = await axios.post(`${baseURL}`, {
       username: 'ConnectionAndDisconnectionAppIntegrationUser',
       password: 'ConnectionAndDisconnectionApp@jepco@123',
@@ -1058,7 +1058,7 @@ export const getMaintenanceAndVigilanceReport =
 
       const config = {
         method: 'post',
-        url: 'https://portal.jepco.com.jo:8080/DisconnectionReconAppApi/MaintenanceAndVigilanceReport/GetMaintenanceAndVigilanceReport',
+        url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/MaintenanceAndVigilanceReport/GetMaintenanceAndVigilanceReport',
         headers: {
           Authorization: `Bearer ${genertedToken}`,
           'Content-Type': 'application/json',

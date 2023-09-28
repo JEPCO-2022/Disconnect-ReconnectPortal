@@ -75,6 +75,7 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
               children: [
                 { title: 'العدادات المنجزه حسب المكتب', path: '/dashboard/user/meterdonebybranche' },
                 { title: 'تفاصيل الكشف حسب الفرقة', path: '/dashboard/user/detailsbyteam' },
+                { title: 'الإحصائيات', path: '/dashboard/user/statistics' },
                 { title: 'تقرير المهجور ', path: '/dashboard/user/abandoned' },
                 { title: 'تقرير عبث او صيانة ', path: '/dashboard/user/maintenanceandtampering' },
                 { title: '  تقارير العدادات المفصوله  ', path: '/dashboard/user/countersclips' },
@@ -110,6 +111,7 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
             icon: <SummarizeIcon />,
             children: [
               { title: 'العدادات المنجزه حسب المكتب', path: '/dashboard/user/meterdonebybranche' },
+              { title: 'الإحصائيات', path: '/dashboard/user/meterdonebybranche' },
               { title: 'تفاصيل الكشف حسب الفرقة', path: '/dashboard/user/detailsbyteam' },
               { title: 'تقرير المهجور ', path: '/dashboard/user/abandoned' },
               { title: 'تقرير عبث او صيانة ', path: '/dashboard/user/maintenanceandtampering' },

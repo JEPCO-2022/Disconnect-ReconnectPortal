@@ -583,7 +583,6 @@ export default function PageNine() {
                                 onClose={handleClose1}
                               >
                                 <MenuItem
-                                  disableRipple
                                   onClick={() => {
                                     consentWithDisconnection(2);
                                   }}
