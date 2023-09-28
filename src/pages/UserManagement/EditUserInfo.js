@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
 // @mui
 import {
   Button,
   Card,
   Container,
+  Snackbar,
   Divider,
   FormControl,
   FormControlLabel,
@@ -13,40 +13,66 @@ import {
   RadioGroup,
   TextField,
   Typography,
-  Snackbar,
   Alert,
 } from '@mui/material';
 // hooks
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useState, useEffect, useContext } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllUsers, userRegister } from '../Redux/Customer/CustomerAction';
-import useSettings from '../hooks/useSettings';
+import { useNavigate } from 'react-router';
+import SessionTimeout from '../SessionTimeout';
+import { userUpdateInfo, getAllUsers } from '../../Redux/Customer/CustomerAction';
+import useSettings from '../../hooks/useSettings';
 // components
-import Page from '../components/Page';
-
+import Page from '../../components/Page';
 // ----------------------------------------------------------------------
 
-export default function CreateNewUser() {
+export default function EditUserInfo() {
   const { themeStretch } = useSettings();
-  const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
-  const [openError, setOpenError] = useState(false);
-  const [administrator, setAdministrator] = useState(true);
-  const [exportFiles, setExportFiles] = useState(true);
+  const [ref, useRef] = useState(false);
+  const location = useLocation();
+  const dispatch = useDispatch();
+  let nameLocation = '';
+  let idLocation = '';
+  let userNameLocation = '';
+  const allUsers = useSelector((state) => state.Customer.AllUsers);
   const [flagFullName, setflagFullName] = useState(false);
   const [flagUserName, setflagUserName] = useState(false);
   const [flagPass, setflagPass] = useState(false);
+  const [administrator, setAdministrator] = useState(true);
+  const [exportFiles, setExportFiles] = useState(true);
+  const navigate = useNavigate();
+  const isLogged = localStorage.getItem('isLogged');
   const [inputValues, setinputValues] = useState({
+    id: '',
     fullName: '',
     userName: '',
     passowrd: '',
   });
-  const allUsers = useSelector((state) => state.Customer.AllUsers);
-
-  const handleClick = () => {
-    if (inputValues.userName === '') {
-      setflagUserName(true);
+  function getPasswordUsers() {
+    let pass = '';
+    dispatch(getAllUsers());
+    nameLocation = location.state.fullName;
+    idLocation = location.state.idNumber;
+    userNameLocation = location.state.username;
+    for (let index = 0; index < allUsers.length; index += 1)
+      if (allUsers[index].username === userNameLocation) pass = allUsers[index].password;
+    setinputValues({ id: idLocation, userName: userNameLocation, fullName: nameLocation, passowrd: pass });
+  }
+  useEffect(() => {
+    if (!(isLogged === 'true')) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('isAdmin');
+      navigate('/login');
     }
+    getPasswordUsers();
+  }, [ref]);
+
+  function handleClick() {
     if (inputValues.fullName === '') {
       setflagFullName(true);
     }
@@ -54,20 +80,27 @@ export default function CreateNewUser() {
       setflagPass(true);
       return 0;
     }
-    allUsers.map((e) => {
-      if (inputValues.userName === e.username) {
-        setOpenError(true);
-        return 0;
-      }
+    if (inputValues.fullName === '') {
       return 0;
-    });
+    }
+    const boolOutputExportFiles = exportFiles === 'true';
+    const boolOutputAdministrator = administrator === 'true';
     dispatch(
-      userRegister(inputValues.userName, inputValues.passowrd, inputValues.fullName, administrator, exportFiles)
+      userUpdateInfo(
+        inputValues.id,
+        inputValues.passowrd,
+        inputValues.fullName,
+        boolOutputAdministrator,
+        boolOutputExportFiles
+      )
     );
     setOpen(true);
-    setinputValues({ fullName: '', passowrd: '', userName: '' });
-  };
-  const handleClose = () => {
+    setinputValues({ fullName: '', passowrd: '' });
+  }
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
     setOpen(false);
   };
   const handChangeAdminstration = (event) => {
@@ -90,20 +123,19 @@ export default function CreateNewUser() {
       return 0;
     }
   };
-  useEffect(() => {
-    dispatch(getAllUsers());
-  }, []);
-  return (
-    <Page title="إضافة مستخدم جديد">
-      <Container maxWidth={themeStretch ? false : 'xl'}>
 
+  return (
+    <Page title="Page Six">
+      <Container maxWidth={themeStretch ? false : 'xl'}>
+        <Typography variant="h3" component="h1" paragraph>
+          تعديل معلومات مستخدم
+        </Typography>
         <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
           <Grid container spacing={2}>
-
             <Grid item xs={12} md={12} lg={12}>
-            <Typography variant="h4" component="h1" paragraph>
-          إضافة مستخدم جديد
-        </Typography>
+              تعديل معلومات مستخدم
+            </Grid>
+            <Grid item xs={12} md={12} lg={12}>
               <Divider light />
             </Grid>
             <Grid item xs={12} md={12} lg={6}>
@@ -123,15 +155,11 @@ export default function CreateNewUser() {
             <Grid item xs={12} md={12} lg={6}>
               <TextField
                 fullWidth
-                label="اسم المستخدم"
-                variant="outlined"
-                onChange={(e) => {
-                  setinputValues({ ...inputValues, userName: e.target.value });
-                  setflagUserName(false);
-                }}
                 value={inputValues.userName}
-                helperText={flagUserName ? ' مطلوب' : ''}
-                error={flagUserName}
+                variant="outlined"
+                InputProps={{
+                  readOnly: true,
+                }}
               />
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
@@ -139,26 +167,24 @@ export default function CreateNewUser() {
                 fullWidth
                 label="كلمة المرور"
                 variant="outlined"
-                type="password"
-                value={inputValues.passowrd}
                 autoComplete="current-password"
                 onChange={(e) => {
                   setinputValues({ ...inputValues, passowrd: e.target.value });
                   setflagPass(false);
                 }}
-                helperText={flagPass ? 'مطلوب' : ''}
+                value={inputValues.passowrd}
+                helperText={flagPass ? ' مطلوب' : ''}
                 error={flagPass}
               />
             </Grid>
 
-            <Grid item xs={12} md={3} lg={3}>
+            <Grid item xs={12} md={6} lg={3}>
               <FormControl>
                 <FormLabel id="demo-radio-buttons-group-label">مشرف؟</FormLabel>
                 <RadioGroup
                   row
                   aria-labelledby="demo-radio-buttons-group-label"
                   defaultValue="1"
-                  // value={administrator}
                   name="radio-buttons-group"
                   onChange={handChangeAdminstration}
                 >
@@ -167,14 +193,13 @@ export default function CreateNewUser() {
                 </RadioGroup>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={3} lg={3}>
+            <Grid item xs={12} md={12} lg={3}>
               <FormControl>
                 <FormLabel id="demo-radio-buttons-group-label">إمكانية استخراج الملفات</FormLabel>
                 <RadioGroup
                   row
                   aria-labelledby="demo-radio-buttons-group-label"
                   defaultValue="1"
-                  // value={exportFiles}
                   name="radio-buttons-group"
                   onChange={handChangeExportFiles}
                 >
@@ -183,30 +208,44 @@ export default function CreateNewUser() {
                 </RadioGroup>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
+
+            <Grid item xs={12} md={12} lg={12}>
               <Button
-                endIcon={<PersonAddIcon />}
-                className="nxt-btn-12-grid"
+                endIcon={<ArrowBackIcon />}
                 variant="contained"
                 fullwidth
-                onClick={handleClick}
+                onClick={() => navigate(`/dashboard/AllUsersAndRoles`)}
               >
-                إضافة
+                رجوع
               </Button>
+              <Button
+                sx={{ marginLeft: 2 }}
+                endIcon={<ModeEditOutlineIcon />}
+                variant="contained"
+                fullwidth
+                onClick={(e) => {
+                  handleClick();
+                }}
+              >
+                تعديل
+              </Button>
+            </Grid>
+            <Snackbar open={open} autoHideDuration={1500} severity="success" onClose={handleClose}>
+              <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+                تم التعديل بنجاح
+              </Alert>
+            </Snackbar>
+            <Grid item xs={12} md={6} lg={6}>
               <Snackbar open={open} autoHideDuration={1500} severity="success" onClose={handleClose}>
                 <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                  تمت الإضافه بنجاح
-                </Alert>
-              </Snackbar>
-              <Snackbar open={openError} autoHideDuration={1500} severity="error" onClose={handleClose}>
-                <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
-                  اسم المستخدم مكرر
+                  تم التعديل بنجاح
                 </Alert>
               </Snackbar>
             </Grid>
           </Grid>
         </Card>
       </Container>
+      <SessionTimeout />
     </Page>
   );
 }

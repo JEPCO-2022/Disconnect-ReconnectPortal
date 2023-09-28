@@ -1,9 +1,9 @@
+import { useState, useEffect } from 'react';
 // @mui
 import {
   Button,
   Card,
   Container,
-  Snackbar,
   Divider,
   FormControl,
   FormControlLabel,
@@ -13,47 +13,44 @@ import {
   RadioGroup,
   TextField,
   Typography,
+  Snackbar,
   Alert,
 } from '@mui/material';
+import { useNavigate } from 'react-router';
 // hooks
-import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
-import { useState, useEffect, useContext } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { useDispatch, useSelector } from 'react-redux';
-import { userUpdateInfo, getAllUsers } from '../Redux/Customer/CustomerAction';
-import useSettings from '../hooks/useSettings';
+import { getAllUsers, userRegister } from '../../Redux/Customer/CustomerAction';
+import useSettings from '../../hooks/useSettings';
+import SessionTimeout from '../SessionTimeout';
 // components
-import Page from '../components/Page';
+import Page from '../../components/Page';
+
 // ----------------------------------------------------------------------
 
-export default function EditUserInfo() {
+export default function CreateNewUser() {
   const { themeStretch } = useSettings();
-  const [open, setOpen] = useState(false);
-  const [ref, useRef] = useState(false);
-  const location = useLocation();
   const dispatch = useDispatch();
-  const nameLocation = '';
-  let idLocation = '';
-  let userNameLocation = '';
+  const [open, setOpen] = useState(false);
+  const [openError, setOpenError] = useState(false);
+  const [administrator, setAdministrator] = useState(true);
+  const [exportFiles, setExportFiles] = useState(true);
   const [flagFullName, setflagFullName] = useState(false);
   const [flagUserName, setflagUserName] = useState(false);
   const [flagPass, setflagPass] = useState(false);
-  const [administrator, setAdministrator] = useState(true);
-  const [exportFiles, setExportFiles] = useState(true);
+  const navigate = useNavigate();
+  const isLogged = localStorage.getItem('isLogged');
   const [inputValues, setinputValues] = useState({
-    id: '',
     fullName: '',
     userName: '',
     passowrd: '',
   });
+  const allUsers = useSelector((state) => state.Customer.AllUsers);
 
-  useEffect(() => {
-    idLocation = location.state.idNumber;
-    userNameLocation = location.state.username;
-    setinputValues({ id: idLocation, userName: userNameLocation, fullName: '', passowrd: '' });
-  }, [ref]);
-
-  function handleClick() {
+  const handleClick = () => {
+    if (inputValues.userName === '') {
+      setflagUserName(true);
+    }
     if (inputValues.fullName === '') {
       setflagFullName(true);
     }
@@ -61,27 +58,21 @@ export default function EditUserInfo() {
       setflagPass(true);
       return 0;
     }
-    if (inputValues.fullName === '') {
+    allUsers.map((e) => {
+      if (inputValues.userName === e.username) {
+        setOpenError(true);
+        return 0;
+      }
       return 0;
-    }
-    const boolOutputExportFiles = exportFiles === 'true';
-    const boolOutputAdministrator = administrator === 'true';
+    });
     dispatch(
-      userUpdateInfo(
-        inputValues.id,
-        inputValues.passowrd,
-        inputValues.fullName,
-        boolOutputAdministrator,
-        boolOutputExportFiles
-      )
+      userRegister(inputValues.userName, inputValues.passowrd, inputValues.fullName, administrator, exportFiles)
     );
     setOpen(true);
-    setinputValues({ fullName: '', passowrd: '' });
-  }
-  const handleClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
+    setinputValues({ fullName: '', passowrd: '', userName: '' });
+  };
+  const handleClose = () => {
+    setOpenError(false);
     setOpen(false);
   };
   const handChangeAdminstration = (event) => {
@@ -104,19 +95,24 @@ export default function EditUserInfo() {
       return 0;
     }
   };
-
+  useEffect(() => {
+    if (!(isLogged === 'true')) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('isAdmin');
+      navigate('/login');
+    }
+    dispatch(getAllUsers());
+  }, []);
   return (
-    <Page title="Page Six">
+    <Page title="إضافة مستخدم جديد">
       <Container maxWidth={themeStretch ? false : 'xl'}>
-        <Typography variant="h3" component="h1" paragraph>
-          تعديل معلومات مستخدم
-        </Typography>
         <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
           <Grid container spacing={2}>
             <Grid item xs={12} md={12} lg={12}>
-              تعديل معلومات مستخدم
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
+              <Typography variant="h4" component="h1" paragraph>
+                إضافة مستخدم جديد
+              </Typography>
               <Divider light />
             </Grid>
             <Grid item xs={12} md={12} lg={6}>
@@ -136,11 +132,15 @@ export default function EditUserInfo() {
             <Grid item xs={12} md={12} lg={6}>
               <TextField
                 fullWidth
-                value={inputValues.userName}
+                label="اسم المستخدم"
                 variant="outlined"
-                InputProps={{
-                  readOnly: true,
+                onChange={(e) => {
+                  setinputValues({ ...inputValues, userName: e.target.value });
+                  setflagUserName(false);
                 }}
+                value={inputValues.userName}
+                helperText={flagUserName ? ' مطلوب' : ''}
+                error={flagUserName}
               />
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
@@ -149,18 +149,18 @@ export default function EditUserInfo() {
                 label="كلمة المرور"
                 variant="outlined"
                 type="password"
+                value={inputValues.passowrd}
                 autoComplete="current-password"
                 onChange={(e) => {
                   setinputValues({ ...inputValues, passowrd: e.target.value });
                   setflagPass(false);
                 }}
-                value={inputValues.passowrd}
-                helperText={flagPass ? ' مطلوب' : ''}
+                helperText={flagPass ? 'مطلوب' : ''}
                 error={flagPass}
               />
             </Grid>
 
-            <Grid item xs={12} md={6} lg={3}>
+            <Grid item xs={12} md={3} lg={3}>
               <FormControl>
                 <FormLabel id="demo-radio-buttons-group-label">مشرف؟</FormLabel>
                 <RadioGroup
@@ -175,7 +175,7 @@ export default function EditUserInfo() {
                 </RadioGroup>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={12} lg={3}>
+            <Grid item xs={12} md={3} lg={3}>
               <FormControl>
                 <FormLabel id="demo-radio-buttons-group-label">إمكانية استخراج الملفات</FormLabel>
                 <RadioGroup
@@ -192,25 +192,29 @@ export default function EditUserInfo() {
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
               <Button
-                endIcon={<ModeEditOutlineIcon />}
+                endIcon={<PersonAddIcon />}
                 className="nxt-btn-12-grid"
                 variant="contained"
                 fullwidth
-                onClick={(e) => {
-                  handleClick();
-                }}
+                onClick={handleClick}
               >
-                تعديل
+                إضافة
               </Button>
               <Snackbar open={open} autoHideDuration={1500} severity="success" onClose={handleClose}>
                 <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                  تم التعديل بنجاح
+                  تمت الإضافه بنجاح
+                </Alert>
+              </Snackbar>
+              <Snackbar open={openError} autoHideDuration={1500} severity="error" onClose={handleClose}>
+                <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+                  اسم المستخدم مكرر
                 </Alert>
               </Snackbar>
             </Grid>
           </Grid>
         </Card>
       </Container>
+      <SessionTimeout />
     </Page>
   );
 }
