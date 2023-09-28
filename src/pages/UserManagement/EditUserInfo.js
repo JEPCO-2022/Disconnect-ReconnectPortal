@@ -22,9 +22,9 @@ import { useState, useEffect, useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
-import SessionTimeout from './SessionTimeout';
-import { userUpdateInfo, getAllUsers, rolesLookUp } from '../Redux/Customer/CustomerAction';
-import useSettings from '../hooks/useSettings';
+import SessionTimeout from '../SessionTimeout';
+import { userUpdateInfo, getAllUsers, rolesLookUp } from '../../Redux/Customer/CustomerAction';
+import useSettings from '../../hooks/useSettings';
 // components
 import Page from '../../components/Page';
 // ----------------------------------------------------------------------

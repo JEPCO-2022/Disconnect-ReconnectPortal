@@ -19,10 +19,10 @@ import {
 // hooks
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllUsers, userRegister } from '../Redux/Customer/CustomerAction';
-import useSettings from '../hooks/useSettings';
+import { getAllUsers, userRegister,rolesLookUp } from '../../Redux/Customer/CustomerAction';
+import useSettings from '../../hooks/useSettings';
 // components
-import Page from '../components/Page';
+import Page from '../../components/Page';
 
 // ----------------------------------------------------------------------
 
@@ -36,12 +36,15 @@ export default function CreateNewUser() {
   const [flagFullName, setflagFullName] = useState(false);
   const [flagUserName, setflagUserName] = useState(false);
   const [flagPass, setflagPass] = useState(false);
+  const [typeUser, setTypeUser] = useState('1');
+
   const [inputValues, setinputValues] = useState({
     fullName: '',
     userName: '',
     passowrd: '',
   });
   const allUsers = useSelector((state) => state.Customer.AllUsers);
+  const roles = useSelector((state) => state.Customer.roles);
 
   const handleClick = () => {
     if (inputValues.userName === '') {
@@ -61,8 +64,10 @@ export default function CreateNewUser() {
       }
       return 0;
     });
+    const role = Number(typeUser);
+
     dispatch(
-      userRegister(inputValues.userName, inputValues.passowrd, inputValues.fullName, administrator, exportFiles)
+      userRegister(inputValues.userName, inputValues.passowrd, inputValues.fullName, administrator, exportFiles, role)
     );
     setOpen(true);
     setinputValues({ fullName: '', passowrd: '', userName: '' });
@@ -90,8 +95,17 @@ export default function CreateNewUser() {
       return 0;
     }
   };
+  const handChangeTypeUser = (event) => {
+    setTypeUser(event.target.value);
+    setAdministrator(true);
+    if (event.target.value === '2') {
+      setAdministrator(false);
+    }
+  };
   useEffect(() => {
     dispatch(getAllUsers());
+    dispatch(rolesLookUp());
+
   }, []);
   return (
     <Page title="إضافة مستخدم جديد">
@@ -153,21 +167,21 @@ export default function CreateNewUser() {
 
             <Grid item xs={12} md={3} lg={3}>
               <FormControl>
-                <FormLabel id="demo-radio-buttons-group-label">مشرف؟</FormLabel>
+              <FormLabel id="demo-radio-buttons-group-label">النوع؟</FormLabel>
                 <RadioGroup
                   row
                   aria-labelledby="demo-radio-buttons-group-label"
                   defaultValue="1"
                   // value={administrator}
                   name="radio-buttons-group"
-                  onChange={handChangeAdminstration}
+                  onChange={handChangeTypeUser}
                 >
-                  <FormControlLabel control={<Radio value={1} />} label="نعم" />
-                  <FormControlLabel control={<Radio value={0} />} label="لا" />
-                </RadioGroup>
+                  {roles?.map((role) => (
+                    <FormControlLabel control={<Radio value={role.id} />} label={role.roleName} />
+                  ))}                </RadioGroup>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={3} lg={3}>
+            <Grid item xs={12} md={6} lg={6}>
               <FormControl>
                 <FormLabel id="demo-radio-buttons-group-label">إمكانية استخراج الملفات</FormLabel>
                 <RadioGroup
@@ -183,7 +197,25 @@ export default function CreateNewUser() {
                 </RadioGroup>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
+            {typeUser === '1' && (
+              <Grid item xs={12} md={6} lg={6}>
+                <FormControl>
+                  <FormLabel id="demo-radio-buttons-group-label">مشرف؟</FormLabel>
+                  <RadioGroup
+                    row
+                    aria-labelledby="demo-radio-buttons-group-label"
+                    defaultValue="1"
+                    name="radio-buttons-group"
+                    onChange={handChangeAdminstration}
+                  >
+                    <FormControlLabel control={<Radio value={1} />} label="نعم" />
+                    <FormControlLabel control={<Radio value={0} />} label="لا" />
+                  </RadioGroup>
+                </FormControl>
+              </Grid>
+            )}
+            <br/>
+            <Grid item xs={12} md={3} lg={3}>
               <Button
                 endIcon={<PersonAddIcon />}
                 className="nxt-btn-12-grid"
