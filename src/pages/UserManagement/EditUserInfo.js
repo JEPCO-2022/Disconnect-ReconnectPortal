@@ -26,7 +26,7 @@ import SessionTimeout from './SessionTimeout';
 import { userUpdateInfo, getAllUsers, rolesLookUp } from '../Redux/Customer/CustomerAction';
 import useSettings from '../hooks/useSettings';
 // components
-import Page from '../components/Page';
+import Page from '../../components/Page';
 // ----------------------------------------------------------------------
 
 export default function EditUserInfo() {
