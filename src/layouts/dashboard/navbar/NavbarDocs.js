@@ -12,16 +12,17 @@ export default function NavbarDocs() {
   async function HandleSubmit() {
     const userToken = await cookie.load('user');
     const userName = await cookie.load('userName');
+    console.log(userName);
+    console.log(userToken);
     if (userToken && userName) {
       window.open('/login', '_self');
-      // cookie.remove('user');
-      // cookie.remove('userName');
+      cookie.remove('user');
+      cookie.remove('userName');
       localStorage.removeItem('user');
       localStorage.removeItem('userName');
+      localStorage.removeItem('isAdmin');
+      localStorage.removeItem('isLogged');
       // localStorage.clear();
-
-
-
       navigate(`/login`);
     }
   }

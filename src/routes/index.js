@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy } from 'react';
+import { Suspense, lazy } from 'react';
 import { Navigate, useRoutes, useLocation } from 'react-router-dom';
 // layouts
 import CountersClips from '../pages/DisconnectedMetersReport/DisconnectedMetersReport';
@@ -39,16 +39,20 @@ export default function Router() {
         { element: <Navigate to="/dashboard/one" replace />, index: true },
         { path: 'AllUsersAndRoles', element: <AllUsersAndRoles /> },
         { path: 'EditUserInfo/:id', element: <EditUserInfo /> },
-        { path: 'eight/:id', element: <PageEight /> },
+        { path: 'permission/:id', element: <PageEight /> },
+        { path: 'statistics', element: <Statistics /> },
         {
           path: 'user',
           children: [
-            { element: <Navigate to="/dashboard/user/four" replace />, index: true },
-            { path: 'four', element: <PageFour /> },
-            { path: 'five', element: <PageFive /> },
+            { element: <Navigate to="/dashboard/user/meterdonebybranche" replace />, index: true },
+            { path: 'meterdonebybranche', element: <PageFour /> },
+            { path: 'statistics', element: <Statistics /> },
+            { path: 'detailsbyteam', element: <PageFive /> },
             { path: 'CreateNewUser', element: <CreateNewUser /> },
-            { path: 'seven/:id', element: <PageSeven /> },
-            { path: 'nine', element: <PageNine /> },
+            { path: 'detailsdetiction/:id', element: <PageSeven /> },
+            { path: 'abandoned', element: <PageNine /> },
+            { path: 'maintenanceandtampering', element: <MaintenanceAndTampering /> },
+            { path: 'countersclips', element: <CountersClips /> },
           ],
         },
       ],

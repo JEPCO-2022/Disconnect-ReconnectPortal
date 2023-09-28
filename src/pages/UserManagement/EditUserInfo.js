@@ -19,12 +19,12 @@ import {
 import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useState, useEffect, useContext } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
-import SessionTimeout from '../SessionTimeout';
-import { userUpdateInfo, getAllUsers } from '../../Redux/Customer/CustomerAction';
-import useSettings from '../../hooks/useSettings';
+import SessionTimeout from './SessionTimeout';
+import { userUpdateInfo, getAllUsers, rolesLookUp } from '../Redux/Customer/CustomerAction';
+import useSettings from '../hooks/useSettings';
 // components
 import Page from '../../components/Page';
 // ----------------------------------------------------------------------
@@ -38,14 +38,16 @@ export default function EditUserInfo() {
   let nameLocation = '';
   let idLocation = '';
   let userNameLocation = '';
+  const roleID = location.state.typeuser;
   const allUsers = useSelector((state) => state.Customer.AllUsers);
   const [flagFullName, setflagFullName] = useState(false);
-  const [flagUserName, setflagUserName] = useState(false);
   const [flagPass, setflagPass] = useState(false);
   const [administrator, setAdministrator] = useState(true);
   const [exportFiles, setExportFiles] = useState(true);
   const navigate = useNavigate();
   const isLogged = localStorage.getItem('isLogged');
+  const roles = useSelector((state) => state.Customer.roles);
+  const [typeUser, setTypeUser] = useState(roleID);
   const [inputValues, setinputValues] = useState({
     id: '',
     fullName: '',
@@ -70,6 +72,7 @@ export default function EditUserInfo() {
       navigate('/login');
     }
     getPasswordUsers();
+    dispatch(rolesLookUp());
   }, [ref]);
 
   function handleClick() {
@@ -91,13 +94,14 @@ export default function EditUserInfo() {
         inputValues.passowrd,
         inputValues.fullName,
         boolOutputAdministrator,
-        boolOutputExportFiles
+        boolOutputExportFiles,
+        typeUser
       )
     );
     setOpen(true);
     setinputValues({ fullName: '', passowrd: '' });
   }
-  const handleClose = (event, reason) => {
+  const handleClose = (reason) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -123,7 +127,13 @@ export default function EditUserInfo() {
       return 0;
     }
   };
-
+  const handChangeTypeUser = (event) => {
+    setTypeUser(Number(event.target.value));
+    setAdministrator(true);
+    if (event.target.value === 2) {
+      setAdministrator(false);
+    }
+  };
   return (
     <Page title="Page Six">
       <Container maxWidth={themeStretch ? false : 'xl'}>
@@ -162,7 +172,7 @@ export default function EditUserInfo() {
                 }}
               />
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
+            <Grid item xs={12} md={12} lg={6}>
               <TextField
                 fullWidth
                 label="كلمة المرور"
@@ -177,23 +187,24 @@ export default function EditUserInfo() {
                 error={flagPass}
               />
             </Grid>
-
-            <Grid item xs={12} md={6} lg={3}>
+            <Grid item xs={12} md={4} lg={2}>
               <FormControl>
-                <FormLabel id="demo-radio-buttons-group-label">مشرف؟</FormLabel>
+                <FormLabel id="demo-radio-buttons-group-label">النوع؟</FormLabel>
                 <RadioGroup
                   row
                   aria-labelledby="demo-radio-buttons-group-label"
-                  defaultValue="1"
+                  defaultValue={roleID}
                   name="radio-buttons-group"
-                  onChange={handChangeAdminstration}
+                  onChange={handChangeTypeUser}
                 >
-                  <FormControlLabel control={<Radio value={1} />} label="نعم" />
-                  <FormControlLabel control={<Radio value={0} />} label="لا" />
+                  {roles?.map((role) => (
+                    <FormControlLabel control={<Radio value={role.id} />} label={role.roleName} />
+                  ))}
                 </RadioGroup>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={12} lg={3}>
+
+            <Grid item xs={12} md={4} lg={2}>
               <FormControl>
                 <FormLabel id="demo-radio-buttons-group-label">إمكانية استخراج الملفات</FormLabel>
                 <RadioGroup
@@ -208,6 +219,23 @@ export default function EditUserInfo() {
                 </RadioGroup>
               </FormControl>
             </Grid>
+            {typeUser === 1 && (
+              <Grid item xs={12} md={4} lg={2}>
+                <FormControl>
+                  <FormLabel id="demo-radio-buttons-group-label">مشرف؟</FormLabel>
+                  <RadioGroup
+                    row
+                    aria-labelledby="demo-radio-buttons-group-label"
+                    defaultValue="1"
+                    name="radio-buttons-group"
+                    onChange={handChangeAdminstration}
+                  >
+                    <FormControlLabel control={<Radio value={1} />} label="نعم" />
+                    <FormControlLabel control={<Radio value={0} />} label="لا" />
+                  </RadioGroup>
+                </FormControl>
+              </Grid>
+            )}
 
             <Grid item xs={12} md={12} lg={12}>
               <Button

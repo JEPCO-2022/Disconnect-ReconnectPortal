@@ -4,6 +4,7 @@ import {
   SET_USER_INFO,
   SET_LOGIN_ERR,
   SET_LOGIN_REQ,
+  SET_LOGIN_INFORMATION,
   SET_LOGIN_SUCCESS,
 } from './LoginAction';
 
@@ -16,6 +17,10 @@ export default function loginReducer(
     isLogged: false,
     isError: false,
     FullName: '',
+    canExport: false,
+    isAdmin: false,
+    id: '',
+    role: 1,
   },
   action = {}
 ) {
@@ -24,6 +29,7 @@ export default function loginReducer(
       return {
         ...state,
         userName: '',
+        ID: '',
         userToken: '',
         isError: true,
         isLogged: false,
@@ -33,20 +39,29 @@ export default function loginReducer(
         ...state,
         userName: '',
         userToken: '',
+        id: '',
         isError: false,
         isLogged: false,
         FullName: '',
       };
     case SET_LOGIN_SUCCESS:
-      console.log(action.payload);
+      console.log(action.payload.ID);
       return {
         ...state,
         userName: action.payload.username,
+        id: action.payload.ID,
         userToken: action.payload.userToken,
         isError: false,
         isLogged: true,
         FullName: action.payload.fullName,
-        isAdmin:action.payload.isAdmin,
+        canExport: action.payload.canExport,
+        isAdmin: action.payload.isAdmin,
+        role: action.payload.role,
+      };
+    case SET_LOGIN_INFORMATION:
+      return {
+        ...state,
+        loginInfo: action.payload,
       };
 
     case SET_USER_INFO:

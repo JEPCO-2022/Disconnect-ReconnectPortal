@@ -16,15 +16,13 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
-import { useNavigate } from 'react-router';
 // hooks
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllUsers, userRegister } from '../../Redux/Customer/CustomerAction';
-import useSettings from '../../hooks/useSettings';
-import SessionTimeout from '../SessionTimeout';
+import { getAllUsers, userRegister } from '../Redux/Customer/CustomerAction';
+import useSettings from '../hooks/useSettings';
 // components
-import Page from '../../components/Page';
+import Page from '../components/Page';
 
 // ----------------------------------------------------------------------
 
@@ -38,8 +36,6 @@ export default function CreateNewUser() {
   const [flagFullName, setflagFullName] = useState(false);
   const [flagUserName, setflagUserName] = useState(false);
   const [flagPass, setflagPass] = useState(false);
-  const navigate = useNavigate();
-  const isLogged = localStorage.getItem('isLogged');
   const [inputValues, setinputValues] = useState({
     fullName: '',
     userName: '',
@@ -72,7 +68,6 @@ export default function CreateNewUser() {
     setinputValues({ fullName: '', passowrd: '', userName: '' });
   };
   const handleClose = () => {
-    setOpenError(false);
     setOpen(false);
   };
   const handChangeAdminstration = (event) => {
@@ -96,23 +91,19 @@ export default function CreateNewUser() {
     }
   };
   useEffect(() => {
-    if (!(isLogged === 'true')) {
-      localStorage.removeItem('user');
-      localStorage.removeItem('userName');
-      localStorage.removeItem('isAdmin');
-      navigate('/login');
-    }
     dispatch(getAllUsers());
   }, []);
   return (
     <Page title="إضافة مستخدم جديد">
       <Container maxWidth={themeStretch ? false : 'xl'}>
+
         <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
           <Grid container spacing={2}>
+
             <Grid item xs={12} md={12} lg={12}>
-              <Typography variant="h4" component="h1" paragraph>
-                إضافة مستخدم جديد
-              </Typography>
+            <Typography variant="h4" component="h1" paragraph>
+          إضافة مستخدم جديد
+        </Typography>
               <Divider light />
             </Grid>
             <Grid item xs={12} md={12} lg={6}>
@@ -167,6 +158,7 @@ export default function CreateNewUser() {
                   row
                   aria-labelledby="demo-radio-buttons-group-label"
                   defaultValue="1"
+                  // value={administrator}
                   name="radio-buttons-group"
                   onChange={handChangeAdminstration}
                 >
@@ -182,6 +174,7 @@ export default function CreateNewUser() {
                   row
                   aria-labelledby="demo-radio-buttons-group-label"
                   defaultValue="1"
+                  // value={exportFiles}
                   name="radio-buttons-group"
                   onChange={handChangeExportFiles}
                 >
@@ -214,7 +207,6 @@ export default function CreateNewUser() {
           </Grid>
         </Card>
       </Container>
-      <SessionTimeout />
     </Page>
   );
 }

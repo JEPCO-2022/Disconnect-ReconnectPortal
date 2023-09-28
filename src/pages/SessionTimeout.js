@@ -6,7 +6,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import ExpiredIcon from '../assets/expired-131964752748201554 (1).png';
+import ExpiredIcon from '../assets/expired-131964752748201554.png';
 
 const SessionTimeout = () => {
   const navigate = useNavigate();

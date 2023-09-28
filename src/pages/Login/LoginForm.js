@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Link, Stack, IconButton, InputAdornment, TextField, Checkbox, Button, Box } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLoginErr, userLogin } from '../../Redux/Login/LoginAction';
-
+import { clearPersistedState } from '../../Redux/Customer/CustomerAction';
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
@@ -23,14 +23,15 @@ export default function LoginForm() {
   const [flag, setflag] = React.useState(false);
 
   const userToken = useSelector((state) => state.Login.userToken);
-  const isLogged = useSelector((state) => state.Login.isLogged);
+  const isLogged = localStorage.getItem('isLogged');
 
   React.useEffect(() => {
-    if (isLogged) {
-      navigate('/dashboard/user/four');
+    dispatch(clearPersistedState());
+    if (isLogged === 'true') {
+      navigate('/dashboard/user/meterdonebybranche');
+      // navigate('/dashboard/statistics');
     }
   }, [isLogged]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setinputvalues({ username: e.target.username.value, password: e.target.password.value });
@@ -43,7 +44,7 @@ export default function LoginForm() {
       console.log(dispatch(userLogin(user, pass)));
       setflag(true);
     } else {
-      console.log('d');
+      const isAdmin = localStorage.getItem('isAdmin');
     }
   };
 

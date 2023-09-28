@@ -8,6 +8,7 @@ export const GET_USER_TOKEN = 'GET_USER_TOKEN';
 export const SET_USER_INFO = 'SET_USER_INFO';
 
 export const SET_LOGIN_REQ = 'SET_LOGIN_REQ';
+export const SET_LOGIN_INFORMATION = 'SET_LOGIN_INFORMATION';
 export const SET_LOGIN_ERR = 'SET_LOGIN_ERR';
 export const SET_LOGIN_SUCCESS = 'SET_LOGIN_SUCCESS';
 
@@ -27,14 +28,18 @@ export const setLoginErr = () => {
     type: SET_LOGIN_ERR,
   };
 };
-export const setLoginSuccess = (username, userToken) => {
-  console.log({ username, userToken });
+export const setLoginInformation = () => {
   return {
-    type: SET_LOGIN_SUCCESS,
-    payload: { username, userToken },
+    type: SET_LOGIN_INFORMATION,
   };
 };
-
+export const setLoginSuccess = (username, userToken, canExport, isAdmin, ID, role) => {
+  // console.log({ username, userToken });
+  return {
+    type: SET_LOGIN_SUCCESS,
+    payload: { username, userToken, canExport, isAdmin, ID, role },
+  };
+};
 export const userLogin = (username, password) => async (dispatch) => {
   dispatch(setLoginReq());
 
@@ -65,33 +70,34 @@ export const userLogin = (username, password) => async (dispatch) => {
     cookie.save('userName', username, { maxAge: 260000000 });
     localStorage.setItem('user', genertedToken);
     localStorage.setItem('userName', username);
-
-
     const infoTokenResponse = await axios(config);
-
     console.log(infoTokenResponse.data.body);
-    console.log(infoTokenResponse.data.body.isAdmin);
     localStorage.setItem('isAdmin', infoTokenResponse.data.body.isAdmin);
-
+    localStorage.setItem('canExport', infoTokenResponse.data.body.canExport);
+    localStorage.setItem('id', infoTokenResponse.data.body.id);
+    localStorage.setItem('isLogged', true);
+    const filedata = infoTokenResponse.data.body;
     if (infoTokenResponse.data.statusCode) {
-      // console.log('no Cookie');
-      dispatch(setLoginSuccess(username, genertedToken));
+      console.log('no Cookie');
+      dispatch(
+        setLoginSuccess(username, genertedToken, filedata.canExport, filedata.isAdmin, filedata.id, filedata.role)
+      );
+      dispatch(setLoginInformation(filedata));
     } else {
-      // console.log('login errorXO');
+      console.log('login errorXO');
       dispatch(setLoginErr());
     }
   } catch (error) {
     dispatch(setLoginErr());
-
     if (error.response) {
       // Request made and server responded
-      console.log(error.response.data);
+      // console.log(error.response.data);
     } else if (error.request) {
       // The request was made but no response was received
-      console.log(error.request);
+      // console.log(error.request);
     } else {
       // Something happened in setting up the request that triggered an Error
-      console.log('Error', error.message);
+      // console.log('Error', error.message);
     }
   }
 };

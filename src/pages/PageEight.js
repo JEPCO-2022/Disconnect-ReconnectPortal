@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Button,
   Card,
@@ -14,8 +14,10 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
+import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
+import SessionTimeout from './SessionTimeout';
 import { addUserBranches, getUserBranches, ClearAllUserBranch } from '../Redux/Customer/CustomerAction';
 import useSettings from '../hooks/useSettings';
 
@@ -31,6 +33,7 @@ let alzarqaOfices = {};
 let madabaOfices = {};
 export default function PageEight() {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
   const [productsArray, setProductsArray] = useState([]);
   const [values, setValues] = useState([]);
   const [ref, setRef] = useState(true);
@@ -38,9 +41,16 @@ export default function PageEight() {
   const userBracnch = useSelector((state) => state.Customer.UserBracnch);
   const allUserBranch = useSelector((state) => state.Customer.alluserBranch);
   const location = useLocation();
+  const isLogged = localStorage.getItem('isLogged');
   const userName = location.state.username;
   const dispatch = useDispatch();
   useEffect(() => {
+    if (!(isLogged === 'true')) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('isAdmin');
+      navigate('/login');
+    }
     refresh();
     dispatch(getUserBranches(userName));
     dispatch(ClearAllUserBranch());
@@ -56,7 +66,6 @@ export default function PageEight() {
       }
     }
   }
-
   const data = userBracnch.branchesLookupList;
   defalutBranchesChescked = userBracnch.userBranchesList;
   if (data === undefined || data === null) {
@@ -132,8 +141,13 @@ export default function PageEight() {
       mearged.push({ ...results[index], ...results2[index] });
     }
     dispatch(addUserBranches(userName, mearged));
+
     setOpen(true);
+    setTimeout(() => {
+      navigate(`/dashboard/AllUsersAndRoles`);
+    }, 2000);
   }
+
   function boolCheckedDefalut(branchid, cityid) {
     for (let index = 0; index < objectOfArrayBranch.length; index += 1) {
       if (objectOfArrayBranch[index].BranchID === branchid) {
@@ -188,27 +202,28 @@ export default function PageEight() {
                       />
                     </FormGroup>
                   ))}
-                  <Divider />
                 </FormControl>
               </Grid>
             ))}
+            <Grid textAlign="end" item xs={12} sm={12} lg={12} md={12}>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  handleSend();
+                }}
+              >
+                حفظ
+              </Button>
+            </Grid>
           </Grid>
         </Card>
-
-        <Button
-          variant="contained"
-          onClick={() => {
-            handleSend();
-          }}
-        >
-          إرسال
-        </Button>
       </Container>
-      <Snackbar open={open} autoHideDuration={1500} severity="success" onClose={handleClose}>
+      <Snackbar open={open} autoHideDuration={4000} severity="success" onClose={handleClose}>
         <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
           تمت الإرسال بنجاح
         </Alert>
       </Snackbar>
+      <SessionTimeout />
     </>
   );
 }

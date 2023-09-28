@@ -18,6 +18,10 @@ import {
   setclearAll,
   setengineerAbandonedDecision,
   setsaveEngineerAbandonedDecision,
+  setmaintenanceAndVigilanceReport,
+  CLEAR_PERSISTED_STATE,
+  setstatusOfDisconnectionTicketsReport,
+  setRolesLookUp,
 } from './CustomerAction';
 
 const initialState = {
@@ -36,11 +40,16 @@ const initialState = {
   UsersBranches: [],
   alluserBranch: [],
   engineerAbandonedDecision: [],
+  MaintenanceAndVigilanceReport: [],
   clearAll: [],
+  StatusOfDisconnectionTickets: [],
+  roles: [],
 };
 
 const CustomerReducer = (state = initialState, action = {}) => {
   switch (action.type) {
+    case CLEAR_PERSISTED_STATE:
+      return initialState;
     case setclearAll:
       return {
         ...state,
@@ -50,6 +59,21 @@ const CustomerReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         AllAbandoned: action.payload,
+      };
+    case setRolesLookUp:
+      return {
+        ...state,
+        roles: action.payload,
+      };
+    case setstatusOfDisconnectionTicketsReport:
+      return {
+        ...state,
+        StatusOfDisconnectionTickets: action.payload,
+      };
+    case setmaintenanceAndVigilanceReport:
+      return {
+        ...state,
+        MaintenanceAndVigilanceReport: action.payload,
       };
     case setsaveEngineerAbandonedDecision:
       return {
