@@ -122,10 +122,6 @@ export default function PageFour() {
     }
     dispatch(clearPersistedState());
     dispatch(getCitiesLookupAllCities());
-    // localStorage.removeItem('cityID');
-    // localStorage.removeItem('branchId');
-    // localStorage.removeItem('Team');
-    // localStorage.removeItem('status');
   }, []);
   useEffect(() => {
     setLoading(false);

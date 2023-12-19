@@ -22,6 +22,7 @@ import {
   CLEAR_PERSISTED_STATE,
   setstatusOfDisconnectionTicketsReport,
   setRolesLookUp,
+  setgarandelReport,
 } from './CustomerAction';
 
 const initialState = {
@@ -44,6 +45,7 @@ const initialState = {
   clearAll: [],
   StatusOfDisconnectionTickets: [],
   roles: [],
+  reportGarandel: [],
 };
 
 const CustomerReducer = (state = initialState, action = {}) => {
@@ -54,6 +56,11 @@ const CustomerReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         clearAll: action.payload,
+      };
+    case setgarandelReport:
+      return {
+        ...state,
+        reportGarandel: action.payload,
       };
     case setengineerAbandonedDecision:
       return {

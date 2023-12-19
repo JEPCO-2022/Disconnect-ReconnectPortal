@@ -34,6 +34,7 @@ export const setLoginInformation = () => {
   };
 };
 export const setLoginSuccess = (username, userToken, canExport, isAdmin, ID, role) => {
+  localStorage.setItem('isLogged', true);
   // console.log({ username, userToken });
   return {
     type: SET_LOGIN_SUCCESS,
@@ -71,14 +72,12 @@ export const userLogin = (username, password) => async (dispatch) => {
     localStorage.setItem('user', genertedToken);
     localStorage.setItem('userName', username);
     const infoTokenResponse = await axios(config);
-    console.log(infoTokenResponse.data.body);
     localStorage.setItem('isAdmin', infoTokenResponse.data.body.isAdmin);
     localStorage.setItem('canExport', infoTokenResponse.data.body.canExport);
     localStorage.setItem('id', infoTokenResponse.data.body.id);
-    localStorage.setItem('isLogged', true);
+
     const filedata = infoTokenResponse.data.body;
     if (infoTokenResponse.data.statusCode) {
-      console.log('no Cookie');
       dispatch(
         setLoginSuccess(username, genertedToken, filedata.canExport, filedata.isAdmin, filedata.id, filedata.role)
       );
