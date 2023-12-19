@@ -10,26 +10,23 @@ import { clearPersistedState } from '../../Redux/Customer/CustomerAction';
 export default function LoginForm() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  const roleID = useSelector((state) => state.Login.role);
+  // const isLogged = useSelector((state) => state.Login.isLogged);
   const [inputvalues, setinputvalues] = React.useState({
     username: '',
     password: '',
   });
-  const [inputvaluesErr, setinputvaluesErr] = React.useState({
-    usernameErr: '',
-    passwordErr: '',
-  });
-  const [showPassword, setShowPassword] = useState(false);
   const [flag, setflag] = React.useState(false);
-
-  const userToken = useSelector((state) => state.Login.userToken);
   const isLogged = localStorage.getItem('isLogged');
 
   React.useEffect(() => {
     dispatch(clearPersistedState());
     if (isLogged === 'true') {
-      navigate('/dashboard/user/meterdonebybranche');
-      // navigate('/dashboard/statistics');
+      if (roleID === 2) {
+        navigate('/dashboard/user/garandelReport');
+      } else {
+        navigate('/dashboard/user/meterdonebybranche');
+      }
     }
   }, [isLogged]);
   const handleSubmit = async (e) => {
@@ -38,13 +35,9 @@ export default function LoginForm() {
     const user = e.target.username.value;
     const pass = e.target.password.value;
     await dispatch(userLogin(user, pass));
-
-    //
     if (dispatch(userLogin(user)) !== inputvalues.username || dispatch(userLogin(pass)) !== inputvalues.password) {
-      console.log(dispatch(userLogin(user, pass)));
+      dispatch(userLogin(user, pass));
       setflag(true);
-    } else {
-      const isAdmin = localStorage.getItem('isAdmin');
     }
   };
 

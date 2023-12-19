@@ -45,7 +45,6 @@ export default function loginReducer(
         FullName: '',
       };
     case SET_LOGIN_SUCCESS:
-      console.log(action.payload.ID);
       return {
         ...state,
         userName: action.payload.username,

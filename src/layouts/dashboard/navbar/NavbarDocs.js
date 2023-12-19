@@ -12,8 +12,6 @@ export default function NavbarDocs() {
   async function HandleSubmit() {
     const userToken = await cookie.load('user');
     const userName = await cookie.load('userName');
-    console.log(userName);
-    console.log(userToken);
     if (userToken && userName) {
       window.open('/login', '_self');
       cookie.remove('user');

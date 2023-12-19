@@ -77,6 +77,10 @@ export const requestRolesLookUp = 'requestRolesLookUp';
 export const setRolesLookUp = 'setRolesLookUp';
 export const errorRolesLookUp = 'errorRolesLookUp';
 
+export const requestGarandelReport = 'requestGarandelReport';
+export const setgarandelReport = 'setgarandelReport';
+export const errorgarandelReport = 'errorgarandelReport';
+
 export const CLEAR_PERSISTED_STATE = 'CLEAR_PERSISTED_STATE';
 
 export const RequestCitiesLookup = () => {
@@ -400,6 +404,24 @@ export const errorRoleLookUp = () => {
     type: errorRolesLookUp,
   };
 };
+
+export const RequestGarandelReport = () => {
+  return {
+    type: requestGarandelReport,
+  };
+};
+export const setGarandelReport = (data) => {
+  return {
+    type: setgarandelReport,
+    payload: data,
+  };
+};
+export const errorGarandelReport = () => {
+  return {
+    type: errorgarandelReport,
+  };
+};
+
 export const getCitiesLookup = () => async (dispatch) => {
   dispatch(RequestCitiesLookup());
   // const userToken = await cookie.load('user');
@@ -1136,6 +1158,37 @@ export const rolesLookUp = () => async (dispatch) => {
     console.log('no Cookie');
   }
 };
+export const getGarandelReport = (Data) => async (dispatch) => {
+  dispatch(RequestGarandelReport());
+  // const userToken = await cookie.load('user');
+  const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
+  const response = await axios.post(`${baseURL}`, {
+    username: 'ConnectionAndDisconnectionAppIntegrationUser',
+    password: 'ConnectionAndDisconnectionApp@jepco@123',
+  });
+  const genertedToken = response.data.body.token;
+  if (genertedToken) {
+    const config = {
+      method: 'post',
+      url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/DiscoReconReportFromSAP',
+      headers: {
+        Authorization: `Bearer ${genertedToken}`,
+        'Content-Type': 'application/json',
+      },
+      data: Data,
+    };
 
+    try {
+      const fileDataAPIResponce = await axios(config);
+      const fileData = fileDataAPIResponce.data.body;
+      dispatch(setGarandelReport(fileData));
+    } catch (error) {
+      console.log(error);
+      dispatch(errorGarandelReport());
+    }
+  } else {
+    console.log('no Cookie');
+  }
+};
 export const clearPersistedState = () => ({ type: CLEAR_PERSISTED_STATE });
 // emergency portal can help you with this "if you need any help please get back to the same file in that application"
