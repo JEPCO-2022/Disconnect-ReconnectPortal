@@ -1,9 +1,9 @@
+import { useState, useEffect } from 'react';
 // @mui
 import {
   Button,
   Card,
   Container,
-  Snackbar,
   Divider,
   FormControl,
   FormControlLabel,
@@ -13,69 +13,43 @@ import {
   RadioGroup,
   TextField,
   Typography,
+  Snackbar,
   Alert,
 } from '@mui/material';
 // hooks
-import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useState, useEffect, useContext } from 'react';
-import { useLocation } from 'react-router-dom';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router';
-import SessionTimeout from './SessionTimeout';
-import { userUpdateInfo, getAllUsers, rolesLookUp } from '../Redux/Customer/CustomerAction';
-import useSettings from '../hooks/useSettings';
+import { getAllUsers, userRegister,rolesLookUp } from '../../Redux/Customer/CustomerAction';
+import useSettings from '../../hooks/useSettings';
 // components
-import Page from '../components/Page';
+import Page from '../../components/Page';
+
 // ----------------------------------------------------------------------
 
-export default function EditUserInfo() {
+export default function CreateNewUser() {
   const { themeStretch } = useSettings();
-  const [open, setOpen] = useState(false);
-  const [ref, useRef] = useState(false);
-  const location = useLocation();
   const dispatch = useDispatch();
-  let nameLocation = '';
-  let idLocation = '';
-  let userNameLocation = '';
-  const roleID = location.state.typeuser;
-  const allUsers = useSelector((state) => state.Customer.AllUsers);
-  const [flagFullName, setflagFullName] = useState(false);
-  const [flagPass, setflagPass] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [openError, setOpenError] = useState(false);
   const [administrator, setAdministrator] = useState(true);
   const [exportFiles, setExportFiles] = useState(true);
-  const navigate = useNavigate();
-  const isLogged = localStorage.getItem('isLogged');
-  const roles = useSelector((state) => state.Customer.roles);
-  const [typeUser, setTypeUser] = useState(roleID);
+  const [flagFullName, setflagFullName] = useState(false);
+  const [flagUserName, setflagUserName] = useState(false);
+  const [flagPass, setflagPass] = useState(false);
+  const [typeUser, setTypeUser] = useState('1');
+
   const [inputValues, setinputValues] = useState({
-    id: '',
     fullName: '',
     userName: '',
     passowrd: '',
   });
-  function getPasswordUsers() {
-    let pass = '';
-    dispatch(getAllUsers());
-    nameLocation = location.state.fullName;
-    idLocation = location.state.idNumber;
-    userNameLocation = location.state.username;
-    for (let index = 0; index < allUsers.length; index += 1)
-      if (allUsers[index].username === userNameLocation) pass = allUsers[index].password;
-    setinputValues({ id: idLocation, userName: userNameLocation, fullName: nameLocation, passowrd: pass });
-  }
-  useEffect(() => {
-    if (!(isLogged === 'true')) {
-      localStorage.removeItem('user');
-      localStorage.removeItem('userName');
-      localStorage.removeItem('isAdmin');
-      navigate('/login');
-    }
-    getPasswordUsers();
-    dispatch(rolesLookUp());
-  }, [ref]);
+  const allUsers = useSelector((state) => state.Customer.AllUsers);
+  const roles = useSelector((state) => state.Customer.roles);
 
-  function handleClick() {
+  const handleClick = () => {
+    if (inputValues.userName === '') {
+      setflagUserName(true);
+    }
     if (inputValues.fullName === '') {
       setflagFullName(true);
     }
@@ -83,28 +57,22 @@ export default function EditUserInfo() {
       setflagPass(true);
       return 0;
     }
-    if (inputValues.fullName === '') {
+    allUsers.map((e) => {
+      if (inputValues.userName === e.username) {
+        setOpenError(true);
+        return 0;
+      }
       return 0;
-    }
-    const boolOutputExportFiles = exportFiles === 'true';
-    const boolOutputAdministrator = administrator === 'true';
+    });
+    const role = Number(typeUser);
+
     dispatch(
-      userUpdateInfo(
-        inputValues.id,
-        inputValues.passowrd,
-        inputValues.fullName,
-        boolOutputAdministrator,
-        boolOutputExportFiles,
-        typeUser
-      )
+      userRegister(inputValues.userName, inputValues.passowrd, inputValues.fullName, administrator, exportFiles, role)
     );
     setOpen(true);
-    setinputValues({ fullName: '', passowrd: '' });
-  }
-  const handleClose = (reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
+    setinputValues({ fullName: '', passowrd: '', userName: '' });
+  };
+  const handleClose = () => {
     setOpen(false);
   };
   const handChangeAdminstration = (event) => {
@@ -128,24 +96,28 @@ export default function EditUserInfo() {
     }
   };
   const handChangeTypeUser = (event) => {
-    setTypeUser(Number(event.target.value));
+    setTypeUser(event.target.value);
     setAdministrator(true);
-    if (event.target.value === 2) {
+    if (event.target.value === '2') {
       setAdministrator(false);
     }
   };
+  useEffect(() => {
+    dispatch(getAllUsers());
+    dispatch(rolesLookUp());
+
+  }, []);
   return (
-    <Page title="Page Six">
+    <Page title="إضافة مستخدم جديد">
       <Container maxWidth={themeStretch ? false : 'xl'}>
-        <Typography variant="h3" component="h1" paragraph>
-          تعديل معلومات مستخدم
-        </Typography>
+
         <Card sx={{ display: 'flex', alignItems: 'center', p: 4, backgroundColor: '#EFEFEF' }}>
           <Grid container spacing={2}>
+
             <Grid item xs={12} md={12} lg={12}>
-              تعديل معلومات مستخدم
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
+            <Typography variant="h4" component="h1" paragraph>
+          إضافة مستخدم جديد
+        </Typography>
               <Divider light />
             </Grid>
             <Grid item xs={12} md={12} lg={6}>
@@ -165,52 +137,58 @@ export default function EditUserInfo() {
             <Grid item xs={12} md={12} lg={6}>
               <TextField
                 fullWidth
-                value={inputValues.userName}
+                label="اسم المستخدم"
                 variant="outlined"
-                InputProps={{
-                  readOnly: true,
+                onChange={(e) => {
+                  setinputValues({ ...inputValues, userName: e.target.value });
+                  setflagUserName(false);
                 }}
+                value={inputValues.userName}
+                helperText={flagUserName ? ' مطلوب' : ''}
+                error={flagUserName}
               />
             </Grid>
-            <Grid item xs={12} md={12} lg={6}>
+            <Grid item xs={12} md={6} lg={6}>
               <TextField
                 fullWidth
                 label="كلمة المرور"
                 variant="outlined"
+                type="password"
+                value={inputValues.passowrd}
                 autoComplete="current-password"
                 onChange={(e) => {
                   setinputValues({ ...inputValues, passowrd: e.target.value });
                   setflagPass(false);
                 }}
-                value={inputValues.passowrd}
-                helperText={flagPass ? ' مطلوب' : ''}
+                helperText={flagPass ? 'مطلوب' : ''}
                 error={flagPass}
               />
             </Grid>
-            <Grid item xs={12} md={4} lg={2}>
+
+            <Grid item xs={12} md={3} lg={3}>
               <FormControl>
-                <FormLabel id="demo-radio-buttons-group-label">النوع؟</FormLabel>
+              <FormLabel id="demo-radio-buttons-group-label">النوع؟</FormLabel>
                 <RadioGroup
                   row
                   aria-labelledby="demo-radio-buttons-group-label"
-                  defaultValue={roleID}
+                  defaultValue="1"
+                  // value={administrator}
                   name="radio-buttons-group"
                   onChange={handChangeTypeUser}
                 >
                   {roles?.map((role) => (
                     <FormControlLabel control={<Radio value={role.id} />} label={role.roleName} />
-                  ))}
-                </RadioGroup>
+                  ))}                </RadioGroup>
               </FormControl>
             </Grid>
-
-            <Grid item xs={12} md={4} lg={2}>
+            <Grid item xs={12} md={6} lg={6}>
               <FormControl>
                 <FormLabel id="demo-radio-buttons-group-label">إمكانية استخراج الملفات</FormLabel>
                 <RadioGroup
                   row
                   aria-labelledby="demo-radio-buttons-group-label"
                   defaultValue="1"
+                  // value={exportFiles}
                   name="radio-buttons-group"
                   onChange={handChangeExportFiles}
                 >
@@ -219,8 +197,8 @@ export default function EditUserInfo() {
                 </RadioGroup>
               </FormControl>
             </Grid>
-            {typeUser === 1 && (
-              <Grid item xs={12} md={4} lg={2}>
+            {typeUser === '1' && (
+              <Grid item xs={12} md={6} lg={6}>
                 <FormControl>
                   <FormLabel id="demo-radio-buttons-group-label">مشرف؟</FormLabel>
                   <RadioGroup
@@ -236,44 +214,31 @@ export default function EditUserInfo() {
                 </FormControl>
               </Grid>
             )}
-
-            <Grid item xs={12} md={12} lg={12}>
+            <br/>
+            <Grid item xs={12} md={3} lg={3}>
               <Button
-                endIcon={<ArrowBackIcon />}
+                endIcon={<PersonAddIcon />}
+                className="nxt-btn-12-grid"
                 variant="contained"
                 fullwidth
-                onClick={() => navigate(`/dashboard/AllUsersAndRoles`)}
+                onClick={handleClick}
               >
-                رجوع
+                إضافة
               </Button>
-              <Button
-                sx={{ marginLeft: 2 }}
-                endIcon={<ModeEditOutlineIcon />}
-                variant="contained"
-                fullwidth
-                onClick={(e) => {
-                  handleClick();
-                }}
-              >
-                تعديل
-              </Button>
-            </Grid>
-            <Snackbar open={open} autoHideDuration={1500} severity="success" onClose={handleClose}>
-              <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                تم التعديل بنجاح
-              </Alert>
-            </Snackbar>
-            <Grid item xs={12} md={6} lg={6}>
               <Snackbar open={open} autoHideDuration={1500} severity="success" onClose={handleClose}>
                 <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                  تم التعديل بنجاح
+                  تمت الإضافه بنجاح
+                </Alert>
+              </Snackbar>
+              <Snackbar open={openError} autoHideDuration={1500} severity="error" onClose={handleClose}>
+                <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+                  اسم المستخدم مكرر
                 </Alert>
               </Snackbar>
             </Grid>
           </Grid>
         </Card>
       </Container>
-      <SessionTimeout />
     </Page>
   );
 }
