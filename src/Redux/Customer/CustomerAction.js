@@ -81,6 +81,10 @@ export const requestGarandelReport = 'requestGarandelReport';
 export const setgarandelReport = 'setgarandelReport';
 export const errorgarandelReport = 'errorgarandelReport';
 
+export const requestGarandelDetailedReport = 'requestGarandelDetailedReport';
+export const setgarandelDetailedReport = 'setgarandelDetailedReport';
+export const errorgarandelDetailedReport = 'errorgarandelDetailedReport';
+
 export const CLEAR_PERSISTED_STATE = 'CLEAR_PERSISTED_STATE';
 
 export const RequestCitiesLookup = () => {
@@ -419,6 +423,23 @@ export const setGarandelReport = (data) => {
 export const errorGarandelReport = () => {
   return {
     type: errorgarandelReport,
+  };
+};
+
+export const RequestGarandelDetailedReport = () => {
+  return {
+    type: requestGarandelDetailedReport,
+  };
+};
+export const setGarandelDetailedReport = (data) => {
+  return {
+    type: setgarandelDetailedReport,
+    payload: data,
+  };
+};
+export const errorGarandelDetailedReport = () => {
+  return {
+    type: errorgarandelDetailedReport,
   };
 };
 
@@ -1185,6 +1206,38 @@ export const getGarandelReport = (Data) => async (dispatch) => {
     } catch (error) {
       console.log(error);
       dispatch(errorGarandelReport());
+    }
+  } else {
+    console.log('no Cookie');
+  }
+};
+export const getGarandelDetailedReport = (Data) => async (dispatch) => {
+  dispatch(RequestGarandelDetailedReport());
+  // const userToken = await cookie.load('user');
+  const baseURL = 'https://portal.jepco.com.jo/DisconnectionReconAppApi/ApisLoginController/Login';
+  const response = await axios.post(`${baseURL}`, {
+    username: 'ConnectionAndDisconnectionAppIntegrationUser',
+    password: 'ConnectionAndDisconnectionApp@jepco@123',
+  });
+  const genertedToken = response.data.body.token;
+  if (genertedToken) {
+    const config = {
+      method: 'post',
+      url: 'https://portal.jepco.com.jo/DisconnectionReconAppApi/DisconnectionAndConnectionDashBoard/DiscoReconDetailsReportFromSAP',
+      headers: {
+        Authorization: `Bearer ${genertedToken}`,
+        'Content-Type': 'application/json',
+      },
+      data: Data,
+    };
+
+    try {
+      const fileDataAPIResponce = await axios(config);
+      const fileData = fileDataAPIResponce.data.body;
+      dispatch(setGarandelDetailedReport(fileData));
+    } catch (error) {
+      console.log(error);
+      dispatch(errorGarandelDetailedReport());
     }
   } else {
     console.log('no Cookie');

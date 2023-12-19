@@ -11,11 +11,12 @@ import LogoOnlyLayout from '../layouts/LogoOnlyLayout';
 import LoadingScreen from '../components/LoadingScreen';
 import CreateNewUser from '../pages/UserManagement/CreateNewUser';
 import AllUsersAndRoles from '../pages/AllUsersAndRoles/AllUsersAndRoles';
-import MaintenanceAndTampering from '../pages/MaintenanceAndTampering';
-import Statistics from '../pages/Statistics';
+// import MaintenanceAndTampering from '../pages/MaintenanceAndTampering';
+// import Statistics from '../pages/Statistics';
 import GarandelReport from '../pages/garandel/GarandelReport';
-// import MaintenanceAndTampering from '../pages/MaintenanceAndTamperingReport/MaintenanceAndTampering';
-// import Statistics from '../pages/PowerBIDashboards/Statistics';
+import GarandelDetailedReport from '../pages/garandel/GarandelDetailedReport';
+import MaintenanceAndTampering from '../pages/MaintenanceAndTamperingReport/MaintenanceAndTampering';
+import Statistics from '../pages/PowerBIDashboards/Statistics';
 // ----------------------------------------------------------------------
 
 const Loadable = (Component) => (props) => {
@@ -57,6 +58,7 @@ export default function Router() {
             { path: 'maintenanceandtampering', element: <MaintenanceAndTampering /> },
             { path: 'countersclips', element: <CountersClips /> },
             { path: 'garandelReport', element: <GarandelReport /> },
+            { path: 'garandelDetailedReport', element: <GarandelDetailedReport /> },
           ],
         },
       ],

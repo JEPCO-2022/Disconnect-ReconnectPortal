@@ -41,6 +41,7 @@ import {
   getBranchesLookupAllBranches,
   clearPersistedState,
   getGarandelReport,
+  getGarandelDetailedReport,
 } from '../../Redux/Customer/CustomerAction';
 import useSettings from '../../hooks/useSettings';
 
@@ -64,7 +65,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const GarandelReport = () => {
+const GarandelDetailedReport = () => {
   const { themeStretch } = useSettings();
   const [hiddenBranch, setHiddenBranch] = useState(true);
   const [disabledBranch, setDisabledBranch] = useState(false);
@@ -72,7 +73,7 @@ const GarandelReport = () => {
   const [errorMessageBranch, setErrorMessageBranch] = useState('');
   const CitiesList = useSelector((state) => state.Customer.CitiesList);
   const BranchesList = useSelector((state) => state.Customer.BranchesList);
-  const reportTable = useSelector((state) => state.Customer.reportGarandel);
+  const reportTable = useSelector((state) => state.Customer.reportDetailGarandel);
   const canExport = localStorage.getItem('canExport');
   const [loading, setLoading] = useState(false);
   const tableRef = useRef(null);
@@ -151,10 +152,10 @@ const GarandelReport = () => {
           Cities_NO: '',
           OFFICE_NO: '',
           TRANSACTION_TYPE: valueRDG,
-          ReportType: 1,
+          ReportType: 3,
           TechnicationCode: inputValues.jobNumber,
         };
-        dispatch(getGarandelReport(data));
+        dispatch(getGarandelDetailedReport(data));
       }
     } else {
       if (inputValues.City === 99) {
@@ -170,7 +171,7 @@ const GarandelReport = () => {
           TechnicationCode: inputValues.jobNumber,
         };
         setErrorMessageBranch('');
-        dispatch(getGarandelReport(data));
+        dispatch(getGarandelDetailedReport(data));
         return false;
       }
       if (inputValues.City === '') {
@@ -195,7 +196,7 @@ const GarandelReport = () => {
           TechnicationCode: inputValues.jobNumber,
         };
         setErrorMessageBranch('');
-        dispatch(getGarandelReport(data));
+        dispatch(getGarandelDetailedReport(data));
         return false;
       }
       setLoading(true);
@@ -209,11 +210,10 @@ const GarandelReport = () => {
         ReportType: 1,
         TechnicationCode: inputValues.jobNumber,
       };
-      dispatch(getGarandelReport(data));
-      setLoading(false);
+      dispatch(getGarandelDetailedReport(data));
     }
   };
-  const exporttoExcelConnect = (apiData, fileName) => {
+  const exporttoDisconnect = (apiData, fileName) => {
     const customHeadings = apiData.reduce((acc, curr) => {
       const _users = acc;
       return [
@@ -221,8 +221,9 @@ const GarandelReport = () => {
         {
           technician: curr.technician,
           technicianName: curr.technicianName,
-          numberofTeams: curr.numberofTeams,
-          numberOfOffices: curr.numberOfOffices,
+          teamNo: curr.teamNo,
+          mru: curr.mru,
+          officeNo: curr.officeNo,
           insideListCount: curr.insideListCount,
           insideListDoneCount: curr.insideListDoneCount,
           outSideListDoneCount: curr.outSideListDoneCount,
@@ -243,19 +244,21 @@ const GarandelReport = () => {
     worksheet.addRow([
       ' الرقم الوظيفي ',
       ' اسم الفني ',
-      ' عدد الفرق التي شارك فيها ',
-      ' عدد المكاتب التي عمل فيها ',
+      ' الفرقة ',
+      ' الكود (MRU) ',
+      ' المكتب ',
       'عدد الطلبات المستحقة للقطع حسب كشف القطع ',
       ' عدد حركات القطع المنفذه بناء على الكشف ',
       ' عدد حركات القطع المنفذه خارج الكشف ',
-      ' العدادات المفصولة كاملة ',
+      '  مجموع العدادات التي تم فصلها ',
     ]);
     customHeadings.map((e) =>
       worksheet.addRow([
         e.technician,
         e.technicianName,
-        e.numberofTeams,
-        e.numberOfOffices,
+        e.teamNo,
+        e.mru,
+        e.officeNo,
         e.insideListCount,
         e.insideListDoneCount,
         e.outSideListDoneCount,
@@ -263,13 +266,14 @@ const GarandelReport = () => {
       ])
     );
     worksheet.columns[0].width = 10;
-    worksheet.columns[1].width = 35;
-    worksheet.columns[2].width = 20;
-    worksheet.columns[3].width = 20;
-    worksheet.columns[4].width = 40;
+    worksheet.columns[1].width = 20;
+    worksheet.columns[2].width = 10;
+    worksheet.columns[3].width = 10;
+    worksheet.columns[4].width = 20;
     worksheet.columns[5].width = 40;
     worksheet.columns[6].width = 40;
-    worksheet.columns[7].width = 30;
+    worksheet.columns[7].width = 40;
+    worksheet.columns[8].width = 30;
     worksheet.eachRow((row) => {
       row.eachCell((cell) => {
         cell.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -284,7 +288,7 @@ const GarandelReport = () => {
       a.click();
     });
   };
-  const exporttoDisconnect = (apiData, fileName) => {
+  const exporttoExcelConnect = (apiData, fileName) => {
     const customHeadings = apiData.reduce((acc, curr) => {
       const _users = acc;
       return [
@@ -292,9 +296,10 @@ const GarandelReport = () => {
         {
           technician: curr.technician,
           technicianName: curr.technicianName,
-          numberofTeams: curr.numberofTeams,
-          numberOfOffices: curr.numberOfOffices,
-          closeNum: curr.insideListCount - curr.outSideListCount,
+          teamNo: curr.teamNo,
+          mru: curr.mru,
+          officeNo: curr.officeNo,
+          closeNum: curr.insideListCount + curr.outSideListCount,
           insideListCount: curr.insideListCount,
           outSideListCount: curr.outSideListCount,
           insideListDoneCount: curr.insideListDoneCount,
@@ -317,8 +322,9 @@ const GarandelReport = () => {
     worksheet.addRow([
       ' الرقم الوظيفي ',
       ' اسم الفني ',
-      ' عدد الفرق التي شارك فيها ',
-      ' عدد المكاتب التي عمل فيها ',
+      ' الفرقة ',
+      ' الكود (MRU) ',
+      ' المكتب ',
       ' عدد الطلبات كاملة المستحقة للتوصيل ',
       'عدد الحركات اللازمة توصيلها حسب الكشف ',
       '  عدد الحركات اللازمة توصيلها خارج الكشف  ',
@@ -330,8 +336,9 @@ const GarandelReport = () => {
       worksheet.addRow([
         e.technician,
         e.technicianName,
-        e.numberofTeams,
-        e.numberOfOffices,
+        e.teamNo,
+        e.mru,
+        e.officeNo,
         e.closeNum,
         e.insideListCount,
         e.outSideListCount,
@@ -341,15 +348,16 @@ const GarandelReport = () => {
       ])
     );
     worksheet.columns[0].width = 10;
-    worksheet.columns[1].width = 30;
-    worksheet.columns[2].width = 20;
-    worksheet.columns[3].width = 20;
-    worksheet.columns[4].width = 30;
+    worksheet.columns[1].width = 20;
+    worksheet.columns[2].width = 10;
+    worksheet.columns[3].width = 10;
+    worksheet.columns[4].width = 20;
     worksheet.columns[5].width = 30;
     worksheet.columns[6].width = 30;
     worksheet.columns[7].width = 30;
     worksheet.columns[8].width = 30;
     worksheet.columns[9].width = 30;
+    worksheet.columns[10].width = 30;
     worksheet.eachRow((row) => {
       row.eachCell((cell) => {
         cell.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -544,7 +552,7 @@ const GarandelReport = () => {
                     endIcon={<FileDownloadIcon />}
                     variant="outlined"
                     onClick={() => {
-                      exporttoExcelConnect(reportTable, ' تقرير غرندل ');
+                      exporttoDisconnect(reportTable, ' تقرير غرندل ');
                     }}
                   >
                     تنزيل
@@ -559,7 +567,7 @@ const GarandelReport = () => {
                     endIcon={<FileDownloadIcon />}
                     variant="outlined"
                     onClick={() => {
-                      exporttoDisconnect(reportTable, ' تقرير غرندل ');
+                      exporttoExcelConnect(reportTable, ' تقرير غرندل ');
                     }}
                   >
                     تنزيل
@@ -575,8 +583,9 @@ const GarandelReport = () => {
                     <TableRow>
                       <StyledTableCell> الرقم الوظيفي </StyledTableCell>
                       <StyledTableCell align="center"> اسم الفني </StyledTableCell>
-                      <StyledTableCell align="center"> عدد الفرق التي شارك فيها </StyledTableCell>
-                      <StyledTableCell align="center"> عدد المكاتب التي عمل فيها </StyledTableCell>
+                      <StyledTableCell align="center"> الفرقة </StyledTableCell>
+                      <StyledTableCell align="center"> الكود(MRU) </StyledTableCell>
+                      <StyledTableCell align="center"> المكتب </StyledTableCell>
                       {valueRDG === '1' ? (
                         <>
                           <StyledTableCell align="center"> عدد الطلبات كاملة المستحقة للتوصيل </StyledTableCell>
@@ -605,8 +614,9 @@ const GarandelReport = () => {
                               {reportTable.technician}
                             </StyledTableCell>
                             <StyledTableCell align="center">{reportTable.technicianName}</StyledTableCell>
-                            <StyledTableCell align="center">{reportTable.numberofTeams}</StyledTableCell>
-                            <StyledTableCell align="center">{reportTable.numberOfOffices}</StyledTableCell>
+                            <StyledTableCell align="center">{reportTable.teamNo}</StyledTableCell>
+                            <StyledTableCell align="center">{reportTable.mru}</StyledTableCell>
+                            <StyledTableCell align="center">{reportTable.officeNo}</StyledTableCell>
                             <StyledTableCell align="center">{reportTable.insideListCount}</StyledTableCell>
                             <StyledTableCell align="center">{reportTable.insideListDoneCount}</StyledTableCell>
                             <StyledTableCell align="center">{reportTable.outSideListDoneCount}</StyledTableCell>
@@ -621,8 +631,9 @@ const GarandelReport = () => {
                               {reportTable.technician}
                             </StyledTableCell>
                             <StyledTableCell align="center">{reportTable.technicianName}</StyledTableCell>
-                            <StyledTableCell align="center">{reportTable.numberofTeams}</StyledTableCell>
-                            <StyledTableCell align="center">{reportTable.numberOfOffices}</StyledTableCell>
+                            <StyledTableCell align="center">{reportTable.teamNo}</StyledTableCell>
+                            <StyledTableCell align="center">{reportTable.mru}</StyledTableCell>
+                            <StyledTableCell align="center">{reportTable.officeNo}</StyledTableCell>
                             <StyledTableCell align="center">
                               {Math.abs(reportTable.insideListCount + reportTable.outSideListCount)}
                             </StyledTableCell>
@@ -665,4 +676,4 @@ const GarandelReport = () => {
   );
 };
 
-export default GarandelReport;
+export default GarandelDetailedReport;
