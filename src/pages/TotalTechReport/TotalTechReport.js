@@ -372,7 +372,7 @@ const TotalTechReport = () => {
           <Grid container spacing={2}>
             <Grid item xs={12} md={12} lg={12}>
               <Typography variant="h4" component="h1" paragraph>
-                تقرير تجميعي لفنيين غرندل - المهندسين
+                التقرير الاجمالي للفنيين  
               </Typography>
               <Divider light />
             </Grid>
