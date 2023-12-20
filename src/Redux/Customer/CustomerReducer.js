@@ -23,6 +23,7 @@ import {
   setstatusOfDisconnectionTicketsReport,
   setRolesLookUp,
   setgarandelReport,
+  setgarandelDetailedReport,
 } from './CustomerAction';
 
 const initialState = {
@@ -46,6 +47,7 @@ const initialState = {
   StatusOfDisconnectionTickets: [],
   roles: [],
   reportGarandel: [],
+  reportDetailGarandel: [],
 };
 
 const CustomerReducer = (state = initialState, action = {}) => {
@@ -56,6 +58,11 @@ const CustomerReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         clearAll: action.payload,
+      };
+    case setgarandelDetailedReport:
+      return {
+        ...state,
+        reportDetailGarandel: action.payload,
       };
     case setgarandelReport:
       return {

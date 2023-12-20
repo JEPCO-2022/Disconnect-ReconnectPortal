@@ -69,7 +69,10 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
               title: 'التقارير',
               path: '/dashboard/user',
               icon: <SummarizeIcon />,
-              children: [{ title: ' تقرير تجميعي لفنيين غرندل ', path: '/dashboard/user/garandelReport' }],
+              children: [
+                { title: ' تقرير تجميعي لفنيين غرندل ', path: '/dashboard/user/garandelReport' },
+                { title: ' تقرير تفصيلي لفنيين غرندل ', path: '/dashboard/user/garandelDetailedReport' },
+              ],
             },
           ],
         },
