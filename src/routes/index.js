@@ -11,16 +11,9 @@ import LogoOnlyLayout from '../layouts/LogoOnlyLayout';
 import LoadingScreen from '../components/LoadingScreen';
 import CreateNewUser from '../pages/UserManagement/CreateNewUser';
 import AllUsersAndRoles from '../pages/AllUsersAndRoles/AllUsersAndRoles';
-// import MaintenanceAndTampering from '../pages/MaintenanceAndTampering';
-// import Statistics from '../pages/Statistics';
-import GarandelReport from '../pages/garandel/GarandelReport';
 import GarandelDetailedReport from '../pages/garandel/GarandelDetailedReport';
 import MaintenanceAndTampering from '../pages/MaintenanceAndTamperingReport/MaintenanceAndTampering';
-import Statistics from '../pages/PowerBIDashboards/Statistics';
-
-// import Statistics from '../pages/Statistics';
 import GarandelReport from '../pages/garandel/GarandelReport';
-import MaintenanceAndTampering from '../pages/MaintenanceAndTamperingReport/MaintenanceAndTampering';
 import Statistics from '../pages/PowerBIDashboards/Statistics';
 import TotalTechReport from '../pages/TotalTechReport/TotalTechReport';
 import DetailedTechReport from '../pages/DetailedTechReport/DetailedTechReport';
@@ -83,7 +76,7 @@ export default function Router() {
       element: <LogoOnlyLayout />,
       children: [
         { path: '404', element: <NotFound /> },
-        { path: '*', element: <Navigate to="/404" replace /> },
+        { path: '*', element: <NotFound /> },
       ],
     },
     { path: '*', element: <Navigate to="/404" replace /> },
@@ -98,4 +91,3 @@ const PageSix = Loadable(lazy(() => import('../pages/UserManagement/CreateNewUse
 const PageSeven = Loadable(lazy(() => import('../pages/PageSeven')));
 const NotFound = Loadable(lazy(() => import('../pages/ErrorHandlers/Page404')));
 const EditUserInfo = Loadable(lazy(() => import('../pages/UserManagement/EditUserInfo')));
-// const MaintenanceAndTampering = Loadable(lazy(() => import('../pages/MaintenanceAndTampering')));

@@ -95,7 +95,7 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
                 { title: 'تقرير المهجور ', path: '/dashboard/user/abandoned' },
                 { title: 'تقرير عبث او صيانة ', path: '/dashboard/user/maintenanceandtampering' },
                 { title: '  تقارير العدادات المفصوله  ', path: '/dashboard/user/countersclips' },
-                { title: '   تقرير الاجمالي للفنيين ', path: '/dashboard/user/total-tech-report' },
+                { title: '   التقرير الاجمالي للفنيين ', path: '/dashboard/user/total-tech-report' },
                 { title: '  التقرير التفصيلي للفنيين   ', path: '/dashboard/user/detailed-tech-report' },
 
 
