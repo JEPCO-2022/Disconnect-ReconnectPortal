@@ -16,6 +16,7 @@ import GarandelReport from '../pages/garandel/GarandelReport';
 import MaintenanceAndTampering from '../pages/MaintenanceAndTamperingReport/MaintenanceAndTampering';
 import Statistics from '../pages/PowerBIDashboards/Statistics';
 import TotalTechReport from '../pages/TotalTechReport/TotalTechReport';
+import DetailedTechReport from '../pages/DetailedTechReport/DetailedTechReport';
 // ----------------------------------------------------------------------
 
 const Loadable = (Component) => (props) => {
@@ -58,6 +59,8 @@ export default function Router() {
             { path: 'countersclips', element: <CountersClips /> },
             { path: 'garandelReport', element: <GarandelReport /> },
             { path: 'total-tech-report', element: <TotalTechReport /> },
+            { path: 'detailed-tech-report', element: <DetailedTechReport /> },  
+
 
           ],
         },
