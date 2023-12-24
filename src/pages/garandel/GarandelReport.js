@@ -657,7 +657,7 @@ const GarandelReport = () => {
         )}
         <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
           <Alert severity="error" sx={{ width: '100%' }}>
-            يجب إدخال التاريخ بطريقة صحيحة
+            يجب ان تكون مدة التاريخ لا تزيد عن شهر 
           </Alert>
         </Snackbar>
       </Container>
