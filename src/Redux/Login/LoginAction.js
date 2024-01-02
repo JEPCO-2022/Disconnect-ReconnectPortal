@@ -83,7 +83,7 @@ export const userLogin = (username, password) => async (dispatch) => {
     localStorage.setItem('isAdmin', infoTokenResponse.data.body.isAdmin);
     localStorage.setItem('canExport', infoTokenResponse.data.body.canExport);
     localStorage.setItem('id', infoTokenResponse.data.body.id);
-
+    localStorage.setItem('roleID', infoTokenResponse.data.body.role);
     const filedata = infoTokenResponse.data.body;
     if (infoTokenResponse.data.statusCode) {
       dispatch(

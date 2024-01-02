@@ -104,6 +104,8 @@ const DetailedTechReport = () => {
       localStorage.removeItem('user');
       localStorage.removeItem('userName');
       localStorage.removeItem('isAdmin');
+      localStorage.removeItem('roleID');
+      localStorage.removeItem('canExport');
       navigate('/login');
     }
     dispatch(clearPersistedState());

@@ -32,6 +32,8 @@ const SessionTimeout = () => {
     localStorage.removeItem('userName');
     localStorage.removeItem('isAdmin');
     localStorage.removeItem('isLogged');
+    localStorage.removeItem('roleID');
+    localStorage.removeItem('canExport');
     navigate(`/login`);
   };
   const handleUserActivity = () => {

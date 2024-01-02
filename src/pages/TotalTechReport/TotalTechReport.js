@@ -103,6 +103,8 @@ const TotalTechReport = () => {
       localStorage.removeItem('user');
       localStorage.removeItem('userName');
       localStorage.removeItem('isAdmin');
+      localStorage.removeItem('roleID');
+      localStorage.removeItem('canExport');
       navigate('/login');
     }
     dispatch(clearPersistedState());
@@ -231,6 +233,8 @@ const TotalTechReport = () => {
         {
           technician: curr.technician,
           technicianName: curr.technicianName,
+          numberofTeams: curr.numberofTeams,
+          numberOfOffices: curr.numberOfOffices,
           insideListCount: curr.insideListCount,
           insideListDoneCount: curr.insideListDoneCount,
           outSideListDoneCount: curr.outSideListDoneCount,
@@ -251,6 +255,8 @@ const TotalTechReport = () => {
     worksheet.addRow([
       ' الرقم الوظيفي ',
       ' اسم الفني ',
+      ' عدد الفرق التي شارك فيها ',
+      ' عدد المكاتب التي عمل فيها ',
       'عدد الطلبات المستحقة للقطع حسب كشف القطع ',
       ' عدد حركات القطع المنفذه بناء على الكشف ',
       ' عدد حركات القطع المنفذه خارج الكشف ',
@@ -260,6 +266,8 @@ const TotalTechReport = () => {
       worksheet.addRow([
         e.technician,
         e.technicianName,
+        e.numberofTeams,
+        e.numberOfOffices,
         e.insideListCount,
         e.insideListDoneCount,
         e.outSideListDoneCount,
@@ -268,10 +276,12 @@ const TotalTechReport = () => {
     );
     worksheet.columns[0].width = 10;
     worksheet.columns[1].width = 35;
-    worksheet.columns[2].width = 40;
-    worksheet.columns[3].width = 40;
+    worksheet.columns[2].width = 20;
+    worksheet.columns[3].width = 20;
     worksheet.columns[4].width = 40;
-    worksheet.columns[5].width = 30;
+    worksheet.columns[5].width = 40;
+    worksheet.columns[6].width = 40;
+    worksheet.columns[7].width = 30;
     worksheet.eachRow((row) => {
       row.eachCell((cell) => {
         cell.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -294,6 +304,8 @@ const TotalTechReport = () => {
         {
           technician: curr.technician,
           technicianName: curr.technicianName,
+          numberofTeams: curr.numberofTeams,
+          numberOfOffices: curr.numberOfOffices,
           closeNum: curr.insideListCount - curr.outSideListCount,
           insideListCount: curr.insideListCount,
           outSideListCount: curr.outSideListCount,
@@ -317,6 +329,8 @@ const TotalTechReport = () => {
     worksheet.addRow([
       ' الرقم الوظيفي ',
       ' اسم الفني ',
+      ' عدد الفرق التي شارك فيها ',
+      ' عدد المكاتب التي عمل فيها ',
       ' عدد الطلبات كاملة المستحقة للتوصيل ',
       'عدد الحركات اللازمة توصيلها حسب الكشف ',
       '  عدد الحركات اللازمة توصيلها خارج الكشف  ',
@@ -328,6 +342,8 @@ const TotalTechReport = () => {
       worksheet.addRow([
         e.technician,
         e.technicianName,
+        e.numberofTeams,
+        e.numberOfOffices,
         e.closeNum,
         e.insideListCount,
         e.outSideListCount,
@@ -337,13 +353,15 @@ const TotalTechReport = () => {
       ])
     );
     worksheet.columns[0].width = 10;
-    worksheet.columns[1].width = 20;
-    worksheet.columns[2].width = 30;
-    worksheet.columns[3].width = 30;
+    worksheet.columns[1].width = 30;
+    worksheet.columns[2].width = 20;
+    worksheet.columns[3].width = 20;
     worksheet.columns[4].width = 30;
     worksheet.columns[5].width = 30;
     worksheet.columns[6].width = 30;
     worksheet.columns[7].width = 30;
+    worksheet.columns[8].width = 30;
+    worksheet.columns[9].width = 30;
     worksheet.eachRow((row) => {
       row.eachCell((cell) => {
         cell.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -583,6 +601,8 @@ const TotalTechReport = () => {
                     <TableRow>
                       <StyledTableCell> الرقم الوظيفي </StyledTableCell>
                       <StyledTableCell align="center"> اسم الفني </StyledTableCell>
+                      <StyledTableCell align="center"> عدد الفرق التي شارك فيها </StyledTableCell>
+                      <StyledTableCell align="center"> عدد المكاتب التي عمل فيها </StyledTableCell>
                       {valueRDG === '1' ? (
                         <>
                           <StyledTableCell align="center"> عدد الطلبات كاملة المستحقة للتوصيل </StyledTableCell>
@@ -611,6 +631,8 @@ const TotalTechReport = () => {
                               {reportTable.technician}
                             </StyledTableCell>
                             <StyledTableCell align="center">{reportTable.technicianName}</StyledTableCell>
+                            <StyledTableCell align="center">{reportTable.numberofTeams}</StyledTableCell>
+                            <StyledTableCell align="center">{reportTable.numberOfOffices}</StyledTableCell>
                             <StyledTableCell align="center">{reportTable.insideListCount}</StyledTableCell>
                             <StyledTableCell align="center">{reportTable.insideListDoneCount}</StyledTableCell>
                             <StyledTableCell align="center">{reportTable.outSideListDoneCount}</StyledTableCell>
@@ -625,6 +647,8 @@ const TotalTechReport = () => {
                               {reportTable.technician}
                             </StyledTableCell>
                             <StyledTableCell align="center">{reportTable.technicianName}</StyledTableCell>
+                            <StyledTableCell align="center">{reportTable.numberofTeams}</StyledTableCell>
+                            <StyledTableCell align="center">{reportTable.numberOfOffices}</StyledTableCell>
                             <StyledTableCell align="center">
                               {Math.abs(reportTable.insideListCount + reportTable.outSideListCount)}
                             </StyledTableCell>

@@ -80,7 +80,8 @@ export default function DashboardHeader({ onOpenSidebar, isCollapse = false, ver
       localStorage.removeItem('userName');
       localStorage.removeItem('isAdmin');
       localStorage.removeItem('isLogged');
-
+      localStorage.removeItem('roleID');
+      localStorage.removeItem('canExport');
       // localStorage.clear();
       navigate(`/login`);
     }

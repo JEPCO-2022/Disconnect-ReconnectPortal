@@ -20,6 +20,8 @@ export default function NavbarDocs() {
       localStorage.removeItem('userName');
       localStorage.removeItem('isAdmin');
       localStorage.removeItem('isLogged');
+      localStorage.removeItem('roleID');
+      localStorage.removeItem('canExport');
       // localStorage.clear();
       navigate(`/login`);
     }
