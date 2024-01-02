@@ -3,9 +3,11 @@ import PropTypes from 'prop-types';
 import { styled } from '@mui/material/styles';
 import { Box, Stack, AppBar, Toolbar, Button, IconButton } from '@mui/material';
 // hooks
+import { useDispatch } from 'react-redux';
 import LogoutIcon from '@mui/icons-material/Logout';
 import cookie from 'react-cookies';
 import { useNavigate } from 'react-router';
+import { removeErrorFlag } from '../../../Redux/Login/LoginAction';
 import useOffSetTop from '../../../hooks/useOffSetTop';
 import useResponsive from '../../../hooks/useResponsive';
 // utils
@@ -22,7 +24,6 @@ import AccountPopover from './AccountPopover';
 import LanguagePopover from './LanguagePopover';
 import ContactsPopover from './ContactsPopover';
 import NotificationsPopover from './NotificationsPopover';
-
 
 // ----------------------------------------------------------------------
 
@@ -67,7 +68,7 @@ export default function DashboardHeader({ onOpenSidebar, isCollapse = false, ver
   const isDesktop = useResponsive('up', 'lg');
 
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   async function HandleSubmit() {
     const userToken = await cookie.load('user');
     const userName = await cookie.load('userName');
@@ -79,6 +80,7 @@ export default function DashboardHeader({ onOpenSidebar, isCollapse = false, ver
       localStorage.removeItem('userName');
       localStorage.removeItem('isAdmin');
       localStorage.removeItem('isLogged');
+
       // localStorage.clear();
       navigate(`/login`);
     }

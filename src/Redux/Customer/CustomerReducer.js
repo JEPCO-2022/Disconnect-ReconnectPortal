@@ -24,6 +24,7 @@ import {
   setRolesLookUp,
   setgarandelReport,
   setgarandelDetailedReport,
+  requestAllUser,
 } from './CustomerAction';
 
 const initialState = {
@@ -48,6 +49,7 @@ const initialState = {
   roles: [],
   reportGarandel: [],
   reportDetailGarandel: [],
+  loadingUsers: false,
 };
 
 const CustomerReducer = (state = initialState, action = {}) => {
@@ -133,6 +135,12 @@ const CustomerReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         AllUsers: action.payload,
+        loadingUsers: false,
+      };
+    case requestAllUser:
+      return {
+        ...state,
+        loadingUsers: true,
       };
     case setusersRegister:
       return {

@@ -574,7 +574,7 @@ const DetailedTechReport = () => {
                     endIcon={<FileDownloadIcon />}
                     variant="outlined"
                     onClick={() => {
-                      exporttoDisconnect(reportTable, ' تقرير غرندل ');
+                      exporttoDisconnect(reportTable, ' التقرير التفصيلي للفنيين ');
                     }}
                   >
                     تنزيل
@@ -589,7 +589,7 @@ const DetailedTechReport = () => {
                     endIcon={<FileDownloadIcon />}
                     variant="outlined"
                     onClick={() => {
-                      exporttoExcelConnect(reportTable, ' تقرير غرندل ');
+                      exporttoExcelConnect(reportTable, ' التقرير التفصيلي للفنيين ');
                     }}
                   >
                     تنزيل

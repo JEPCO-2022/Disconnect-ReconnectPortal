@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 // @mui
-import { Link, Stack, IconButton, InputAdornment, TextField, Checkbox, Button, Box } from '@mui/material';
+import {
+  Link,
+  Stack,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Checkbox,
+  Button,
+  Box,
+  CircularProgress,
+} from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLoginErr, userLogin } from '../../Redux/Login/LoginAction';
 import { clearPersistedState } from '../../Redux/Customer/CustomerAction';
@@ -11,6 +21,8 @@ export default function LoginForm() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const roleID = useSelector((state) => state.Login.role);
+  const errorFlag = useSelector((state) => state.Login.errorFlag);
+  const loading = useSelector((state) => state.Login.loading);
   // const isLogged = useSelector((state) => state.Login.isLogged);
   const [inputvalues, setinputvalues] = React.useState({
     username: '',
@@ -29,16 +41,21 @@ export default function LoginForm() {
       }
     }
   }, [isLogged]);
+
+  React.useEffect(() => {
+    if (errorFlag) {
+      setflag(true);
+    }
+  }, [errorFlag]);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setinputvalues({ username: e.target.username.value, password: e.target.password.value });
     const user = e.target.username.value;
     const pass = e.target.password.value;
     await dispatch(userLogin(user, pass));
-    if (dispatch(userLogin(user)) !== inputvalues.username || dispatch(userLogin(pass)) !== inputvalues.password) {
-      dispatch(userLogin(user, pass));
-      setflag(true);
-    }
+    // if (dispatch(userLogin(user)) !== inputvalues.username || dispatch(userLogin(pass)) !== inputvalues.password) {
+    //   dispatch(userLogin(user, pass));
+    // }
   };
 
   return (
@@ -68,7 +85,13 @@ export default function LoginForm() {
             error={flag}
           />
           <br />
-          <Button fullWidth size="large" type="submit" variant="contained">
+          <Button
+            fullWidth
+            size="large"
+            type="submit"
+            variant="contained"
+            endIcon={loading && <CircularProgress size={20} color="inherit" />}
+          >
             تسجيل دخول
           </Button>
         </Box>

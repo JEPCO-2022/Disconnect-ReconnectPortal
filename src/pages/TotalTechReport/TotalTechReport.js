@@ -544,7 +544,7 @@ const TotalTechReport = () => {
         <br />
         {reportTable?.length > 0 ? (
           <>
-            {valueRDG === '1' ? (
+            {valueRDG === '2' ? (
               <>
                 <Grid textAlign="end" item xs={12} md={6} lg={6}>
                   <Button
@@ -552,7 +552,7 @@ const TotalTechReport = () => {
                     endIcon={<FileDownloadIcon />}
                     variant="outlined"
                     onClick={() => {
-                      exporttoExcelConnect(reportTable, ' تقرير غرندل ');
+                      exporttoExcelConnect(reportTable, ' التقرير الاجمالي للفنيين ');
                     }}
                   >
                     تنزيل
@@ -567,7 +567,7 @@ const TotalTechReport = () => {
                     endIcon={<FileDownloadIcon />}
                     variant="outlined"
                     onClick={() => {
-                      exporttoDisconnect(reportTable, ' تقرير غرندل ');
+                      exporttoDisconnect(reportTable, ' التقرير الاجمالي للفنيين ');
                     }}
                   >
                     تنزيل
@@ -583,7 +583,7 @@ const TotalTechReport = () => {
                     <TableRow>
                       <StyledTableCell> الرقم الوظيفي </StyledTableCell>
                       <StyledTableCell align="center"> اسم الفني </StyledTableCell>
-                      {valueRDG === '2' ? (
+                      {valueRDG === '1' ? (
                         <>
                           <StyledTableCell align="center"> عدد الطلبات كاملة المستحقة للتوصيل </StyledTableCell>
                           <StyledTableCell align="center"> عدد الحركات اللازمة توصيلها حسب الكشف </StyledTableCell>
@@ -605,7 +605,7 @@ const TotalTechReport = () => {
                   <TableBody>
                     {reportTable.map((reportTable) => (
                       <StyledTableRow key={reportTable.mru}>
-                        {valueRDG === '1' ? (
+                        {valueRDG === '2' ? (
                           <>
                             <StyledTableCell component="th" scope="row">
                               {reportTable.technician}
@@ -619,7 +619,7 @@ const TotalTechReport = () => {
                         ) : (
                           <></>
                         )}
-                        {valueRDG === '2' ? (
+                        {valueRDG === '1' ? (
                           <>
                             <StyledTableCell component="th" scope="row">
                               {reportTable.technician}

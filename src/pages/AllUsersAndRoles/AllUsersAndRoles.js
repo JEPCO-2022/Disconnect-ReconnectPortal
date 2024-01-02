@@ -19,6 +19,7 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useNavigate } from 'react-router-dom';
+import { RotatingLines } from 'react-loader-spinner';
 import { getAllUsers, deleteUser, clearPersistedState } from '../../Redux/Customer/CustomerAction';
 
 // hooks
@@ -26,6 +27,7 @@ import useSettings from '../../hooks/useSettings';
 
 // components
 import SessionTimeout from '../SessionTimeout';
+import LoadingScreen from '../LoadingScreen';
 // ----------------------------------------------------------------------
 const StyledMenu = styled((props) => (
   <Menu
@@ -87,6 +89,7 @@ export default function AllUsersAndRoles() {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
   const allUsers = useSelector((state) => state.Customer.AllUsers);
+  const loadingUsers = useSelector((state) => state.Customer.loadingUsers);
   const [search, setSearch] = useState('');
   const [id, setID] = useState('');
   const [name, setName] = useState('');
@@ -161,92 +164,96 @@ export default function AllUsersAndRoles() {
         <br />
 
         <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 700 }} aria-label="customized table">
-            <TableHead>
-              <TableRow>
-                <StyledTableCell align="center">الاسم الكامل</StyledTableCell>
-                <StyledTableCell align="center">اسم المستخدم</StyledTableCell>
-                <StyledTableCell align="center"> النوع </StyledTableCell>
-                <StyledTableCell align="center" />
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {allUsers
-                .filter((item) => {
-                  return search.toLowerCase() === ''
-                    ? item
-                    : item.name.toLowerCase().includes(search) || item.username.toLowerCase().includes(search);
-                })
+          {loadingUsers ? (
+            <LoadingScreen />
+          ) : (
+            <Table sx={{ minWidth: 700 }} aria-label="customized table">
+              <TableHead>
+                <TableRow>
+                  <StyledTableCell align="center">الاسم الكامل</StyledTableCell>
+                  <StyledTableCell align="center">اسم المستخدم</StyledTableCell>
+                  <StyledTableCell align="center"> النوع </StyledTableCell>
+                  <StyledTableCell align="center" />
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {allUsers
+                  .filter((item) => {
+                    return search.toLowerCase() === ''
+                      ? item
+                      : item.name.toLowerCase().includes(search) || item.username.toLowerCase().includes(search);
+                  })
 
-                .map((row, index) => {
-                  const labelId = `enhanced-table-checkbox-${index}`;
-                  return (
-                    <StyledTableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                      <TableCell align="center" component="th" id={labelId} scope="row" padding="none">
-                        {row.name}
-                      </TableCell>
-                      <StyledTableCell align="center">{row.username}</StyledTableCell>
-                      <StyledTableCell align="center">{row.roleName}</StyledTableCell>
+                  .map((row, index) => {
+                    const labelId = `enhanced-table-checkbox-${index}`;
+                    return (
+                      <StyledTableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                        <TableCell align="center" component="th" id={labelId} scope="row" padding="none">
+                          {row.name}
+                        </TableCell>
+                        <StyledTableCell align="center">{row.username}</StyledTableCell>
+                        <StyledTableCell align="center">{row.roleName}</StyledTableCell>
 
-                      <StyledTableCell align="center">
-                        <>
-                          <Button
-                            id="demo-customized-button"
-                            // aria-controls={open ? 'demo-customized-menu' : undefined}
-                            aria-haspopup="true"
-                            // aria-expanded={open ? 'true' : undefined}
-                            variant="contained"
-                            disableElevation
-                            onClick={(e) => {
-                              handleClick(e, row.id, row.name, row.username, row.role);
-                            }}
-                            endIcon={<KeyboardArrowDownIcon />}
-                          >
-                            اختر إجراء
-                          </Button>
-
-                          <StyledMenu
-                            id="demo-customized-menu"
-                            MenuListProps={{
-                              'aria-labelledby': 'demo-customized-button',
-                            }}
-                            anchorEl={anchorEl}
-                            open={open}
-                            onClose={handleClose}
-                          >
-                            <MenuItem
-                              disableRipple
-                              onClick={() => {
-                                navigate(`/dashboard/EditUserInfo/${id}`, {
-                                  state: { idNumber: id, fullName: name, username: userName, typeuser: typeUser },
-                                });
+                        <StyledTableCell align="center">
+                          <>
+                            <Button
+                              id="demo-customized-button"
+                              // aria-controls={open ? 'demo-customized-menu' : undefined}
+                              aria-haspopup="true"
+                              // aria-expanded={open ? 'true' : undefined}
+                              variant="contained"
+                              disableElevation
+                              onClick={(e) => {
+                                handleClick(e, row.id, row.name, row.username, row.role);
                               }}
+                              endIcon={<KeyboardArrowDownIcon />}
                             >
-                              <EditIcon />
-                              تعديل
-                            </MenuItem>
-                            <MenuItem
-                              onClick={() => {
-                                navigate(`/dashboard/permission/${id}`, { state: { username: userName } });
+                              اختر إجراء
+                            </Button>
+
+                            <StyledMenu
+                              id="demo-customized-menu"
+                              MenuListProps={{
+                                'aria-labelledby': 'demo-customized-button',
                               }}
-                              disableRipple
+                              anchorEl={anchorEl}
+                              open={open}
+                              onClose={handleClose}
                             >
-                              <FileCopyIcon />
-                              الصلاحيات
-                            </MenuItem>
-                            <Divider sx={{ my: 0.5 }} />
-                            <MenuItem onClick={() => handleCloseDelete()} disableRipple>
-                              <ClearIcon />
-                              حذف
-                            </MenuItem>
-                          </StyledMenu>
-                        </>
-                      </StyledTableCell>
-                    </StyledTableRow>
-                  );
-                })}
-            </TableBody>
-          </Table>
+                              <MenuItem
+                                disableRipple
+                                onClick={() => {
+                                  navigate(`/dashboard/EditUserInfo/${id}`, {
+                                    state: { idNumber: id, fullName: name, username: userName, typeuser: typeUser },
+                                  });
+                                }}
+                              >
+                                <EditIcon />
+                                تعديل
+                              </MenuItem>
+                              <MenuItem
+                                onClick={() => {
+                                  navigate(`/dashboard/permission/${id}`, { state: { username: userName } });
+                                }}
+                                disableRipple
+                              >
+                                <FileCopyIcon />
+                                الصلاحيات
+                              </MenuItem>
+                              <Divider sx={{ my: 0.5 }} />
+                              <MenuItem onClick={() => handleCloseDelete()} disableRipple>
+                                <ClearIcon />
+                                حذف
+                              </MenuItem>
+                            </StyledMenu>
+                          </>
+                        </StyledTableCell>
+                      </StyledTableRow>
+                    );
+                  })}
+              </TableBody>
+            </Table>
+          )}
         </TableContainer>
       </Container>
       <SessionTimeout />

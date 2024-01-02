@@ -386,7 +386,7 @@ const GarandelDetailedReport = () => {
           <Grid container spacing={2}>
             <Grid item xs={12} md={12} lg={12}>
               <Typography variant="h4" component="h1" paragraph>
-                تقرير تجميعي لفنيين غرندل
+                تقرير التفصيلي لفنيين غرندل
               </Typography>
               <Divider light />
             </Grid>
@@ -552,7 +552,7 @@ const GarandelDetailedReport = () => {
                     endIcon={<FileDownloadIcon />}
                     variant="outlined"
                     onClick={() => {
-                      exporttoDisconnect(reportTable, ' تقرير غرندل ');
+                      exporttoDisconnect(reportTable, ' تقرير التفصيلي لفنيين غرندل ');
                     }}
                   >
                     تنزيل
@@ -567,7 +567,7 @@ const GarandelDetailedReport = () => {
                     endIcon={<FileDownloadIcon />}
                     variant="outlined"
                     onClick={() => {
-                      exporttoExcelConnect(reportTable, ' تقرير غرندل ');
+                      exporttoExcelConnect(reportTable, ' تقرير التفصيلي لفنيين غرندل ');
                     }}
                   >
                     تنزيل

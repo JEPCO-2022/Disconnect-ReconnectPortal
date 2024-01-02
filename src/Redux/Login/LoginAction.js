@@ -12,6 +12,14 @@ export const SET_LOGIN_INFORMATION = 'SET_LOGIN_INFORMATION';
 export const SET_LOGIN_ERR = 'SET_LOGIN_ERR';
 export const SET_LOGIN_SUCCESS = 'SET_LOGIN_SUCCESS';
 
+export const REMOVE_ERROR_FLAG = 'REMOVE_ERROR_FLAG';
+
+export const removeErrorFlag = () => {
+  return {
+    type: REMOVE_ERROR_FLAG,
+  };
+};
+
 export const setUserLogout = () => {
   return {
     type: REMOVE_USER_TOKEN,
