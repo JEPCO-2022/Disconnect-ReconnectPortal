@@ -36,6 +36,7 @@ import '../../index.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment/moment';
+import { removeErrorFlag } from '../../Redux/Login/LoginAction';
 import {
   getCitiesLookupAllCities,
   getBranchesLookupAllBranches,
@@ -124,6 +125,7 @@ export default function PageFour() {
     }
     dispatch(clearPersistedState());
     dispatch(getCitiesLookupAllCities());
+    dispatch(removeErrorFlag());
     // localStorage.removeItem('cityID');
     // localStorage.removeItem('branchId');
     // localStorage.removeItem('Team');

@@ -6,6 +6,7 @@ import {
   SET_LOGIN_REQ,
   SET_LOGIN_INFORMATION,
   SET_LOGIN_SUCCESS,
+  REMOVE_ERROR_FLAG,
 } from './LoginAction';
 
 export default function loginReducer(
@@ -21,6 +22,8 @@ export default function loginReducer(
     isAdmin: false,
     id: '',
     role: 1,
+    errorFlag: false,
+    loading: false,
   },
   action = {}
 ) {
@@ -33,6 +36,8 @@ export default function loginReducer(
         userToken: '',
         isError: true,
         isLogged: false,
+        errorFlag: true,
+        loading: false,
       };
     case SET_LOGIN_REQ:
       return {
@@ -43,6 +48,8 @@ export default function loginReducer(
         isError: false,
         isLogged: false,
         FullName: '',
+        errorFlag: false,
+        loading: true,
       };
     case SET_LOGIN_SUCCESS:
       return {
@@ -56,6 +63,8 @@ export default function loginReducer(
         canExport: action.payload.canExport,
         isAdmin: action.payload.isAdmin,
         role: action.payload.role,
+        errorFlag: false,
+        loading: false,
       };
     case SET_LOGIN_INFORMATION:
       return {
@@ -79,7 +88,10 @@ export default function loginReducer(
         userToken: '',
         infoToken: '',
       };
-
+    case REMOVE_ERROR_FLAG:
+      return {
+        errorFlag: false,
+      };
     default:
       return state;
   }

@@ -46,6 +46,7 @@ import useSettings from '../hooks/useSettings';
 import SessionTimeout from './SessionTimeout';
 // components
 import Page from '../components/Page';
+import { removeErrorFlag } from 'src/Redux/Login/LoginAction';
 
 // ----------------------------------------------------------------------
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -122,6 +123,7 @@ export default function PageFour() {
     }
     dispatch(clearPersistedState());
     dispatch(getCitiesLookupAllCities());
+    dispatch(removeErrorFlag());
   }, []);
   useEffect(() => {
     setLoading(false);

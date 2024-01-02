@@ -91,8 +91,7 @@ const DetailedTechReport = () => {
     Status: '',
     startDate: day,
     endDate: day,
-    reportTypeID:techtype
-
+    reportTypeID: techtype,
   });
   const dispatch = useDispatch();
   const isAdmin = localStorage.getItem('isAdmin');
@@ -199,7 +198,7 @@ const DetailedTechReport = () => {
           Cities_NO: cityNumber,
           OFFICE_NO: 'ALL',
           TRANSACTION_TYPE: valueRDG,
-          ReportType:techtype,
+          ReportType: techtype,
           TechnicationCode: inputValues.jobNumber,
         };
         setErrorMessageBranch('');
@@ -393,7 +392,7 @@ const DetailedTechReport = () => {
           <Grid container spacing={2}>
             <Grid item xs={12} md={12} lg={12}>
               <Typography variant="h4" component="h1" paragraph>
-                التقرير التفصيلي للفنيين 
+                التقرير التفصيلي للفنيين
               </Typography>
               <Divider light />
             </Grid>
@@ -450,18 +449,17 @@ const DetailedTechReport = () => {
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
               <FormLabel id="demo-row-radio-buttons-group-label" sx={{ display: 'inline-block' }}>
-            نوع الفني:
+                نوع الفني:
               </FormLabel>
               <RadioGroup
                 // sx={{ display: 'inline', marginLeft: 2, marginRight: 2 }}
                 row
                 value={techtype}
-                onChange={handleChangeTechtype}       
+                onChange={handleChangeTechtype}
               >
                 <FormControlLabel control={<Radio value={1} />} label="جرندل" />
                 <FormControlLabel control={<Radio value={2} />} label="جيبكو" />
                 <FormControlLabel control={<Radio value={3} />} label="الكل" />
-
               </RadioGroup>
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
@@ -478,7 +476,7 @@ const DetailedTechReport = () => {
                 <FormControlLabel control={<Radio value={2} />} label="كشف قطع" />
               </RadioGroup>
             </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={6}/>
+            <Grid item xs={12} sm={12} md={6} lg={6} />
 
             {typeSearch === '1' && (
               <>
@@ -576,7 +574,7 @@ const DetailedTechReport = () => {
                     endIcon={<FileDownloadIcon />}
                     variant="outlined"
                     onClick={() => {
-                      exporttoDisconnect(reportTable, ' تقرير غرندل ');
+                      exporttoDisconnect(reportTable, ' التقرير التفصيلي للفنيين ');
                     }}
                   >
                     تنزيل
@@ -591,7 +589,7 @@ const DetailedTechReport = () => {
                     endIcon={<FileDownloadIcon />}
                     variant="outlined"
                     onClick={() => {
-                      exporttoExcelConnect(reportTable, ' تقرير غرندل ');
+                      exporttoExcelConnect(reportTable, ' التقرير التفصيلي للفنيين ');
                     }}
                   >
                     تنزيل
@@ -692,7 +690,7 @@ const DetailedTechReport = () => {
         )}
         <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
           <Alert severity="error" sx={{ width: '100%' }}>
-            يجب إدخال التاريخ بطريقة صحيحة
+            يجب ان تكون مدة التاريخ لا تزيد عن شهر
           </Alert>
         </Snackbar>
       </Container>

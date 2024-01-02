@@ -43,7 +43,7 @@ NavbarVertical.propTypes = {
 };
 
 export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
-  const isAdmin = useSelector((state) => state.Login.isAdmin);
+  const isAdmin = localStorage.getItem('isAdmin');
   const roleID = useSelector((state) => state.Login.role);
   const theme = useTheme();
   const { pathname } = useLocation();
@@ -78,7 +78,7 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
         },
       ];
     }
-    if (isAdmin) {
+    if (isAdmin === 'true') {
       return [
         {
           // subheader: 'management',
@@ -98,7 +98,6 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
                 { title: '   التقرير الاجمالي للفنيين ', path: '/dashboard/user/total-tech-report' },
                 { title: '  التقرير التفصيلي للفنيين   ', path: '/dashboard/user/detailed-tech-report' },
 
-
                 // { title: 'Six', path: '/dashboard/user/six' },
                 // { title: 'Seven', path: '/dashboard/user/seven' },
               ],
@@ -112,10 +111,7 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
               title: 'مسؤوليات المشرف',
               path: '/dashboard/user',
               icon: ICONS.user,
-              children: [
-                // { title: 'إضافة مستخدم جديد', path: '/dashboard/user/CreateNewUser' },
-                { title: 'المستخدمون والصلاحيات', path: '/dashboard/AllUsersAndRoles' },
-              ],
+              children: [{ title: 'المستخدمون والصلاحيات', path: '/dashboard/AllUsersAndRoles' }],
             },
           ],
         },

@@ -36,6 +36,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import moment from 'moment/moment';
 import { useNavigate } from 'react-router';
+import { removeErrorFlag } from '../../Redux/Login/LoginAction';
 import {
   getCitiesLookupAllCities,
   getBranchesLookupAllBranches,
@@ -105,6 +106,7 @@ const GarandelReport = () => {
     }
     dispatch(clearPersistedState());
     dispatch(getCitiesLookupAllCities());
+    dispatch(removeErrorFlag());
   }, []);
   useEffect(() => {
     setLoading(false);
@@ -544,7 +546,7 @@ const GarandelReport = () => {
                     endIcon={<FileDownloadIcon />}
                     variant="outlined"
                     onClick={() => {
-                      exporttoExcelConnect(reportTable, ' تقرير غرندل ');
+                      exporttoExcelConnect(reportTable, ' تقرير تجميعي لفنيين غرندل ');
                     }}
                   >
                     تنزيل
@@ -559,7 +561,7 @@ const GarandelReport = () => {
                     endIcon={<FileDownloadIcon />}
                     variant="outlined"
                     onClick={() => {
-                      exporttoDisconnect(reportTable, ' تقرير غرندل ');
+                      exporttoDisconnect(reportTable, ' تقرير تجميعي لفنيين غرندل ');
                     }}
                   >
                     تنزيل
@@ -657,7 +659,7 @@ const GarandelReport = () => {
         )}
         <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
           <Alert severity="error" sx={{ width: '100%' }}>
-            يجب إدخال التاريخ بطريقة صحيحة
+            يجب ان تكون مدة التاريخ لا تزيد عن شهر
           </Alert>
         </Snackbar>
       </Container>

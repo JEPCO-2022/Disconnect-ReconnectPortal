@@ -90,7 +90,7 @@ const TotalTechReport = () => {
     Status: '',
     startDate: day,
     endDate: day,
-    reportTypeID:techtype
+    reportTypeID: techtype,
   });
   const dispatch = useDispatch();
   const isAdmin = localStorage.getItem('isAdmin');
@@ -127,7 +127,7 @@ const TotalTechReport = () => {
     setValueRBG(event.target.value);
     reportTable.length = 0;
   };
-  
+
   const handleChangeTechtype = (event) => {
     setTechtype(event.target.value);
     reportTable.length = 0;
@@ -372,7 +372,7 @@ const TotalTechReport = () => {
           <Grid container spacing={2}>
             <Grid item xs={12} md={12} lg={12}>
               <Typography variant="h4" component="h1" paragraph>
-                التقرير الاجمالي للفنيين  
+                التقرير الاجمالي للفنيين
               </Typography>
               <Divider light />
             </Grid>
@@ -418,20 +418,20 @@ const TotalTechReport = () => {
                 <FormControlLabel control={<Radio value={1} />} label="كشف وصل" />
                 <FormControlLabel control={<Radio value={2} />} label="كشف قطع" />
               </RadioGroup>
-            </Grid>            <Grid item xs={12} sm={12} md={6} lg={6}>
+            </Grid>{' '}
+            <Grid item xs={12} sm={12} md={6} lg={6}>
               <FormLabel id="demo-row-radio-buttons-group-label" sx={{ display: 'inline-block' }}>
-            نوع الفني:
+                نوع الفني:
               </FormLabel>
               <RadioGroup
                 // sx={{ display: 'inline', marginLeft: 2, marginRight: 2 }}
                 row
                 value={techtype}
-                onChange={handleChangeTechtype}       
+                onChange={handleChangeTechtype}
               >
                 <FormControlLabel control={<Radio value={1} />} label="جرندل" />
                 <FormControlLabel control={<Radio value={2} />} label="جيبكو" />
                 <FormControlLabel control={<Radio value={3} />} label="الكل" />
-
               </RadioGroup>
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
@@ -456,10 +456,7 @@ const TotalTechReport = () => {
                 <FormControlLabel control={<Radio value={2} />} label=" الرقم الوظيفي " />
               </RadioGroup>
             </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={6}/>
-
-
-
+            <Grid item xs={12} sm={12} md={6} lg={6} />
             {typeSearch === '1' && (
               <>
                 <Grid item xs={12} md={6} lg={6}>
@@ -531,7 +528,6 @@ const TotalTechReport = () => {
                 />
               </Grid>
             )}
-
             <Grid item xs={12} md={12} lg={12}>
               <Button
                 className="nxt-btn-12-grid"
@@ -548,7 +544,7 @@ const TotalTechReport = () => {
         <br />
         {reportTable?.length > 0 ? (
           <>
-            {valueRDG === '1' ? (
+            {valueRDG === '2' ? (
               <>
                 <Grid textAlign="end" item xs={12} md={6} lg={6}>
                   <Button
@@ -556,7 +552,7 @@ const TotalTechReport = () => {
                     endIcon={<FileDownloadIcon />}
                     variant="outlined"
                     onClick={() => {
-                      exporttoExcelConnect(reportTable, ' تقرير غرندل ');
+                      exporttoExcelConnect(reportTable, ' التقرير الاجمالي للفنيين ');
                     }}
                   >
                     تنزيل
@@ -571,7 +567,7 @@ const TotalTechReport = () => {
                     endIcon={<FileDownloadIcon />}
                     variant="outlined"
                     onClick={() => {
-                      exporttoDisconnect(reportTable, ' تقرير غرندل ');
+                      exporttoDisconnect(reportTable, ' التقرير الاجمالي للفنيين ');
                     }}
                   >
                     تنزيل
@@ -587,7 +583,7 @@ const TotalTechReport = () => {
                     <TableRow>
                       <StyledTableCell> الرقم الوظيفي </StyledTableCell>
                       <StyledTableCell align="center"> اسم الفني </StyledTableCell>
-                      {valueRDG === '2' ? (
+                      {valueRDG === '1' ? (
                         <>
                           <StyledTableCell align="center"> عدد الطلبات كاملة المستحقة للتوصيل </StyledTableCell>
                           <StyledTableCell align="center"> عدد الحركات اللازمة توصيلها حسب الكشف </StyledTableCell>
@@ -609,7 +605,7 @@ const TotalTechReport = () => {
                   <TableBody>
                     {reportTable.map((reportTable) => (
                       <StyledTableRow key={reportTable.mru}>
-                        {valueRDG === '1' ? (
+                        {valueRDG === '2' ? (
                           <>
                             <StyledTableCell component="th" scope="row">
                               {reportTable.technician}
@@ -623,7 +619,7 @@ const TotalTechReport = () => {
                         ) : (
                           <></>
                         )}
-                        {valueRDG === '2' ? (
+                        {valueRDG === '1' ? (
                           <>
                             <StyledTableCell component="th" scope="row">
                               {reportTable.technician}
@@ -663,7 +659,7 @@ const TotalTechReport = () => {
         )}
         <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
           <Alert severity="error" sx={{ width: '100%' }}>
-            يجب إدخال التاريخ بطريقة صحيحة
+            يجب ان تكون مدة التاريخ لا تزيد عن شهر
           </Alert>
         </Snackbar>
       </Container>
